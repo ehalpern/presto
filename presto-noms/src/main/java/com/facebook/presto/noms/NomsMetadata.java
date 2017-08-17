@@ -44,23 +44,21 @@ public class NomsMetadata
         implements ConnectorMetadata
 {
     private final String connectorId;
-
     private final com.facebook.presto.noms.NomsClient nomsClient;
 
     @Inject
-    public NomsMetadata(NomsConnectorId connectorId, com.facebook.presto.noms.NomsClient nomsClient)
-    {
+    public NomsMetadata(
+            NomsConnectorId connectorId,
+            NomsClient nomsClient
+    ) {
         this.connectorId = requireNonNull(connectorId, "connectorId is null").toString();
         this.nomsClient = requireNonNull(nomsClient, "client is null");
     }
 
     @Override
-    public List<String> listSchemaNames(ConnectorSession session)
-    {
-        return listSchemaNames();
-    }
+    public List<String> listSchemaNames(ConnectorSession session) { return listSchemaNames(); }
 
-    public List<String> listSchemaNames()
+    private List<String> listSchemaNames()
     {
         return ImmutableList.copyOf(nomsClient.getSchemaNames());
     }
@@ -78,20 +76,6 @@ public class NomsMetadata
         }
 
         return new NomsTableHandle(connectorId, tableName.getSchemaName(), tableName.getTableName());
-    }
-
-    @Override
-    public List<ConnectorTableLayoutResult> getTableLayouts(ConnectorSession session, ConnectorTableHandle table, Constraint<ColumnHandle> constraint, Optional<Set<ColumnHandle>> desiredColumns)
-    {
-        NomsTableHandle tableHandle = (NomsTableHandle) table;
-        ConnectorTableLayout layout = new ConnectorTableLayout(new NomsTableLayoutHandle(tableHandle));
-        return ImmutableList.of(new ConnectorTableLayoutResult(layout, constraint.getSummary()));
-    }
-
-    @Override
-    public ConnectorTableLayout getTableLayout(ConnectorSession session, ConnectorTableLayoutHandle handle)
-    {
-        return new ConnectorTableLayout(handle);
     }
 
     @Override
@@ -186,4 +170,20 @@ public class NomsMetadata
     {
         return ((NomsColumnHandle) columnHandle).getColumnMetadata();
     }
+
+    @Override
+    public List<ConnectorTableLayoutResult> getTableLayouts(ConnectorSession session, ConnectorTableHandle table, Constraint<ColumnHandle> constraint, Optional<Set<ColumnHandle>> desiredColumns)
+    {
+        NomsTableHandle tableHandle = (NomsTableHandle) table;
+        ConnectorTableLayout layout = new ConnectorTableLayout(new NomsTableLayoutHandle(tableHandle));
+        return ImmutableList.of(new ConnectorTableLayoutResult(layout, constraint.getSummary()));
+    }
+
+    @Override
+    public ConnectorTableLayout getTableLayout(ConnectorSession session, ConnectorTableLayoutHandle handle)
+    {
+        return new ConnectorTableLayout(handle);
+    }
+
+
 }

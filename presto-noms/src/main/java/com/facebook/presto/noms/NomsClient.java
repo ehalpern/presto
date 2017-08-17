@@ -22,8 +22,15 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Resources;
 import io.airlift.json.JsonCodec;
+import org.apache.http.client.fluent.Content;
+import org.apache.http.client.fluent.Form;
+import org.apache.http.client.fluent.Request;
 
 import javax.inject.Inject;
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
 
 import java.io.IOException;
 import java.net.URI;
@@ -52,16 +59,22 @@ public class NomsClient
         requireNonNull(config, "config is null");
         requireNonNull(catalogCodec, "catalogCodec is null");
 
-        schemas = Suppliers.memoize(schemasSupplier(catalogCodec, config.getMetadata()));
+        schemas = Suppliers.memoize(schemasSupplier(catalogCodec, config));
     }
 
     public Set<String> getSchemaNames()
     {
+        // Schema -> noms database
+        // Return the db specified in the configuration.
         return schemas.get().keySet();
     }
 
     public Set<String> getTableNames(String schema)
     {
+        // Set<Table> -> Set<NomsDataset>
+        // Ensure schema name matches db name in config
+        // Return all dataset names
+        // Should this be determine at creation time?
         requireNonNull(schema, "schema is null");
         Map<String, NomsTable> tables = schemas.get().get(schema);
         if (tables == null) {
@@ -81,11 +94,11 @@ public class NomsClient
         return tables.get(tableName);
     }
 
-    private static Supplier<Map<String, Map<String, NomsTable>>> schemasSupplier(final JsonCodec<Map<String, List<NomsTable>>> catalogCodec, final URI metadataUri)
+    private static Supplier<Map<String, Map<String, NomsTable>>> schemasSupplier(final JsonCodec<Map<String, List<NomsTable>>> catalogCodec, final NomsConfig config)
     {
         return () -> {
             try {
-                return lookupSchemas(metadataUri, catalogCodec);
+                return lookupSchemas(config, catalogCodec);
             }
             catch (IOException e) {
                 throw Throwables.propagate(e);
@@ -93,9 +106,108 @@ public class NomsClient
         };
     }
 
-    private static Map<String, Map<String, NomsTable>> lookupSchemas(URI metadataUri, JsonCodec<Map<String, List<NomsTable>>> catalogCodec)
+    private static Map<String, Map<String, NomsTable>> lookupSchemas(NomsConfig config, JsonCodec<Map<String, List<NomsTable>>> catalogCodec)
             throws IOException
     {
+        String introspectQuery =
+                "query IntrospectionQuery {\n" +
+                "    __schema {\n" +
+                "      queryType { name }\n" +
+                "      mutationType { name }\n" +
+                "      types {\n" +
+                "        ...FullType\n" +
+                "      }\n" +
+                "    }\n" +
+                "  }\n" +
+                "\n" +
+                "  fragment FullType on __Type {\n" +
+                "    kind\n" +
+                "    name\n" +
+                "    description\n" +
+                "    fields(includeDeprecated: true) {\n" +
+                "      name\n" +
+                "      description\n" +
+                "      args {\n" +
+                "        ...InputValue\n" +
+                "      }\n" +
+                "      type {\n" +
+                "        ...TypeRef\n" +
+                "      }\n" +
+                "      isDeprecated\n" +
+                "      deprecationReason\n" +
+                "    }\n" +
+                "    inputFields {\n" +
+                "      ...InputValue\n" +
+                "    }\n" +
+                "    interfaces {\n" +
+                "      ...TypeRef\n" +
+                "    }\n" +
+                "    enumValues(includeDeprecated: true) {\n" +
+                "      name\n" +
+                "      description\n" +
+                "      isDeprecated\n" +
+                "      deprecationReason\n" +
+                "    }\n" +
+                "    possibleTypes {\n" +
+                "      ...TypeRef\n" +
+                "    }\n" +
+                "  }\n" +
+                "\n" +
+                "  fragment InputValue on __InputValue {\n" +
+                "    name\n" +
+                "    description\n" +
+                "    type { ...TypeRef }\n" +
+                "    defaultValue\n" +
+                "  }\n" +
+                "\n" +
+                "  fragment TypeRef on __Type {\n" +
+                "    kind\n" +
+                "    name\n" +
+                "    ofType {\n" +
+                "      kind\n" +
+                "      name\n" +
+                "      ofType {\n" +
+                "        kind\n" +
+                "        name\n" +
+                "        ofType {\n" +
+                "          kind\n" +
+                "          name\n" +
+                "          ofType {\n" +
+                "            kind\n" +
+                "            name\n" +
+                "            ofType {\n" +
+                "              kind\n" +
+                "              name\n" +
+                "              ofType {\n" +
+                "                kind\n" +
+                "                name\n" +
+                "                ofType {\n" +
+                "                  kind\n" +
+                "                  name\n" +
+                "                }\n" +
+                "              }\n" +
+                "            }\n" +
+                "          }\n" +
+                "        }\n" +
+                "      }\n" +
+                "    }\n" +
+                "  }";
+
+        Content resp = Request.Post(config.getNgqlURI()).bodyForm(Form.form()
+                .add("ds",  config.getNomsDS())
+                .add("query",  introspectQuery)
+                .build())
+                .execute().returnContent();
+
+
+        try (JsonReader reader = Json.createReader(resp.asStream())) {
+            JsonObject r = reader.readObject();
+            if (r != null) {
+
+            }
+        }
+
+        URI metadataUri = config.getMetadata();
         URL result = metadataUri.toURL();
         String json = Resources.toString(result, UTF_8);
         Map<String, List<NomsTable>> catalog = catalogCodec.fromJson(json);
@@ -116,6 +228,18 @@ public class NomsClient
         return table -> {
             List<URI> sources = ImmutableList.copyOf(transform(table.getSources(), baseUri::resolve));
             return new NomsTable(table.getName(), table.getColumns(), sources);
+        };
+    }
+
+    private static Function<NomsTable, NomsTable> nomsTableFromNgqlSchema(JsonObject json)
+    {
+        return table -> {
+            JsonObject schema = json.getJsonObject("/data/__schema");
+            String rootType = schema.getJsonString("/queryType/name").getString();
+            JsonArray types = schema.getJsonArray("/types");
+
+
+            return new NomsTable(table.getName(), table.getColumns(), null);
         };
     }
 }

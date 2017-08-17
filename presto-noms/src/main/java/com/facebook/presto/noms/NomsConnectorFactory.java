@@ -32,7 +32,7 @@ public class NomsConnectorFactory
     @Override
     public String getName()
     {
-        return "example-http";
+        return "noms";
     }
 
     @Override

@@ -22,6 +22,8 @@ import java.net.URI;
 public class NomsConfig
 {
     private URI metadata;
+    private URI ngqlURI;
+    private String nomsDS;
 
     @NotNull
     public URI getMetadata()
@@ -33,6 +35,32 @@ public class NomsConfig
     public NomsConfig setMetadata(URI metadata)
     {
         this.metadata = metadata;
+        return this;
+    }
+
+    @NotNull
+    public URI getNgqlURI()
+    {
+        return ngqlURI;
+    }
+
+    @Config("ngql-uri")
+    public NomsConfig setNgqlURI(URI uri)
+    {
+        this.ngqlURI = uri;
+        return this;
+    }
+
+    @NotNull
+    public String getNomsDS()
+    {
+        return nomsDS;
+    }
+
+    @Config("noms-ds")
+    public NomsConfig setNomsDS(String ds)
+    {
+        this.nomsDS = ds;
         return this;
     }
 }

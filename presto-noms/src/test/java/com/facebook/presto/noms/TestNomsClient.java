@@ -19,7 +19,6 @@ import com.google.common.io.Resources;
 import org.testng.annotations.Test;
 
 import java.net.URI;
-import java.net.URL;
 
 import static com.facebook.presto.noms.MetadataUtil.CATALOG_CODEC;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
@@ -33,10 +32,12 @@ public class TestNomsClient
     public void testMetadata()
             throws Exception
     {
-        URL metadataUrl = Resources.getResource(TestNomsClient.class, "/example-data/example-metadata.json");
-        assertNotNull(metadataUrl, "metadataUrl is null");
-        URI metadata = metadataUrl.toURI();
-        NomsClient client = new NomsClient(new NomsConfig().setMetadata(metadata), CATALOG_CODEC);
+        URI metadata = Resources.getResource(TestNomsClient.class, "/example-data/example-metadata.json").toURI();
+        URI ngqlURI = URI.create("http://localhost:8000/graphql");
+        NomsConfig cfg = new NomsConfig().
+                setMetadata(metadata).
+                setNgqlURI(ngqlURI);
+        NomsClient client = new NomsClient(cfg, CATALOG_CODEC);
         assertEquals(client.getSchemaNames(), ImmutableSet.of("example", "tpch"));
         assertEquals(client.getTableNames("example"), ImmutableSet.of("numbers"));
         assertEquals(client.getTableNames("tpch"), ImmutableSet.of("orders", "lineitem"));
