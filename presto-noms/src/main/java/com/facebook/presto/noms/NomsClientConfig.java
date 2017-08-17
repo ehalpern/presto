@@ -35,9 +35,6 @@ import java.util.List;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
-@DefunctConfig({"noms.thrift-port", "noms.partitioner", "noms.thrift-connection-factory-class", "noms.transport-factory-options",
-        "noms.no-host-available-retry-count", "noms.max-schema-refresh-threads", "noms.schema-cache-ttl",
-        "noms.schema-refresh-interval"})
 public class NomsClientConfig
 {
     private static final Splitter SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();

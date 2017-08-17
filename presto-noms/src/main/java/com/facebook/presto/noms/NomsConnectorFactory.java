@@ -64,10 +64,10 @@ public class NomsConnectorFactory
 
         try {
             Bootstrap app = new Bootstrap(
-                    new MBeanModule(),
+                    new MBeanModule(), // TODO: remove?
                     new JsonModule(),
                     new NomsClientModule(connectorId),
-                    new Module()
+                    new Module() // TODO: remove?
                     {
                         @Override
                         public void configure(Binder binder)

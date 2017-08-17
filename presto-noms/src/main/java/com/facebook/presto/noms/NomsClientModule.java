@@ -71,7 +71,7 @@ public class NomsClientModule
 
     @Singleton
     @Provides
-    public static NomsSession createCassandraSession(
+    public static NomsSession createNomsSession(
             NomsConnectorId connectorId,
             NomsClientConfig config,
             JsonCodec<List<ExtraColumnMetadata>> extraColumnMetadataCodec)

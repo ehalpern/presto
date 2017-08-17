@@ -59,7 +59,7 @@ import static java.util.stream.Collectors.toList;
 import static org.joda.time.DateTimeZone.UTC;
 import static org.testng.Assert.assertEquals;
 
-@Test(singleThreaded = true)
+@Test(singleThreaded = true, enabled = false)
 public class TestNomsIntegrationSmokeTest
         extends AbstractTestIntegrationSmokeTest
 {
