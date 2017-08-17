@@ -15,27 +15,24 @@ package com.facebook.presto.noms;
 
 import java.util.Objects;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
-public final class NomsConnectorId
+public class NomsConnectorId
 {
-    private final String id;
+    private final String connectorId;
 
-    public NomsConnectorId(String id)
+    public NomsConnectorId(String connectorId)
     {
-        this.id = requireNonNull(id, "id is null");
-    }
-
-    @Override
-    public String toString()
-    {
-        return id;
+        requireNonNull(connectorId, "connectorId is null");
+        checkArgument(!connectorId.isEmpty(), "connectorId is empty");
+        this.connectorId = connectorId;
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hash(id);
+        return Objects.hash(connectorId);
     }
 
     @Override
@@ -44,11 +41,16 @@ public final class NomsConnectorId
         if (this == obj) {
             return true;
         }
-        if ((obj == null) || (getClass() != obj.getClass())) {
+        if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-
         NomsConnectorId other = (NomsConnectorId) obj;
-        return Objects.equals(this.id, other.id);
+        return Objects.equals(this.connectorId, other.connectorId);
+    }
+
+    @Override
+    public String toString()
+    {
+        return connectorId;
     }
 }

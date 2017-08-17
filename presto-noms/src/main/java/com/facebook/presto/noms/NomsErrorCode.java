@@ -13,16 +13,27 @@
  */
 package com.facebook.presto.noms;
 
-import com.facebook.presto.spi.Plugin;
-import com.facebook.presto.spi.connector.ConnectorFactory;
-import com.google.common.collect.ImmutableList;
+import com.facebook.presto.spi.ErrorCode;
+import com.facebook.presto.spi.ErrorCodeSupplier;
+import com.facebook.presto.spi.ErrorType;
 
-public class NomsPlugin
-        implements Plugin
+import static com.facebook.presto.spi.ErrorType.EXTERNAL;
+
+public enum NomsErrorCode
+        implements ErrorCodeSupplier
 {
-    @Override
-    public Iterable<ConnectorFactory> getConnectorFactories()
+    CASSANDRA_METADATA_ERROR(0, EXTERNAL), CASSANDRA_VERSION_ERROR(1, EXTERNAL);
+
+    private final ErrorCode errorCode;
+
+    NomsErrorCode(int code, ErrorType type)
     {
-        return ImmutableList.of(new NomsConnectorFactory("noms"));
+        errorCode = new ErrorCode(code + 0x0104_0000, name(), type);
+    }
+
+    @Override
+    public ErrorCode toErrorCode()
+    {
+        return errorCode;
     }
 }

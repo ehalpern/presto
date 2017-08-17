@@ -13,63 +13,89 @@
  */
 package com.facebook.presto.noms;
 
-import com.facebook.presto.spi.ColumnMetadata;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.facebook.presto.noms.util.CassandraCqlUtils;
 import com.google.common.collect.ImmutableList;
 
-import java.net.URI;
 import java.util.List;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Strings.isNullOrEmpty;
-import static java.util.Objects.requireNonNull;
+import static com.google.common.base.MoreObjects.toStringHelper;
+import static java.util.stream.Collectors.toList;
 
 public class NomsTable
 {
-    private final String name;
-    private final List<NomsColumn> columns;
-    private final List<ColumnMetadata> columnsMetadata;
-    private final List<URI> sources;
+    private final NomsTableHandle tableHandle;
+    private final List<NomsColumnHandle> columns;
 
-    @JsonCreator
-    public NomsTable(
-            @JsonProperty("name") String name,
-            @JsonProperty("columns") List<NomsColumn> columns,
-            @JsonProperty("sources") List<URI> sources)
+    public NomsTable(NomsTableHandle tableHandle, List<NomsColumnHandle> columns)
     {
-        checkArgument(!isNullOrEmpty(name), "name is null or is empty");
-        this.name = requireNonNull(name, "name is null");
-        this.columns = ImmutableList.copyOf(requireNonNull(columns, "columns is null"));
-        this.sources = ImmutableList.copyOf(requireNonNull(sources, "sources is null"));
-
-        ImmutableList.Builder<ColumnMetadata> columnsMetadata = ImmutableList.builder();
-        for (NomsColumn column : this.columns) {
-            columnsMetadata.add(new ColumnMetadata(column.getName(), column.getType()));
-        }
-        this.columnsMetadata = columnsMetadata.build();
+        this.tableHandle = tableHandle;
+        this.columns = ImmutableList.copyOf(columns);
     }
 
-    @JsonProperty
-    public String getName()
-    {
-        return name;
-    }
-
-    @JsonProperty
-    public List<NomsColumn> getColumns()
+    public List<NomsColumnHandle> getColumns()
     {
         return columns;
     }
 
-    @JsonProperty
-    public List<URI> getSources()
+    public NomsTableHandle getTableHandle()
     {
-        return sources;
+        return tableHandle;
     }
 
-    public List<ColumnMetadata> getColumnsMetadata()
+    public List<NomsColumnHandle> getPartitionKeyColumns()
     {
-        return columnsMetadata;
+        return columns.stream()
+                .filter(NomsColumnHandle::isPartitionKey)
+                .collect(toList());
+    }
+
+    public List<NomsColumnHandle> getClusteringKeyColumns()
+    {
+        return columns.stream()
+                .filter(NomsColumnHandle::isClusteringKey)
+                .collect(toList());
+    }
+
+    public String getTokenExpression()
+    {
+        StringBuilder sb = new StringBuilder();
+        for (NomsColumnHandle column : getPartitionKeyColumns()) {
+            if (sb.length() == 0) {
+                sb.append("token(");
+            }
+            else {
+                sb.append(",");
+            }
+            sb.append(CassandraCqlUtils.validColumnName(column.getName()));
+        }
+        sb.append(")");
+        return sb.toString();
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return tableHandle.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof NomsTable)) {
+            return false;
+        }
+        NomsTable that = (NomsTable) obj;
+        return this.tableHandle.equals(that.tableHandle);
+    }
+
+    @Override
+    public String toString()
+    {
+        return toStringHelper(this)
+                .add("tableHandle", tableHandle)
+                .toString();
     }
 }

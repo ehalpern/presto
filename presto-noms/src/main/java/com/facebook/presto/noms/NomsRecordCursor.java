@@ -13,70 +13,62 @@
  */
 package com.facebook.presto.noms;
 
+import com.datastax.driver.core.ResultSet;
+import com.datastax.driver.core.Row;
 import com.facebook.presto.spi.RecordCursor;
+import com.facebook.presto.spi.predicate.NullableValue;
 import com.facebook.presto.spi.type.Type;
-import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
-import com.google.common.base.Throwables;
-import com.google.common.io.ByteSource;
-import com.google.common.io.CountingInputStream;
 import io.airlift.slice.Slice;
-import io.airlift.slice.Slices;
 
-import java.io.IOException;
-import java.util.Iterator;
 import java.util.List;
 
-import static com.facebook.presto.spi.type.BigintType.BIGINT;
-import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
-import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
-import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
-import static java.nio.charset.StandardCharsets.UTF_8;
+import static io.airlift.slice.Slices.utf8Slice;
+import static java.lang.Float.floatToRawIntBits;
 
 public class NomsRecordCursor
         implements RecordCursor
 {
-    private static final Splitter LINE_SPLITTER = Splitter.on(",").trimResults();
+    private final List<FullNomsType> fullNomsTypes;
+    private final ResultSet rs;
+    private Row currentRow;
+    private long atLeastCount;
+    private long count;
 
-    private final List<NomsColumnHandle> columnHandles;
-    private final int[] fieldToColumnIndex;
-
-    private final Iterator<String> lines;
-    private final long totalBytes;
-
-    private List<String> fields;
-
-    public NomsRecordCursor(List<NomsColumnHandle> columnHandles, ByteSource byteSource)
+    public NomsRecordCursor(NomsSession nomsSession, List<FullNomsType> fullNomsTypes, String cql)
     {
-        this.columnHandles = columnHandles;
-
-        fieldToColumnIndex = new int[columnHandles.size()];
-        for (int i = 0; i < columnHandles.size(); i++) {
-            NomsColumnHandle columnHandle = columnHandles.get(i);
-            fieldToColumnIndex[i] = columnHandle.getOrdinalPosition();
-        }
-
-        try (CountingInputStream input = new CountingInputStream(byteSource.openStream())) {
-            lines = byteSource.asCharSource(UTF_8).readLines().iterator();
-            totalBytes = input.getCount();
-        }
-        catch (IOException e) {
-            throw Throwables.propagate(e);
-        }
+        this.fullNomsTypes = fullNomsTypes;
+        rs = nomsSession.execute(cql);
+        currentRow = null;
+        atLeastCount = rs.getAvailableWithoutFetching();
     }
 
     @Override
-    public long getTotalBytes()
+    public boolean advanceNextPosition()
     {
-        return totalBytes;
+        if (!rs.isExhausted()) {
+            currentRow = rs.one();
+            count++;
+            atLeastCount = count + rs.getAvailableWithoutFetching();
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void close()
+    {
+    }
+
+    @Override
+    public boolean getBoolean(int i)
+    {
+        return currentRow.getBool(i);
     }
 
     @Override
     public long getCompletedBytes()
     {
-        return totalBytes;
+        return count;
     }
 
     @Override
@@ -86,58 +78,51 @@ public class NomsRecordCursor
     }
 
     @Override
-    public Type getType(int field)
+    public double getDouble(int i)
     {
-        checkArgument(field < columnHandles.size(), "Invalid field index");
-        return columnHandles.get(field).getColumnType();
-    }
-
-    @Override
-    public boolean advanceNextPosition()
-    {
-        if (!lines.hasNext()) {
-            return false;
+        switch (getCassandraType(i)) {
+            case DOUBLE:
+                return currentRow.getDouble(i);
+            case FLOAT:
+                return currentRow.getFloat(i);
+            case DECIMAL:
+                return currentRow.getDecimal(i).doubleValue();
+            default:
+                throw new IllegalStateException("Cannot retrieve double for " + getCassandraType(i));
         }
-        String line = lines.next();
-        fields = LINE_SPLITTER.splitToList(line);
-
-        return true;
-    }
-
-    private String getFieldValue(int field)
-    {
-        checkState(fields != null, "Cursor has not been advanced yet");
-
-        int columnIndex = fieldToColumnIndex[field];
-        return fields.get(columnIndex);
     }
 
     @Override
-    public boolean getBoolean(int field)
+    public long getLong(int i)
     {
-        checkFieldType(field, BOOLEAN);
-        return Boolean.parseBoolean(getFieldValue(field));
+        switch (getCassandraType(i)) {
+            case INT:
+                return currentRow.getInt(i);
+            case BIGINT:
+            case COUNTER:
+                return currentRow.getLong(i);
+            case TIMESTAMP:
+                return currentRow.getTimestamp(i).getTime();
+            case FLOAT:
+                return floatToRawIntBits(currentRow.getFloat(i));
+            default:
+                throw new IllegalStateException("Cannot retrieve long for " + getCassandraType(i));
+        }
+    }
+
+    private NomsType getCassandraType(int i)
+    {
+        return fullNomsTypes.get(i).getNomsType();
     }
 
     @Override
-    public long getLong(int field)
+    public Slice getSlice(int i)
     {
-        checkFieldType(field, BIGINT);
-        return Long.parseLong(getFieldValue(field));
-    }
-
-    @Override
-    public double getDouble(int field)
-    {
-        checkFieldType(field, DOUBLE);
-        return Double.parseDouble(getFieldValue(field));
-    }
-
-    @Override
-    public Slice getSlice(int field)
-    {
-        checkFieldType(field, createUnboundedVarcharType());
-        return Slices.utf8Slice(getFieldValue(field));
+        NullableValue value = NomsType.getColumnValue(currentRow, i, fullNomsTypes.get(i));
+        if (value.getValue() instanceof Slice) {
+            return (Slice) value.getValue();
+        }
+        return utf8Slice(value.getValue().toString());
     }
 
     @Override
@@ -147,20 +132,20 @@ public class NomsRecordCursor
     }
 
     @Override
-    public boolean isNull(int field)
+    public long getTotalBytes()
     {
-        checkArgument(field < columnHandles.size(), "Invalid field index");
-        return Strings.isNullOrEmpty(getFieldValue(field));
-    }
-
-    private void checkFieldType(int field, Type expected)
-    {
-        Type actual = getType(field);
-        checkArgument(actual.equals(expected), "Expected field %s to be type %s but is %s", field, expected, actual);
+        return atLeastCount;
     }
 
     @Override
-    public void close()
+    public Type getType(int i)
     {
+        return getCassandraType(i).getNativeType();
+    }
+
+    @Override
+    public boolean isNull(int i)
+    {
+        return currentRow.isNull(i);
     }
 }

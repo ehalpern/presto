@@ -15,6 +15,8 @@ package com.facebook.presto.noms;
 
 import com.facebook.presto.spi.ColumnHandle;
 import com.facebook.presto.spi.ConnectorHandleResolver;
+import com.facebook.presto.spi.ConnectorInsertTableHandle;
+import com.facebook.presto.spi.ConnectorOutputTableHandle;
 import com.facebook.presto.spi.ConnectorSplit;
 import com.facebook.presto.spi.ConnectorTableHandle;
 import com.facebook.presto.spi.ConnectorTableLayoutHandle;
@@ -23,12 +25,6 @@ import com.facebook.presto.spi.connector.ConnectorTransactionHandle;
 public class NomsHandleResolver
         implements ConnectorHandleResolver
 {
-    @Override
-    public Class<? extends ConnectorTableLayoutHandle> getTableLayoutHandleClass()
-    {
-        return NomsTableLayoutHandle.class;
-    }
-
     @Override
     public Class<? extends ConnectorTableHandle> getTableHandleClass()
     {
@@ -48,8 +44,26 @@ public class NomsHandleResolver
     }
 
     @Override
+    public Class<? extends ConnectorTableLayoutHandle> getTableLayoutHandleClass()
+    {
+        return NomsTableLayoutHandle.class;
+    }
+
+    @Override
+    public Class<? extends ConnectorOutputTableHandle> getOutputTableHandleClass()
+    {
+        return NomsOutputTableHandle.class;
+    }
+
+    @Override
     public Class<? extends ConnectorTransactionHandle> getTransactionHandleClass()
     {
         return NomsTransactionHandle.class;
+    }
+
+    @Override
+    public Class<? extends ConnectorInsertTableHandle> getInsertTableHandleClass()
+    {
+        return NomsInsertTableHandle.class;
     }
 }

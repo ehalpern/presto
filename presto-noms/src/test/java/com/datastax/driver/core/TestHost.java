@@ -11,18 +11,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.facebook.presto.noms;
+package com.datastax.driver.core;
 
-import com.facebook.presto.spi.Plugin;
-import com.facebook.presto.spi.connector.ConnectorFactory;
-import com.google.common.collect.ImmutableList;
+import java.net.InetSocketAddress;
 
-public class NomsPlugin
-        implements Plugin
+public class TestHost
+        extends Host
 {
-    @Override
-    public Iterable<ConnectorFactory> getConnectorFactories()
+    public TestHost(InetSocketAddress address)
     {
-        return ImmutableList.of(new NomsConnectorFactory("noms"));
+        super(address, new ConvictionPolicy.DefaultConvictionPolicy.Factory(), Cluster.builder().addContactPoints("localhost").build().manager);
     }
 }

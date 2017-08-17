@@ -14,33 +14,23 @@
 package com.facebook.presto.noms;
 
 import io.airlift.json.JsonCodec;
-import io.airlift.testing.EquivalenceTester;
 import org.testng.annotations.Test;
 
-import static io.airlift.json.JsonCodec.jsonCodec;
 import static org.testng.Assert.assertEquals;
 
 public class TestNomsTableHandle
 {
-    private final NomsTableHandle tableHandle = new NomsTableHandle("connectorId", "schemaName", "tableName");
+    private final JsonCodec<NomsTableHandle> codec = JsonCodec.jsonCodec(NomsTableHandle.class);
 
     @Test
-    public void testJsonRoundTrip()
+    public void testRoundTrip()
     {
-        JsonCodec<NomsTableHandle> codec = jsonCodec(NomsTableHandle.class);
-        String json = codec.toJson(tableHandle);
-        NomsTableHandle copy = codec.fromJson(json);
-        assertEquals(copy, tableHandle);
-    }
+        NomsTableHandle expected = new NomsTableHandle("client", "schema", "table");
 
-    @Test
-    public void testEquivalence()
-    {
-        EquivalenceTester.equivalenceTester()
-                .addEquivalentGroup(new NomsTableHandle("connector", "schema", "table"), new NomsTableHandle("connector", "schema", "table"))
-                .addEquivalentGroup(new NomsTableHandle("connectorX", "schema", "table"), new NomsTableHandle("connectorX", "schema", "table"))
-                .addEquivalentGroup(new NomsTableHandle("connector", "schemaX", "table"), new NomsTableHandle("connector", "schemaX", "table"))
-                .addEquivalentGroup(new NomsTableHandle("connector", "schema", "tableX"), new NomsTableHandle("connector", "schema", "tableX"))
-                .check();
+        String json = codec.toJson(expected);
+        NomsTableHandle actual = codec.fromJson(json);
+
+        assertEquals(actual.getConnectorId(), expected.getConnectorId());
+        assertEquals(actual.getSchemaTableName(), expected.getSchemaTableName());
     }
 }

@@ -13,16 +13,11 @@
  */
 package com.facebook.presto.noms;
 
-import com.facebook.presto.spi.Plugin;
-import com.facebook.presto.spi.connector.ConnectorFactory;
-import com.google.common.collect.ImmutableList;
+import java.util.List;
 
-public class NomsPlugin
-        implements Plugin
+public interface FullNomsType
 {
-    @Override
-    public Iterable<ConnectorFactory> getConnectorFactories()
-    {
-        return ImmutableList.of(new NomsConnectorFactory("noms"));
-    }
+    NomsType getNomsType();
+
+    List<NomsType> getTypeArguments();
 }

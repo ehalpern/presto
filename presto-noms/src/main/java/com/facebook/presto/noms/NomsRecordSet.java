@@ -16,40 +16,30 @@ package com.facebook.presto.noms;
 import com.facebook.presto.spi.RecordCursor;
 import com.facebook.presto.spi.RecordSet;
 import com.facebook.presto.spi.type.Type;
-import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
-import com.google.common.io.ByteSource;
-import com.google.common.io.Resources;
 
-import java.net.MalformedURLException;
 import java.util.List;
+import java.util.function.Function;
 
 import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.toList;
 
 public class NomsRecordSet
         implements RecordSet
 {
-    private final List<NomsColumnHandle> columnHandles;
+    private final NomsSession nomsSession;
+    private final String cql;
+    private final List<FullNomsType> cassandraTypes;
     private final List<Type> columnTypes;
-    private final ByteSource byteSource;
 
-    public NomsRecordSet(NomsSplit split, List<NomsColumnHandle> columnHandles)
+    public NomsRecordSet(NomsSession nomsSession, String cql, List<NomsColumnHandle> cassandraColumns)
     {
-        requireNonNull(split, "split is null");
+        this.nomsSession = requireNonNull(nomsSession, "nomsSession is null");
+        this.cql = requireNonNull(cql, "cql is null");
 
-        this.columnHandles = requireNonNull(columnHandles, "column handles is null");
-        ImmutableList.Builder<Type> types = ImmutableList.builder();
-        for (NomsColumnHandle column : columnHandles) {
-            types.add(column.getColumnType());
-        }
-        this.columnTypes = types.build();
-
-        try {
-            byteSource = Resources.asByteSource(split.getUri().toURL());
-        }
-        catch (MalformedURLException e) {
-            throw Throwables.propagate(e);
-        }
+        requireNonNull(cassandraColumns, "cassandraColumns is null");
+        this.cassandraTypes = transformList(cassandraColumns, NomsColumnHandle::getFullType);
+        this.columnTypes = transformList(cassandraColumns, NomsColumnHandle::getType);
     }
 
     @Override
@@ -61,6 +51,11 @@ public class NomsRecordSet
     @Override
     public RecordCursor cursor()
     {
-        return new NomsRecordCursor(columnHandles, byteSource);
+        return new NomsRecordCursor(nomsSession, cassandraTypes, cql);
+    }
+
+    private static <T, R> List<R> transformList(List<T> list, Function<T, R> function)
+    {
+        return ImmutableList.copyOf(list.stream().map(function).collect(toList()));
     }
 }

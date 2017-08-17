@@ -15,19 +15,32 @@ package com.facebook.presto.noms;
 
 import com.facebook.presto.spi.ConnectorTableLayoutHandle;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableList;
 
-import java.util.Objects;
+import java.util.List;
 
-public class NomsTableLayoutHandle
+import static java.util.Objects.requireNonNull;
+
+public final class NomsTableLayoutHandle
         implements ConnectorTableLayoutHandle
 {
     private final NomsTableHandle table;
+    private final List<NomsPartition> partitions;
+    private final String clusteringPredicates;
 
     @JsonCreator
     public NomsTableLayoutHandle(@JsonProperty("table") NomsTableHandle table)
     {
-        this.table = table;
+        this(table, ImmutableList.of(), "");
+    }
+
+    public NomsTableLayoutHandle(NomsTableHandle table, List<NomsPartition> partitions, String clusteringPredicates)
+    {
+        this.table = requireNonNull(table, "table is null");
+        this.partitions = ImmutableList.copyOf(requireNonNull(partitions, "partition is null"));
+        this.clusteringPredicates = requireNonNull(clusteringPredicates, "clusteringPredicates is null");
     }
 
     @JsonProperty
@@ -36,23 +49,16 @@ public class NomsTableLayoutHandle
         return table;
     }
 
-    @Override
-    public boolean equals(Object o)
+    @JsonIgnore
+    public List<NomsPartition> getPartitions()
     {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        NomsTableLayoutHandle that = (NomsTableLayoutHandle) o;
-        return Objects.equals(table, that.table);
+        return partitions;
     }
 
-    @Override
-    public int hashCode()
+    @JsonIgnore
+    public String getClusteringPredicates()
     {
-        return Objects.hash(table);
+        return clusteringPredicates;
     }
 
     @Override

@@ -16,6 +16,7 @@ package com.facebook.presto.noms;
 import com.facebook.presto.spi.connector.Connector;
 import com.facebook.presto.spi.connector.ConnectorMetadata;
 import com.facebook.presto.spi.connector.ConnectorRecordSetProvider;
+import com.facebook.presto.spi.connector.ConnectorRecordSinkProvider;
 import com.facebook.presto.spi.connector.ConnectorSplitManager;
 import com.facebook.presto.spi.connector.ConnectorTransactionHandle;
 import com.facebook.presto.spi.transaction.IsolationLevel;
@@ -24,7 +25,8 @@ import io.airlift.log.Logger;
 
 import javax.inject.Inject;
 
-import static com.facebook.presto.noms.NomsTransactionHandle.INSTANCE;
+import static com.facebook.presto.spi.transaction.IsolationLevel.READ_UNCOMMITTED;
+import static com.facebook.presto.spi.transaction.IsolationLevel.checkConnectorSupports;
 import static java.util.Objects.requireNonNull;
 
 public class NomsConnector
@@ -35,25 +37,35 @@ public class NomsConnector
     private final LifeCycleManager lifeCycleManager;
     private final NomsMetadata metadata;
     private final NomsSplitManager splitManager;
-    private final NomsRecordSetProvider recordSetProvider;
+    private final ConnectorRecordSetProvider recordSetProvider;
+    private final NomsConnectorRecordSinkProvider recordSinkProvider;
 
     @Inject
     public NomsConnector(
             LifeCycleManager lifeCycleManager,
             NomsMetadata metadata,
             NomsSplitManager splitManager,
-            NomsRecordSetProvider recordSetProvider)
+            NomsRecordSetProvider recordSetProvider,
+            NomsConnectorRecordSinkProvider recordSinkProvider)
     {
         this.lifeCycleManager = requireNonNull(lifeCycleManager, "lifeCycleManager is null");
         this.metadata = requireNonNull(metadata, "metadata is null");
         this.splitManager = requireNonNull(splitManager, "splitManager is null");
         this.recordSetProvider = requireNonNull(recordSetProvider, "recordSetProvider is null");
+        this.recordSinkProvider = requireNonNull(recordSinkProvider, "recordSinkProvider is null");
     }
 
     @Override
     public ConnectorTransactionHandle beginTransaction(IsolationLevel isolationLevel, boolean readOnly)
     {
-        return INSTANCE;
+        checkConnectorSupports(READ_UNCOMMITTED, isolationLevel);
+        return NomsTransactionHandle.INSTANCE;
+    }
+
+    @Override
+    public boolean isSingleStatementWritesOnly()
+    {
+        return true;
     }
 
     @Override
@@ -72,6 +84,12 @@ public class NomsConnector
     public ConnectorRecordSetProvider getRecordSetProvider()
     {
         return recordSetProvider;
+    }
+
+    @Override
+    public ConnectorRecordSinkProvider getRecordSinkProvider()
+    {
+        return recordSinkProvider;
     }
 
     @Override

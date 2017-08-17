@@ -18,37 +18,44 @@ import com.facebook.presto.spi.HostAddress;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 
-import java.net.URI;
 import java.util.List;
 
+import static com.google.common.base.MoreObjects.toStringHelper;
 import static java.util.Objects.requireNonNull;
 
 public class NomsSplit
         implements ConnectorSplit
 {
     private final String connectorId;
-    private final String schemaName;
-    private final String tableName;
-    private final URI uri;
-    private final boolean remotelyAccessible;
+    private final String partitionId;
     private final List<HostAddress> addresses;
+    private final String schema;
+    private final String table;
+    private final String splitCondition;
 
     @JsonCreator
     public NomsSplit(
             @JsonProperty("connectorId") String connectorId,
-            @JsonProperty("schemaName") String schemaName,
-            @JsonProperty("tableName") String tableName,
-            @JsonProperty("uri") URI uri)
+            @JsonProperty("schema") String schema,
+            @JsonProperty("table") String table,
+            @JsonProperty("partitionId") String partitionId,
+            @JsonProperty("splitCondition") String splitCondition,
+            @JsonProperty("addresses") List<HostAddress> addresses)
     {
-        this.schemaName = requireNonNull(schemaName, "schema name is null");
-        this.connectorId = requireNonNull(connectorId, "connector id is null");
-        this.tableName = requireNonNull(tableName, "table name is null");
-        this.uri = requireNonNull(uri, "uri is null");
+        requireNonNull(connectorId, "connectorId is null");
+        requireNonNull(schema, "schema is null");
+        requireNonNull(table, "table is null");
+        requireNonNull(partitionId, "partitionName is null");
+        requireNonNull(addresses, "addresses is null");
 
-//        if ("http".equalsIgnoreCase(uri.getScheme()) || "https".equalsIgnoreCase(uri.getScheme())) {
-        remotelyAccessible = true;
-        addresses = ImmutableList.of(HostAddress.fromUri(uri));
+        this.connectorId = connectorId;
+        this.schema = schema;
+        this.table = table;
+        this.partitionId = partitionId;
+        this.addresses = ImmutableList.copyOf(addresses);
+        this.splitCondition = splitCondition;
     }
 
     @JsonProperty
@@ -58,30 +65,30 @@ public class NomsSplit
     }
 
     @JsonProperty
-    public String getSchemaName()
+    public String getSchema()
     {
-        return schemaName;
+        return schema;
     }
 
     @JsonProperty
-    public String getTableName()
+    public String getSplitCondition()
     {
-        return tableName;
+        return splitCondition;
     }
 
     @JsonProperty
-    public URI getUri()
+    public String getTable()
     {
-        return uri;
+        return table;
     }
 
-    @Override
-    public boolean isRemotelyAccessible()
+    @JsonProperty
+    public String getPartitionId()
     {
-        // only http or https is remotely accessible
-        return remotelyAccessible;
+        return partitionId;
     }
 
+    @JsonProperty
     @Override
     public List<HostAddress> getAddresses()
     {
@@ -89,8 +96,53 @@ public class NomsSplit
     }
 
     @Override
+    public boolean isRemotelyAccessible()
+    {
+        return true;
+    }
+
+    @Override
     public Object getInfo()
     {
-        return this;
+        return ImmutableMap.builder()
+                .put("hosts", addresses)
+                .put("schema", schema)
+                .put("table", table)
+                .put("partitionId", partitionId)
+                .build();
+    }
+
+    @Override
+    public String toString()
+    {
+        return toStringHelper(this)
+                .addValue(table)
+                .addValue(partitionId)
+                .toString();
+    }
+
+    public String getWhereClause()
+    {
+        if (partitionId.equals(NomsPartition.UNPARTITIONED_ID)) {
+            if (splitCondition != null) {
+                return " WHERE " + splitCondition;
+            }
+            else {
+                return "";
+            }
+        }
+        else {
+            if (splitCondition != null) {
+                return " WHERE " + partitionId + " AND " + splitCondition;
+            }
+            else {
+                return " WHERE " + partitionId;
+            }
+        }
+    }
+
+    public NomsTableHandle getCassandraTableHandle()
+    {
+        return new NomsTableHandle(connectorId, schema, table);
     }
 }

@@ -13,45 +13,55 @@
  */
 package com.facebook.presto.noms;
 
-import io.airlift.testing.EquivalenceTester;
+import com.google.common.collect.ImmutableList;
+import io.airlift.json.JsonCodec;
 import org.testng.annotations.Test;
 
-import static com.facebook.presto.noms.MetadataUtil.COLUMN_CODEC;
-import static com.facebook.presto.spi.type.BigintType.BIGINT;
-import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
+import static io.airlift.json.JsonCodec.jsonCodec;
 import static org.testng.Assert.assertEquals;
 
 public class TestNomsColumnHandle
 {
-    private final NomsColumnHandle columnHandle = new NomsColumnHandle("connectorId", "columnName", createUnboundedVarcharType(), 0);
+    private final JsonCodec<NomsColumnHandle> codec = jsonCodec(NomsColumnHandle.class);
 
     @Test
-    public void testJsonRoundTrip()
+    public void testRoundTrip()
     {
-        String json = COLUMN_CODEC.toJson(columnHandle);
-        NomsColumnHandle copy = COLUMN_CODEC.fromJson(json);
-        assertEquals(copy, columnHandle);
+        NomsColumnHandle expected = new NomsColumnHandle("connector", "name", 42, NomsType.FLOAT, null, true, false, false, false);
+
+        String json = codec.toJson(expected);
+        NomsColumnHandle actual = codec.fromJson(json);
+
+        assertEquals(actual.getConnectorId(), expected.getConnectorId());
+        assertEquals(actual.getName(), expected.getName());
+        assertEquals(actual.getOrdinalPosition(), expected.getOrdinalPosition());
+        assertEquals(actual.getNomsType(), expected.getNomsType());
+        assertEquals(actual.isPartitionKey(), expected.isPartitionKey());
+        assertEquals(actual.isClusteringKey(), expected.isClusteringKey());
     }
 
     @Test
-    public void testEquivalence()
+    public void testRoundTrip2()
     {
-        EquivalenceTester.equivalenceTester()
-                .addEquivalentGroup(
-                        new NomsColumnHandle("connectorId", "columnName", createUnboundedVarcharType(), 0),
-                        new NomsColumnHandle("connectorId", "columnName", createUnboundedVarcharType(), 0),
-                        new NomsColumnHandle("connectorId", "columnName", BIGINT, 0),
-                        new NomsColumnHandle("connectorId", "columnName", createUnboundedVarcharType(), 1))
-                .addEquivalentGroup(
-                        new NomsColumnHandle("connectorIdX", "columnName", createUnboundedVarcharType(), 0),
-                        new NomsColumnHandle("connectorIdX", "columnName", createUnboundedVarcharType(), 0),
-                        new NomsColumnHandle("connectorIdX", "columnName", BIGINT, 0),
-                        new NomsColumnHandle("connectorIdX", "columnName", createUnboundedVarcharType(), 1))
-                .addEquivalentGroup(
-                        new NomsColumnHandle("connectorId", "columnNameX", createUnboundedVarcharType(), 0),
-                        new NomsColumnHandle("connectorId", "columnNameX", createUnboundedVarcharType(), 0),
-                        new NomsColumnHandle("connectorId", "columnNameX", BIGINT, 0),
-                        new NomsColumnHandle("connectorId", "columnNameX", createUnboundedVarcharType(), 1))
-                .check();
+        NomsColumnHandle expected = new NomsColumnHandle(
+                "connector",
+                "name2",
+                1,
+                NomsType.MAP,
+                ImmutableList.of(NomsType.VARCHAR, NomsType.UUID),
+                false,
+                true,
+                false,
+                false);
+
+        String json = codec.toJson(expected);
+        NomsColumnHandle actual = codec.fromJson(json);
+
+        assertEquals(actual.getConnectorId(), expected.getConnectorId());
+        assertEquals(actual.getName(), expected.getName());
+        assertEquals(actual.getOrdinalPosition(), expected.getOrdinalPosition());
+        assertEquals(actual.getNomsType(), expected.getNomsType());
+        assertEquals(actual.isPartitionKey(), expected.isPartitionKey());
+        assertEquals(actual.isClusteringKey(), expected.isClusteringKey());
     }
 }

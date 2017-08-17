@@ -18,21 +18,37 @@ import com.facebook.presto.spi.connector.Connector;
 import com.facebook.presto.spi.connector.ConnectorContext;
 import com.facebook.presto.spi.connector.ConnectorFactory;
 import com.google.common.base.Throwables;
+import com.google.inject.Binder;
 import com.google.inject.Injector;
+import com.google.inject.Module;
 import io.airlift.bootstrap.Bootstrap;
 import io.airlift.json.JsonModule;
+import org.weakref.jmx.guice.MBeanModule;
 
+import javax.management.MBeanServer;
+
+import java.lang.management.ManagementFactory;
 import java.util.Map;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.Objects.requireNonNull;
 
 public class NomsConnectorFactory
         implements ConnectorFactory
 {
+    private final String name;
+
+    public NomsConnectorFactory(String name)
+    {
+        checkArgument(!isNullOrEmpty(name), "name is null or empty");
+        this.name = name;
+    }
+
     @Override
     public String getName()
     {
-        return "noms";
+        return name;
     }
 
     @Override
@@ -42,19 +58,27 @@ public class NomsConnectorFactory
     }
 
     @Override
-    public Connector create(final String connectorId, Map<String, String> requiredConfig, ConnectorContext context)
+    public Connector create(String connectorId, Map<String, String> config, ConnectorContext context)
     {
-        requireNonNull(requiredConfig, "requiredConfig is null");
-        try {
-            // A plugin is not required to use Guice; it is just very convenient
-            Bootstrap app = new Bootstrap(
-                    new JsonModule(),
-                    new NomsModule(connectorId, context.getTypeManager()));
+        requireNonNull(config, "config is null");
 
-            Injector injector = app
-                    .strictConfig()
-                    .doNotInitializeLogging()
-                    .setRequiredConfigurationProperties(requiredConfig)
+        try {
+            Bootstrap app = new Bootstrap(
+                    new MBeanModule(),
+                    new JsonModule(),
+                    new NomsClientModule(connectorId),
+                    new Module()
+                    {
+                        @Override
+                        public void configure(Binder binder)
+                        {
+                            MBeanServer platformMBeanServer = ManagementFactory.getPlatformMBeanServer();
+                            binder.bind(MBeanServer.class).toInstance(new RebindSafeMBeanServer(platformMBeanServer));
+                        }
+                    });
+
+            Injector injector = app.strictConfig().doNotInitializeLogging()
+                    .setRequiredConfigurationProperties(config)
                     .initialize();
 
             return injector.getInstance(NomsConnector.class);

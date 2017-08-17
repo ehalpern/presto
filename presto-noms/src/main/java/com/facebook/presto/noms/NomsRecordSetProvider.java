@@ -13,44 +13,64 @@
  */
 package com.facebook.presto.noms;
 
+import com.facebook.presto.noms.util.CassandraCqlUtils;
 import com.facebook.presto.spi.ColumnHandle;
 import com.facebook.presto.spi.ConnectorSession;
 import com.facebook.presto.spi.ConnectorSplit;
 import com.facebook.presto.spi.RecordSet;
 import com.facebook.presto.spi.connector.ConnectorRecordSetProvider;
 import com.facebook.presto.spi.connector.ConnectorTransactionHandle;
-import com.google.common.collect.ImmutableList;
+import io.airlift.log.Logger;
 
 import javax.inject.Inject;
 
 import java.util.List;
 
-import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.MoreObjects.toStringHelper;
 import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.toList;
 
 public class NomsRecordSetProvider
         implements ConnectorRecordSetProvider
 {
+    private static final Logger log = Logger.get(NomsRecordSetProvider.class);
+
     private final String connectorId;
+    private final NomsSession nomsSession;
 
     @Inject
-    public NomsRecordSetProvider(NomsConnectorId connectorId)
+    public NomsRecordSetProvider(NomsConnectorId connectorId, NomsSession nomsSession)
     {
         this.connectorId = requireNonNull(connectorId, "connectorId is null").toString();
+        this.nomsSession = requireNonNull(nomsSession, "nomsSession is null");
     }
 
     @Override
-    public RecordSet getRecordSet(ConnectorTransactionHandle transactionHandle, ConnectorSession session, ConnectorSplit split, List<? extends ColumnHandle> columns)
+    public RecordSet getRecordSet(ConnectorTransactionHandle transaction, ConnectorSession session, ConnectorSplit split, List<? extends ColumnHandle> columns)
     {
-        requireNonNull(split, "partitionChunk is null");
         NomsSplit nomsSplit = (NomsSplit) split;
-        checkArgument(nomsSplit.getConnectorId().equals(connectorId), "split is not for this connector");
 
-        ImmutableList.Builder<NomsColumnHandle> handles = ImmutableList.builder();
-        for (ColumnHandle handle : columns) {
-            handles.add((NomsColumnHandle) handle);
+        List<NomsColumnHandle> cassandraColumns = columns.stream()
+                .map(column -> (NomsColumnHandle) column)
+                .collect(toList());
+
+        String selectCql = CassandraCqlUtils.selectFrom(nomsSplit.getCassandraTableHandle(), cassandraColumns).getQueryString();
+        StringBuilder sb = new StringBuilder(selectCql);
+        if (sb.charAt(sb.length() - 1) == ';') {
+            sb.setLength(sb.length() - 1);
         }
+        sb.append(nomsSplit.getWhereClause());
+        String cql = sb.toString();
+        log.debug("Creating record set: %s", cql);
 
-        return new NomsRecordSet(nomsSplit, handles.build());
+        return new NomsRecordSet(nomsSession, cql, cassandraColumns);
+    }
+
+    @Override
+    public String toString()
+    {
+        return toStringHelper(this)
+                .add("connectorId", connectorId)
+                .toString();
     }
 }
