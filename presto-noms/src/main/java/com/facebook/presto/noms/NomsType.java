@@ -13,85 +13,138 @@
  */
 package com.facebook.presto.noms;
 
-import com.datastax.driver.core.DataType;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.utils.Bytes;
 import com.facebook.presto.noms.util.CassandraCqlUtils;
+import com.facebook.presto.noms.util.NgqlType;
 import com.facebook.presto.spi.PrestoException;
 import com.facebook.presto.spi.predicate.NullableValue;
-import com.facebook.presto.spi.type.BigintType;
-import com.facebook.presto.spi.type.BooleanType;
-import com.facebook.presto.spi.type.DateType;
-import com.facebook.presto.spi.type.DoubleType;
-import com.facebook.presto.spi.type.IntegerType;
-import com.facebook.presto.spi.type.RealType;
-import com.facebook.presto.spi.type.TimestampType;
-import com.facebook.presto.spi.type.Type;
-import com.facebook.presto.spi.type.VarbinaryType;
+import com.facebook.presto.spi.type.*;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.net.InetAddresses;
+import com.google.common.collect.ImmutableList;
 import io.airlift.slice.Slice;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.net.InetAddress;
 import java.nio.ByteBuffer;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static com.facebook.presto.spi.StandardErrorCode.NOT_SUPPORTED;
-import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
-import static com.facebook.presto.spi.type.VarcharType.createVarcharType;
 import static com.facebook.presto.spi.type.Varchars.isVarcharType;
-import static com.google.common.net.InetAddresses.toAddrString;
 import static io.airlift.slice.Slices.utf8Slice;
-import static io.airlift.slice.Slices.wrappedBuffer;
-import static java.lang.Float.floatToRawIntBits;
-import static java.lang.Float.intBitsToFloat;
-import static java.util.Objects.requireNonNull;
 
-public enum NomsType
-        implements FullNomsType
+public class NomsType
 {
-    ASCII(createUnboundedVarcharType(), String.class),
-    BIGINT(BigintType.BIGINT, Long.class),
-    BLOB(VarbinaryType.VARBINARY, ByteBuffer.class),
-    CUSTOM(VarbinaryType.VARBINARY, ByteBuffer.class),
-    BOOLEAN(BooleanType.BOOLEAN, Boolean.class),
-    COUNTER(BigintType.BIGINT, Long.class),
-    DECIMAL(DoubleType.DOUBLE, BigDecimal.class),
-    DOUBLE(DoubleType.DOUBLE, Double.class),
-    FLOAT(RealType.REAL, Float.class),
-    INET(createVarcharType(Constants.IP_ADDRESS_STRING_MAX_LENGTH), InetAddress.class),
-    INT(IntegerType.INTEGER, Integer.class),
-    TEXT(createUnboundedVarcharType(), String.class),
-    TIMESTAMP(TimestampType.TIMESTAMP, Date.class),
-    UUID(createVarcharType(Constants.UUID_STRING_MAX_LENGTH), java.util.UUID.class),
-    TIMEUUID(createVarcharType(Constants.UUID_STRING_MAX_LENGTH), java.util.UUID.class),
-    VARCHAR(createUnboundedVarcharType(), String.class),
-    VARINT(createUnboundedVarcharType(), BigInteger.class),
-    LIST(createUnboundedVarcharType(), null),
-    MAP(createUnboundedVarcharType(), null),
-    SET(createUnboundedVarcharType(), null);
+    public static final NomsType BLOB = new NomsType(VarbinaryType.VARBINARY, ByteBuffer.class);
+    public static final NomsType CYCLE = new NomsType(VarbinaryType.VARBINARY, null); // TODO: verify native type
+    public static final NomsType BOOLEAN = new NomsType(BooleanType.BOOLEAN, Boolean.class);
+    public static final NomsType NUMBER = new NomsType(DoubleType.DOUBLE, Double.class);
+    public static final NomsType STRING = new NomsType(VarcharType.VARCHAR, String.class);
+    public static final NomsType LIST = new NomsType(VarcharType.VARCHAR, null);    // TODO: Why not List?
+    public static final NomsType MAP = new NomsType(VarcharType.VARCHAR, null);     // TODO: Why not Map?
+    public static final NomsType REF = new NomsType(VarcharType.VARCHAR, null);     // TODO: Verify native type
+    public static final NomsType SET = new NomsType(VarcharType.VARCHAR, null);     // TODO: Why not Set?
+    public static final NomsType STRUCT = new NomsType(VarcharType.VARCHAR, null);  // TODO: Why not Row?
+    public static final NomsType TYPE = new NomsType(VarcharType.VARCHAR, null);    // TODO: Verify native type
+    public static final NomsType UNION = new NomsType(VarcharType.VARCHAR, null);   // TODO: determine native type
 
-    private static class Constants
-    {
-        private static final int UUID_STRING_MAX_LENGTH = 36;
-        // IPv4: 255.255.255.255 - 15 characters
-        // IPv6: FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF - 39 characters
-        // IPv4 embedded into IPv6: FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:255.255.255.255 - 45 characters
-        private static final int IP_ADDRESS_STRING_MAX_LENGTH = 45;
+    private static final Pattern LIST_PATTERN = Pattern.compile("(.+)List");
+    private static final Pattern MAP_PATTERN = Pattern.compile("(.+)To(.+)Map");
+    private static final Pattern REF_PATTERN = Pattern.compile("(.+)Ref");
+    private static final Pattern SET_PATTERN = Pattern.compile("(.+)Set");
+    private static final Pattern STRUCT_PATTERN = Pattern.compile("([^_]+)_.+");
+    private static final Pattern TYPE_PATTERN = Pattern.compile("Type_(.+)");
+
+    public static NomsType from(NgqlType ngqlType) {
+            switch (ngqlType.kind()) {
+            case LIST:
+                return new NomsType(LIST, ImmutableList.of(NomsType.from(ngqlType.ofType())));
+            case OBJECT:
+                String typeName = ngqlType.name();
+                if (LIST_PATTERN.matcher(typeName).matches()) {
+                    return new NomsType(LIST, ImmutableList.of(
+                            // TODO: ofType?
+                            NomsType.from(ngqlType.fields().get("values")))
+                    );
+                }
+                if (MAP_PATTERN.matcher(typeName).matches()) {
+                    return new NomsType(MAP, ImmutableList.of(
+                            // TODO: ofType?
+                            NomsType.from(ngqlType.fields().get("keys")),
+                            NomsType.from(ngqlType.fields().get("values"))
+                    ));
+                }
+                if (REF_PATTERN.matcher(typeName).matches()) {
+                    return new NomsType(MAP, ImmutableList.of(
+                            NomsType.from(ngqlType.fields().get("targetValue"))
+                    ));
+                }
+                if (SET_PATTERN.matcher(typeName).matches()) {
+                    return new NomsType(SET, ImmutableList.of(
+                            // TODO: ofType?
+                            NomsType.from(ngqlType.fields().get("values"))
+                    ));
+                }
+                if (STRUCT_PATTERN.matcher(typeName).matches()) {
+                    return new NomsType(STRUCT, Collections.EMPTY_LIST,
+                            ngqlType.fields().entrySet().stream().collect(Collectors.toMap(
+                                e -> e.getKey(),
+                                e -> NomsType.from(e.getValue())
+                            ))
+                    );
+                }
+                if (TYPE_PATTERN.matcher(typeName).matches()) {
+                    throw new AssertionError("Not implelented");
+                }
+            case SCALAR:
+                switch (ngqlType.name()) {
+                    case "Boolean":
+                        return NUMBER;
+                    case "Float":
+                        return NUMBER;
+                    case "String":
+                        return STRING;
+                    default:
+                        throw new PrestoException(NOT_SUPPORTED, "unsupported SCALAR name: " + ngqlType.name());
+                }
+            case ENUM:
+            case UNION:
+            default:
+                throw new PrestoException(NOT_SUPPORTED, "unsupported kind: " + ngqlType.name());
+        }
     }
 
+    private final NomsType type;
+    private final List<NomsType> arguments;
+    private final Map<String,NomsType> fields;
     private final Type nativeType;
     private final Class<?> javaType;
 
-    NomsType(Type nativeType, Class<?> javaType)
+    private NomsType(Type nativeType, Class<?> javaType)
     {
-        this.nativeType = requireNonNull(nativeType, "nativeType is null");
+        this.type = this;
+        this.arguments = Collections.EMPTY_LIST;
+        this.fields = Collections.EMPTY_MAP;
+        this.nativeType = nativeType;
         this.javaType = javaType;
+    }
+
+    private NomsType(NomsType type, List<NomsType> arguments)
+    {
+        this(type, arguments, Collections.EMPTY_MAP);
+    }
+
+    private NomsType(NomsType type, List<NomsType> arguments, Map<String,NomsType> fields)
+    {
+        this.type = type;
+        this.arguments = arguments;
+        this.fields = fields;
+        this.nativeType = type.nativeType;
+        this.javaType = type.javaType;
+    }
+
+    public boolean typeOf(NomsType... types) {
+        return Arrays.binarySearch(types, type) < 0;
     }
 
     public Type getNativeType()
@@ -99,70 +152,13 @@ public enum NomsType
         return nativeType;
     }
 
-    public int getTypeArgumentSize()
-    {
-        switch (this) {
-            case LIST:
-            case SET:
-                return 1;
-            case MAP:
-                return 2;
-            default:
-                return 0;
-        }
-    }
+    public List<NomsType> getTypeArguments() { return arguments; }
 
-    public static NomsType getCassandraType(DataType.Name name)
-    {
-        switch (name) {
-            case ASCII:
-                return ASCII;
-            case BIGINT:
-                return BIGINT;
-            case BLOB:
-                return BLOB;
-            case BOOLEAN:
-                return BOOLEAN;
-            case COUNTER:
-                return COUNTER;
-            case CUSTOM:
-                return CUSTOM;
-            case DECIMAL:
-                return DECIMAL;
-            case DOUBLE:
-                return DOUBLE;
-            case FLOAT:
-                return FLOAT;
-            case INET:
-                return INET;
-            case INT:
-                return INT;
-            case LIST:
-                return LIST;
-            case MAP:
-                return MAP;
-            case SET:
-                return SET;
-            case TEXT:
-                return TEXT;
-            case TIMESTAMP:
-                return TIMESTAMP;
-            case TIMEUUID:
-                return TIMEUUID;
-            case UUID:
-                return UUID;
-            case VARCHAR:
-                return VARCHAR;
-            case VARINT:
-                return VARINT;
-            default:
-                return null;
-        }
-    }
+    public Map<String,NomsType> getFields() { return fields; }
 
-    public static NullableValue getColumnValue(Row row, int i, FullNomsType fullNomsType)
+    public static NullableValue getColumnValue(Row row, int i, NomsType nomsType)
     {
-        return getColumnValue(row, i, fullNomsType.getNomsType(), fullNomsType.getTypeArguments());
+        return getColumnValue(row, i, nomsType, nomsType.getTypeArguments());
     }
 
     public static NullableValue getColumnValue(Row row, int i, NomsType nomsType,
@@ -172,69 +168,23 @@ public enum NomsType
         if (row.isNull(i)) {
             return NullableValue.asNull(nativeType);
         }
-        else {
-            switch (nomsType) {
-                case ASCII:
-                case TEXT:
-                case VARCHAR:
-                    return NullableValue.of(nativeType, utf8Slice(row.getString(i)));
-                case INT:
-                    return NullableValue.of(nativeType, (long) row.getInt(i));
-                case BIGINT:
-                case COUNTER:
-                    return NullableValue.of(nativeType, row.getLong(i));
-                case BOOLEAN:
-                    return NullableValue.of(nativeType, row.getBool(i));
-                case DOUBLE:
-                    return NullableValue.of(nativeType, row.getDouble(i));
-                case FLOAT:
-                    return NullableValue.of(nativeType, (long) floatToRawIntBits(row.getFloat(i)));
-                case DECIMAL:
-                    return NullableValue.of(nativeType, row.getDecimal(i).doubleValue());
-                case UUID:
-                case TIMEUUID:
-                    return NullableValue.of(nativeType, utf8Slice(row.getUUID(i).toString()));
-                case TIMESTAMP:
-                    return NullableValue.of(nativeType, row.getTimestamp(i).getTime());
-                case INET:
-                    return NullableValue.of(nativeType, utf8Slice(toAddrString(row.getInet(i))));
-                case VARINT:
-                    return NullableValue.of(nativeType, utf8Slice(row.getVarint(i).toString()));
-                case BLOB:
-                case CUSTOM:
-                    return NullableValue.of(nativeType, wrappedBuffer(row.getBytesUnsafe(i)));
-                case SET:
-                    checkTypeArguments(nomsType, 1, typeArguments);
-                    return NullableValue.of(nativeType, utf8Slice(buildSetValue(row, i, typeArguments.get(0))));
-                case LIST:
-                    checkTypeArguments(nomsType, 1, typeArguments);
-                    return NullableValue.of(nativeType, utf8Slice(buildListValue(row, i, typeArguments.get(0))));
-                case MAP:
-                    checkTypeArguments(nomsType, 2, typeArguments);
-                    return NullableValue.of(nativeType, utf8Slice(buildMapValue(row, i, typeArguments.get(0), typeArguments.get(1))));
-                default:
-                    throw new IllegalStateException("Handling of type " + nomsType
-                            + " is not implemented");
-            }
-        }
-    }
-
-    public static NullableValue getColumnValueForPartitionKey(Row row, int i, NomsType nomsType, List<NomsType> typeArguments)
-    {
-        Type nativeType = nomsType.getNativeType();
-        if (row.isNull(i)) {
-            return NullableValue.asNull(nativeType);
-        }
-        switch (nomsType) {
-            case ASCII:
-            case TEXT:
-            case VARCHAR:
-                return NullableValue.of(nativeType, utf8Slice(row.getString(i)));
-            case UUID:
-            case TIMEUUID:
-                return NullableValue.of(nativeType, utf8Slice(row.getUUID(i).toString()));
-            default:
-                return getColumnValue(row, i, nomsType, typeArguments);
+        else if (nomsType.typeOf(STRING)) {
+            return NullableValue.of(nativeType, utf8Slice(row.getString(i)));
+        } else if (nomsType.typeOf(BOOLEAN)) {
+            return NullableValue.of(nativeType, row.getBool(i));
+        } else if (nomsType.typeOf(NUMBER)) {
+            return NullableValue.of(nativeType, row.getDouble(i));
+        } else if (nomsType.typeOf(BLOB, SET)) {
+            checkTypeArguments(nomsType, 1, typeArguments);
+            return NullableValue.of(nativeType, utf8Slice(buildSetValue(row, i, typeArguments.get(0))));
+        } else if (nomsType.typeOf(LIST)) {
+            checkTypeArguments(nomsType, 1, typeArguments);
+            return NullableValue.of(nativeType, utf8Slice(buildListValue(row, i, typeArguments.get(0))));
+        } else if (nomsType.typeOf(MAP)) {
+            checkTypeArguments(nomsType, 2, typeArguments);
+            return NullableValue.of(nativeType, utf8Slice(buildMapValue(row, i, typeArguments.get(0), typeArguments.get(1))));
+        } else {
+            throw new IllegalStateException("Handling of type " + nomsType + " is not implemented");
         }
     }
 
@@ -288,234 +238,59 @@ public enum NomsType
         }
     }
 
-    public static String getColumnValueForCql(Row row, int i, NomsType nomsType)
-    {
-        if (row.isNull(i)) {
-            return null;
-        }
-        else {
-            switch (nomsType) {
-                case ASCII:
-                case TEXT:
-                case VARCHAR:
-                    return CassandraCqlUtils.quoteStringLiteral(row.getString(i));
-                case INT:
-                    return Integer.toString(row.getInt(i));
-                case BIGINT:
-                case COUNTER:
-                    return Long.toString(row.getLong(i));
-                case BOOLEAN:
-                    return Boolean.toString(row.getBool(i));
-                case DOUBLE:
-                    return Double.toString(row.getDouble(i));
-                case FLOAT:
-                    return Float.toString(row.getFloat(i));
-                case DECIMAL:
-                    return row.getDecimal(i).toString();
-                case UUID:
-                case TIMEUUID:
-                    return row.getUUID(i).toString();
-                case TIMESTAMP:
-                    return Long.toString(row.getTimestamp(i).getTime());
-                case INET:
-                    return CassandraCqlUtils.quoteStringLiteral(toAddrString(row.getInet(i)));
-                case VARINT:
-                    return row.getVarint(i).toString();
-                case BLOB:
-                case CUSTOM:
-                    return Bytes.toHexString(row.getBytesUnsafe(i));
-                default:
-                    throw new IllegalStateException("Handling of type " + nomsType
-                            + " is not implemented");
-            }
-        }
-    }
-
     private static String objectToString(Object object, NomsType elemType)
     {
-        switch (elemType) {
-            case ASCII:
-            case TEXT:
-            case VARCHAR:
-            case UUID:
-            case TIMEUUID:
-            case TIMESTAMP:
-            case INET:
-            case VARINT:
-                return CassandraCqlUtils.quoteStringLiteralForJson(object.toString());
-
-            case BLOB:
-            case CUSTOM:
-                return CassandraCqlUtils.quoteStringLiteralForJson(Bytes.toHexString((ByteBuffer) object));
-
-            case INT:
-            case BIGINT:
-            case COUNTER:
-            case BOOLEAN:
-            case DOUBLE:
-            case FLOAT:
-            case DECIMAL:
-                return object.toString();
-            default:
-                throw new IllegalStateException("Handling of type " + elemType + " is not implemented");
-        }
-    }
-
-    @Override
-    public NomsType getNomsType()
-    {
-        if (getTypeArgumentSize() == 0) {
-            return this;
-        }
-        else {
-            // must not be called for types with type arguments
-            throw new IllegalStateException();
-        }
-    }
-
-    @Override
-    public List<NomsType> getTypeArguments()
-    {
-        if (getTypeArgumentSize() == 0) {
-            return null;
-        }
-        else {
-            // must not be called for types with type arguments
-            throw new IllegalStateException();
+        if (elemType.typeOf(STRING)) {
+            return CassandraCqlUtils.quoteStringLiteralForJson(object.toString());
+        } else if (elemType.typeOf(BLOB)) {
+            return CassandraCqlUtils.quoteStringLiteralForJson(Bytes.toHexString((ByteBuffer) object));
+        } else if (elemType.typeOf(BOOLEAN, NUMBER)) {
+            return object.toString();
+        } else {
+            throw new IllegalStateException("Handling of type " + elemType + " is not implemented");
         }
     }
 
     public Object getJavaValue(Object nativeValue)
     {
-        switch (this) {
-            case ASCII:
-            case TEXT:
-            case VARCHAR:
-                return ((Slice) nativeValue).toStringUtf8();
-            case BIGINT:
-            case BOOLEAN:
-            case DOUBLE:
-            case COUNTER:
-                return nativeValue;
-            case INET:
-                return InetAddresses.forString(((Slice) nativeValue).toStringUtf8());
-            case INT:
-                return ((Long) nativeValue).intValue();
-            case FLOAT:
-                // conversion can result in precision lost
-                return intBitsToFloat(((Long) nativeValue).intValue());
-            case DECIMAL:
-                // conversion can result in precision lost
-                // Presto uses double for decimal, so to keep the floating point precision, convert it to string.
-                // Otherwise partition id doesn't match
-                return new BigDecimal(nativeValue.toString());
-            case TIMESTAMP:
-                return new Date((Long) nativeValue);
-            case UUID:
-            case TIMEUUID:
-                return java.util.UUID.fromString(((Slice) nativeValue).toStringUtf8());
-            case BLOB:
-            case CUSTOM:
-                return ((Slice) nativeValue).toStringUtf8();
-            case VARINT:
-                return new BigInteger(((Slice) nativeValue).toStringUtf8());
-            case SET:
-            case LIST:
-            case MAP:
-            default:
-                throw new IllegalStateException("Back conversion not implemented for " + this);
+        if (this.typeOf(STRING)) {
+            return ((Slice) nativeValue).toStringUtf8();
+        } else if (this.typeOf(BOOLEAN, NUMBER, BLOB)) {
+            return ((Slice) nativeValue).toStringUtf8();
+        } else {
+            throw new IllegalStateException("Back conversion not implemented for " + this);
         }
     }
 
-    public Object validatePartitionKey(Object value)
-    {
-        switch (this) {
-            case ASCII:
-            case TEXT:
-            case VARCHAR:
-            case BIGINT:
-            case BOOLEAN:
-            case DOUBLE:
-            case INET:
-            case INT:
-            case FLOAT:
-            case DECIMAL:
-            case TIMESTAMP:
-            case UUID:
-            case TIMEUUID:
-                return value;
-            case COUNTER:
-            case BLOB:
-            case CUSTOM:
-            case VARINT:
-            case SET:
-            case LIST:
-            case MAP:
-            default:
-                // todo should we just skip partition pruning instead of throwing an exception?
-                throw new PrestoException(NOT_SUPPORTED, "Unsupport partition key type: " + this);
-        }
-    }
-
-    public Object validateClusteringKey(Object value)
-    {
-        switch (this) {
-            case ASCII:
-            case TEXT:
-            case VARCHAR:
-            case BIGINT:
-            case BOOLEAN:
-            case DOUBLE:
-            case INET:
-            case INT:
-            case FLOAT:
-            case DECIMAL:
-            case TIMESTAMP:
-            case UUID:
-            case TIMEUUID:
-                return value;
-            case COUNTER:
-            case BLOB:
-            case CUSTOM:
-            case VARINT:
-            case SET:
-            case LIST:
-            case MAP:
-            default:
-                // todo should we just skip partition pruning instead of throwing an exception?
-                throw new PrestoException(NOT_SUPPORTED, "Unsupported clustering key type: " + this);
-        }
-    }
-
-    public static NomsType toCassandraType(Type type)
+    public static NomsType toNomsType(Type type)
     {
         if (type.equals(BooleanType.BOOLEAN)) {
             return BOOLEAN;
         }
         else if (type.equals(BigintType.BIGINT)) {
-            return BIGINT;
+            return NUMBER;
         }
         else if (type.equals(IntegerType.INTEGER)) {
-            return INT;
+            return NUMBER;
         }
         else if (type.equals(DoubleType.DOUBLE)) {
-            return DOUBLE;
+            return NUMBER;
         }
         else if (type.equals(RealType.REAL)) {
-            return FLOAT;
+            return NUMBER;
         }
         else if (isVarcharType(type)) {
-            return TEXT;
+            return STRING;
         }
         else if (type.equals(DateType.DATE)) {
-            return TEXT;
+            return STRING;
         }
         else if (type.equals(VarbinaryType.VARBINARY)) {
             return BLOB;
         }
         else if (type.equals(TimestampType.TIMESTAMP)) {
-            return TIMESTAMP;
+            return STRING;
         }
-        throw new IllegalArgumentException("unsupported type: " + type);
+        throw new PrestoException(NOT_SUPPORTED, "unsupported type: " + type);
     }
 }

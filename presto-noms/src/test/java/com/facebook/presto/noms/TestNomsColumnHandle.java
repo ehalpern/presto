@@ -13,7 +13,6 @@
  */
 package com.facebook.presto.noms;
 
-import com.google.common.collect.ImmutableList;
 import io.airlift.json.JsonCodec;
 import org.testng.annotations.Test;
 
@@ -27,7 +26,7 @@ public class TestNomsColumnHandle
     @Test
     public void testRoundTrip()
     {
-        NomsColumnHandle expected = new NomsColumnHandle("connector", "name", 42, NomsType.FLOAT, null, true, false, false, false);
+        NomsColumnHandle expected = new NomsColumnHandle("connector", "name", 42, NomsType.NUMBER);
 
         String json = codec.toJson(expected);
         NomsColumnHandle actual = codec.fromJson(json);
@@ -36,8 +35,6 @@ public class TestNomsColumnHandle
         assertEquals(actual.getName(), expected.getName());
         assertEquals(actual.getOrdinalPosition(), expected.getOrdinalPosition());
         assertEquals(actual.getNomsType(), expected.getNomsType());
-        assertEquals(actual.isPartitionKey(), expected.isPartitionKey());
-        assertEquals(actual.isClusteringKey(), expected.isClusteringKey());
     }
 
     @Test
@@ -47,13 +44,7 @@ public class TestNomsColumnHandle
                 "connector",
                 "name2",
                 1,
-                NomsType.MAP,
-                ImmutableList.of(NomsType.VARCHAR, NomsType.UUID),
-                false,
-                true,
-                false,
-                false);
-
+                NomsType.MAP);
         String json = codec.toJson(expected);
         NomsColumnHandle actual = codec.fromJson(json);
 
@@ -61,7 +52,5 @@ public class TestNomsColumnHandle
         assertEquals(actual.getName(), expected.getName());
         assertEquals(actual.getOrdinalPosition(), expected.getOrdinalPosition());
         assertEquals(actual.getNomsType(), expected.getNomsType());
-        assertEquals(actual.isPartitionKey(), expected.isPartitionKey());
-        assertEquals(actual.isClusteringKey(), expected.isClusteringKey());
     }
 }

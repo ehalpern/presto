@@ -29,33 +29,26 @@ public class NomsSplit
         implements ConnectorSplit
 {
     private final String connectorId;
-    private final String partitionId;
-    private final List<HostAddress> addresses;
+    private final HostAddress address;
     private final String schema;
     private final String table;
-    private final String splitCondition;
 
     @JsonCreator
     public NomsSplit(
             @JsonProperty("connectorId") String connectorId,
             @JsonProperty("schema") String schema,
             @JsonProperty("table") String table,
-            @JsonProperty("partitionId") String partitionId,
-            @JsonProperty("splitCondition") String splitCondition,
-            @JsonProperty("addresses") List<HostAddress> addresses)
-    {
+            @JsonProperty("address") HostAddress address
+    ) {
         requireNonNull(connectorId, "connectorId is null");
         requireNonNull(schema, "schema is null");
         requireNonNull(table, "table is null");
-        requireNonNull(partitionId, "partitionName is null");
-        requireNonNull(addresses, "addresses is null");
+        requireNonNull(address, "address is null");
 
         this.connectorId = connectorId;
         this.schema = schema;
         this.table = table;
-        this.partitionId = partitionId;
-        this.addresses = ImmutableList.copyOf(addresses);
-        this.splitCondition = splitCondition;
+        this.address = address;
     }
 
     @JsonProperty
@@ -71,28 +64,16 @@ public class NomsSplit
     }
 
     @JsonProperty
-    public String getSplitCondition()
-    {
-        return splitCondition;
-    }
-
-    @JsonProperty
     public String getTable()
     {
         return table;
     }
 
     @JsonProperty
-    public String getPartitionId()
-    {
-        return partitionId;
-    }
-
-    @JsonProperty
     @Override
     public List<HostAddress> getAddresses()
     {
-        return addresses;
+        return ImmutableList.of(address);
     }
 
     @Override
@@ -105,10 +86,9 @@ public class NomsSplit
     public Object getInfo()
     {
         return ImmutableMap.builder()
-                .put("hosts", addresses)
+                .put("host", address)
                 .put("schema", schema)
                 .put("table", table)
-                .put("partitionId", partitionId)
                 .build();
     }
 
@@ -117,30 +97,8 @@ public class NomsSplit
     {
         return toStringHelper(this)
                 .addValue(table)
-                .addValue(partitionId)
                 .toString();
     }
-
-    public String getWhereClause()
-    {
-        if (partitionId.equals(NomsPartition.UNPARTITIONED_ID)) {
-            if (splitCondition != null) {
-                return " WHERE " + splitCondition;
-            }
-            else {
-                return "";
-            }
-        }
-        else {
-            if (splitCondition != null) {
-                return " WHERE " + partitionId + " AND " + splitCondition;
-            }
-            else {
-                return " WHERE " + partitionId;
-            }
-        }
-    }
-
     public NomsTableHandle getCassandraTableHandle()
     {
         return new NomsTableHandle(connectorId, schema, table);

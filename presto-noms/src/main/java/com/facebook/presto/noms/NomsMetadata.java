@@ -14,49 +14,18 @@
 package com.facebook.presto.noms;
 
 import com.facebook.presto.noms.util.CassandraCqlUtils;
-import com.facebook.presto.spi.ColumnHandle;
-import com.facebook.presto.spi.ColumnMetadata;
-import com.facebook.presto.spi.ConnectorInsertTableHandle;
-import com.facebook.presto.spi.ConnectorNewTableLayout;
-import com.facebook.presto.spi.ConnectorOutputTableHandle;
-import com.facebook.presto.spi.ConnectorSession;
-import com.facebook.presto.spi.ConnectorTableHandle;
-import com.facebook.presto.spi.ConnectorTableLayout;
-import com.facebook.presto.spi.ConnectorTableLayoutHandle;
-import com.facebook.presto.spi.ConnectorTableLayoutResult;
-import com.facebook.presto.spi.ConnectorTableMetadata;
-import com.facebook.presto.spi.Constraint;
-import com.facebook.presto.spi.NotFoundException;
-import com.facebook.presto.spi.PrestoException;
-import com.facebook.presto.spi.SchemaNotFoundException;
-import com.facebook.presto.spi.SchemaTableName;
-import com.facebook.presto.spi.SchemaTablePrefix;
-import com.facebook.presto.spi.TableNotFoundException;
+import com.facebook.presto.spi.*;
 import com.facebook.presto.spi.connector.ConnectorMetadata;
-import com.facebook.presto.spi.connector.ConnectorOutputMetadata;
-import com.facebook.presto.spi.predicate.TupleDomain;
-import com.facebook.presto.spi.type.Type;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import io.airlift.json.JsonCodec;
-import io.airlift.slice.Slice;
 
 import javax.inject.Inject;
-
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-import static com.facebook.presto.noms.NomsType.toCassandraType;
-import static com.facebook.presto.noms.util.CassandraCqlUtils.validSchemaName;
-import static com.facebook.presto.noms.util.CassandraCqlUtils.validTableName;
-import static com.facebook.presto.spi.StandardErrorCode.NOT_SUPPORTED;
-import static com.facebook.presto.spi.StandardErrorCode.PERMISSION_DENIED;
 import static com.google.common.base.MoreObjects.toStringHelper;
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static java.util.Locale.ENGLISH;
 import static java.util.Objects.requireNonNull;
@@ -67,24 +36,14 @@ public class NomsMetadata
 {
     private final String connectorId;
     private final NomsSession nomsSession;
-    private final NomsPartitionManager partitionManager;
-    private final boolean allowDropTable;
-
-    private final JsonCodec<List<ExtraColumnMetadata>> extraColumnMetadataCodec;
 
     @Inject
     public NomsMetadata(
             NomsConnectorId connectorId,
-            NomsSession nomsSession,
-            NomsPartitionManager partitionManager,
-            JsonCodec<List<ExtraColumnMetadata>> extraColumnMetadataCodec,
-            NomsClientConfig config)
-    {
+            NomsSession nomsSession
+    ) {
         this.connectorId = requireNonNull(connectorId, "connectorId is null").toString();
-        this.partitionManager = requireNonNull(partitionManager, "partitionManager is null");
         this.nomsSession = requireNonNull(nomsSession, "nomsSession is null");
-        this.allowDropTable = requireNonNull(config, "config is null").getAllowDropTable();
-        this.extraColumnMetadataCodec = requireNonNull(extraColumnMetadataCodec, "extraColumnMetadataCodec is null");
     }
 
     @Override
@@ -200,28 +159,9 @@ public class NomsMetadata
     @Override
     public List<ConnectorTableLayoutResult> getTableLayouts(ConnectorSession session, ConnectorTableHandle table, Constraint<ColumnHandle> constraint, Optional<Set<ColumnHandle>> desiredColumns)
     {
-        NomsTableHandle handle = (NomsTableHandle) table;
-        NomsPartitionResult partitionResult = partitionManager.getPartitions(handle, constraint.getSummary());
-
-        String clusteringKeyPredicates = "";
-        TupleDomain<ColumnHandle> unenforcedConstraint;
-        if (partitionResult.isUnpartitioned()) {
-            unenforcedConstraint = partitionResult.getUnenforcedConstraint();
-        }
-        else {
-            NomsClusteringPredicatesExtractor clusteringPredicatesExtractor = new NomsClusteringPredicatesExtractor(
-                    nomsSession.getTable(getTableName(handle)).getClusteringKeyColumns(),
-                    partitionResult.getUnenforcedConstraint(),
-                    nomsSession.getCassandraVersion());
-            clusteringKeyPredicates = clusteringPredicatesExtractor.getClusteringKeyPredicates();
-            unenforcedConstraint = clusteringPredicatesExtractor.getUnenforcedConstraints();
-        }
-
-        ConnectorTableLayout layout = getTableLayout(session, new NomsTableLayoutHandle(
-                handle,
-                partitionResult.getPartitions(),
-                clusteringKeyPredicates));
-        return ImmutableList.of(new ConnectorTableLayoutResult(layout, unenforcedConstraint));
+        NomsTableHandle tableHandle = (NomsTableHandle) table;
+        ConnectorTableLayout layout = new ConnectorTableLayout(new NomsTableLayoutHandle(tableHandle));
+        return ImmutableList.of(new ConnectorTableLayoutResult(layout, constraint.getSummary()));
     }
 
     @Override
@@ -238,7 +178,8 @@ public class NomsMetadata
                 .toString();
     }
 
-    @Override
+    /*
+   @Override
     public void createTable(ConnectorSession session, ConnectorTableMetadata tableMetadata)
     {
         throw new PrestoException(NOT_SUPPORTED, "CREATE TABLE not yet supported for Cassandra");
@@ -271,12 +212,9 @@ public class NomsMetadata
     {
         ImmutableList.Builder<String> columnNames = ImmutableList.builder();
         ImmutableList.Builder<Type> columnTypes = ImmutableList.builder();
-        ImmutableList.Builder<ExtraColumnMetadata> columnExtra = ImmutableList.builder();
-        columnExtra.add(new ExtraColumnMetadata("id", true));
         for (ColumnMetadata column : tableMetadata.getColumns()) {
             columnNames.add(column.getName());
             columnTypes.add(column.getType());
-            columnExtra.add(new ExtraColumnMetadata(column.getName(), column.isHidden()));
         }
 
         // get the root directory for the database
@@ -295,10 +233,6 @@ public class NomsMetadata
                     .append(toCassandraType(type).name().toLowerCase(ENGLISH));
         }
         queryBuilder.append(") ");
-
-        // encode column ordering in the noms table comment field since there is no better place to store this
-        String columnMetadata = extraColumnMetadataCodec.toJson(columnExtra.build());
-        queryBuilder.append("WITH comment='").append(NomsSession.PRESTO_COMMENT_METADATA).append(" ").append(columnMetadata).append("'");
 
         // We need to create the Cassandra table before commit because the record needs to be written to the table.
         nomsSession.execute(queryBuilder.toString());
@@ -338,4 +272,5 @@ public class NomsMetadata
     {
         return Optional.empty();
     }
+    */
 }

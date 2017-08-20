@@ -166,6 +166,8 @@ public final class CassandraCqlUtils
 
     public static String cqlValue(String value, NomsType nomsType)
     {
+        throw new AssertionError("undone");
+        /*
         switch (nomsType) {
             case ASCII:
             case TEXT:
@@ -177,6 +179,7 @@ public final class CassandraCqlUtils
             default:
                 return value;
         }
+        */
     }
 
     public static String toCQLCompatibleString(Object value)

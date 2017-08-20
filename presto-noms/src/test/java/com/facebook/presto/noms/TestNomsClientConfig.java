@@ -13,18 +13,17 @@
  */
 package com.facebook.presto.noms;
 
-import com.datastax.driver.core.ConsistencyLevel;
 import com.datastax.driver.core.SocketOptions;
 import com.google.common.collect.ImmutableMap;
 import io.airlift.configuration.testing.ConfigAssertions;
 import io.airlift.units.Duration;
 import org.testng.annotations.Test;
 
+import java.net.URI;
 import java.util.Map;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
-import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class TestNomsClientConfig
 {
@@ -32,36 +31,22 @@ public class TestNomsClientConfig
     public void testDefaults()
     {
         ConfigAssertions.assertRecordedDefaults(ConfigAssertions.recordDefaults(NomsClientConfig.class)
+                .setNgqlURI(URI.create("http://localhost:8000/graphql"))
+                .setDatabase("noms")
+                .setDataset(null)
                 .setFetchSize(5_000)
-                .setConsistencyLevel(ConsistencyLevel.ONE)
-                .setContactPoints("")
-                .setNativeProtocolPort(9042)
-                .setPartitionSizeForBatchSelect(100)
-                .setSplitSize(1_024)
-                .setAllowDropTable(false)
-                .setUsername(null)
-                .setPassword(null)
                 .setClientReadTimeout(new Duration(SocketOptions.DEFAULT_READ_TIMEOUT_MILLIS, MILLISECONDS))
                 .setClientConnectTimeout(new Duration(SocketOptions.DEFAULT_CONNECT_TIMEOUT_MILLIS, MILLISECONDS))
-                .setClientSoLinger(null)
-                .setRetryPolicy(RetryPolicyType.DEFAULT)
-                .setUseDCAware(false)
-                .setDcAwareLocalDC(null)
-                .setDcAwareUsedHostsPerRemoteDc(0)
-                .setDcAwareAllowRemoteDCsForLocal(false)
-                .setUseTokenAware(false)
-                .setTokenAwareShuffleReplicas(false)
-                .setUseWhiteList(false)
-                .setWhiteListAddresses("")
-                .setNoHostAvailableRetryTimeout(new Duration(1, MINUTES))
-                .setSpeculativeExecutionLimit(1)
-                .setSpeculativeExecutionDelay(new Duration(500, MILLISECONDS)));
+                .setNoHostAvailableRetryTimeout(new Duration(1, MINUTES)));
     }
 
     @Test
     public void testExplicitPropertyMappings()
     {
         Map<String, String> properties = new ImmutableMap.Builder<String, String>()
+                .put("noms.ngql-uri", "http://test.com:8000/graphql")
+                .put("noms.database", "test-db")
+                .put("noms.dataset", "test-ds")
                 .put("noms.contact-points", "host1,host2")
                 .put("noms.native-protocol-port", "9999")
                 .put("noms.fetch-size", "10000")
@@ -89,30 +74,13 @@ public class TestNomsClientConfig
                 .build();
 
         NomsClientConfig expected = new NomsClientConfig()
-                .setContactPoints("host1", "host2")
-                .setNativeProtocolPort(9999)
+                .setNgqlURI(URI.create("http://test.com:8000/graphql"))
+                .setDatabase("test-db")
+                .setDataset("test-ds")
                 .setFetchSize(10_000)
-                .setConsistencyLevel(ConsistencyLevel.TWO)
-                .setPartitionSizeForBatchSelect(77)
-                .setSplitSize(1_025)
-                .setAllowDropTable(true)
-                .setUsername("my_username")
-                .setPassword("my_password")
                 .setClientReadTimeout(new Duration(11, MILLISECONDS))
                 .setClientConnectTimeout(new Duration(22, MILLISECONDS))
-                .setClientSoLinger(33)
-                .setRetryPolicy(RetryPolicyType.BACKOFF)
-                .setUseDCAware(true)
-                .setDcAwareLocalDC("dc1")
-                .setDcAwareUsedHostsPerRemoteDc(1)
-                .setDcAwareAllowRemoteDCsForLocal(true)
-                .setUseTokenAware(true)
-                .setTokenAwareShuffleReplicas(true)
-                .setUseWhiteList(true)
-                .setWhiteListAddresses("host1")
-                .setNoHostAvailableRetryTimeout(new Duration(3, MINUTES))
-                .setSpeculativeExecutionLimit(10)
-                .setSpeculativeExecutionDelay(new Duration(101, SECONDS));
+                .setNoHostAvailableRetryTimeout(new Duration(3, MINUTES));
 
         ConfigAssertions.assertFullMapping(properties, expected);
     }

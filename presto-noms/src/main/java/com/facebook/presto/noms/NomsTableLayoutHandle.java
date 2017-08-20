@@ -15,50 +15,23 @@ package com.facebook.presto.noms;
 
 import com.facebook.presto.spi.ConnectorTableLayoutHandle;
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.collect.ImmutableList;
-
-import java.util.List;
-
-import static java.util.Objects.requireNonNull;
 
 public final class NomsTableLayoutHandle
         implements ConnectorTableLayoutHandle
 {
     private final NomsTableHandle table;
-    private final List<NomsPartition> partitions;
-    private final String clusteringPredicates;
 
     @JsonCreator
     public NomsTableLayoutHandle(@JsonProperty("table") NomsTableHandle table)
     {
-        this(table, ImmutableList.of(), "");
-    }
-
-    public NomsTableLayoutHandle(NomsTableHandle table, List<NomsPartition> partitions, String clusteringPredicates)
-    {
-        this.table = requireNonNull(table, "table is null");
-        this.partitions = ImmutableList.copyOf(requireNonNull(partitions, "partition is null"));
-        this.clusteringPredicates = requireNonNull(clusteringPredicates, "clusteringPredicates is null");
+        this.table = table;
     }
 
     @JsonProperty
     public NomsTableHandle getTable()
     {
         return table;
-    }
-
-    @JsonIgnore
-    public List<NomsPartition> getPartitions()
-    {
-        return partitions;
-    }
-
-    @JsonIgnore
-    public String getClusteringPredicates()
-    {
-        return clusteringPredicates;
     }
 
     @Override

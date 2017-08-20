@@ -32,16 +32,6 @@ public interface NomsSession
 {
     String PRESTO_COMMENT_METADATA = "Presto Metadata:";
 
-    VersionNumber getCassandraVersion();
-
-    String getPartitioner();
-
-    Set<TokenRange> getTokenRanges();
-
-    Set<Host> getReplicas(String caseSensitiveSchemaName, TokenRange tokenRange);
-
-    Set<Host> getReplicas(String caseSensitiveSchemaName, ByteBuffer partitionKey);
-
     String getCaseSensitiveSchemaName(String caseInsensitiveSchemaName);
 
     List<String> getCaseSensitiveSchemaNames();
@@ -52,11 +42,7 @@ public interface NomsSession
     NomsTable getTable(SchemaTableName schemaTableName)
             throws TableNotFoundException;
 
-    List<NomsPartition> getPartitions(NomsTable table, List<Object> filterPrefix);
-
     ResultSet execute(String cql, Object... values);
-
-    List<SizeEstimate> getSizeEstimates(String keyspaceName, String tableName);
 
     PreparedStatement prepare(RegularStatement statement);
 

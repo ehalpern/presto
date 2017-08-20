@@ -16,6 +16,7 @@ package com.facebook.presto.noms;
 import com.facebook.presto.noms.util.CassandraCqlUtils;
 import com.google.common.collect.ImmutableList;
 
+import java.net.URI;
 import java.util.List;
 
 import static com.google.common.base.MoreObjects.toStringHelper;
@@ -25,11 +26,13 @@ public class NomsTable
 {
     private final NomsTableHandle tableHandle;
     private final List<NomsColumnHandle> columns;
+    private final URI source;
 
-    public NomsTable(NomsTableHandle tableHandle, List<NomsColumnHandle> columns)
+    public NomsTable(NomsTableHandle tableHandle, List<NomsColumnHandle> columns, URI source)
     {
         this.tableHandle = tableHandle;
         this.columns = ImmutableList.copyOf(columns);
+        this.source = source;
     }
 
     public List<NomsColumnHandle> getColumns()
@@ -42,35 +45,7 @@ public class NomsTable
         return tableHandle;
     }
 
-    public List<NomsColumnHandle> getPartitionKeyColumns()
-    {
-        return columns.stream()
-                .filter(NomsColumnHandle::isPartitionKey)
-                .collect(toList());
-    }
-
-    public List<NomsColumnHandle> getClusteringKeyColumns()
-    {
-        return columns.stream()
-                .filter(NomsColumnHandle::isClusteringKey)
-                .collect(toList());
-    }
-
-    public String getTokenExpression()
-    {
-        StringBuilder sb = new StringBuilder();
-        for (NomsColumnHandle column : getPartitionKeyColumns()) {
-            if (sb.length() == 0) {
-                sb.append("token(");
-            }
-            else {
-                sb.append(",");
-            }
-            sb.append(CassandraCqlUtils.validColumnName(column.getName()));
-        }
-        sb.append(")");
-        return sb.toString();
-    }
+    public URI getSource() { return source; }
 
     @Override
     public int hashCode()

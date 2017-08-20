@@ -13,7 +13,6 @@
  */
 package com.facebook.presto.noms;
 
-import com.facebook.presto.noms.util.CassandraCqlUtils;
 import com.facebook.presto.spi.ColumnHandle;
 import com.facebook.presto.spi.ConnectorSession;
 import com.facebook.presto.spi.ConnectorSplit;
@@ -23,7 +22,6 @@ import com.facebook.presto.spi.connector.ConnectorTransactionHandle;
 import io.airlift.log.Logger;
 
 import javax.inject.Inject;
-
 import java.util.List;
 
 import static com.google.common.base.MoreObjects.toStringHelper;
@@ -50,20 +48,16 @@ public class NomsRecordSetProvider
     {
         NomsSplit nomsSplit = (NomsSplit) split;
 
-        List<NomsColumnHandle> cassandraColumns = columns.stream()
+        List<NomsColumnHandle> nomsColumns = columns.stream()
                 .map(column -> (NomsColumnHandle) column)
                 .collect(toList());
 
-        String selectCql = CassandraCqlUtils.selectFrom(nomsSplit.getCassandraTableHandle(), cassandraColumns).getQueryString();
-        StringBuilder sb = new StringBuilder(selectCql);
-        if (sb.charAt(sb.length() - 1) == ';') {
-            sb.setLength(sb.length() - 1);
-        }
-        sb.append(nomsSplit.getWhereClause());
-        String cql = sb.toString();
-        log.debug("Creating record set: %s", cql);
-
-        return new NomsRecordSet(nomsSession, cql, cassandraColumns);
+        /*
+         *  TODO:
+         *  - build ngql query for columns
+         *
+         */
+        return new NomsRecordSet(nomsSession, nomsColumns);
     }
 
     @Override

@@ -86,9 +86,7 @@ public final class EmbeddedCassandra
 
         NomsSession session = new NativeNomsSession(
                 "EmbeddedCassandra",
-                JsonCodec.listJsonCodec(ExtraColumnMetadata.class),
-                cluster,
-                new Duration(1, MINUTES));
+                new NomsClientConfig());
 
         try {
             checkConnectivity(session);
@@ -161,11 +159,6 @@ public final class EmbeddedCassandra
         while (System.nanoTime() < deadline) {
             flushTable(keyspace, table);
             refreshSizeEstimates();
-            List<SizeEstimate> sizeEstimates = getSession().getSizeEstimates(keyspace, table);
-            if (!sizeEstimates.isEmpty()) {
-                log.info("Size estimates for the table %s.%s have been refreshed successfully: %s", keyspace, table, sizeEstimates);
-                return;
-            }
             log.info("Size estimates haven't been refreshed as expected. Retrying ...");
         }
         throw new TimeoutException(format("Attempting to refresh size estimates for table %s.%s has timed out after %s", keyspace, table, REFRESH_SIZE_ESTIMATES_TIMEOUT));

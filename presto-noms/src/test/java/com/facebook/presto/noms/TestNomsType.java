@@ -28,10 +28,10 @@ public class TestNomsType
     @Test
     public void testJsonMapEncoding()
     {
-        assertTrue(isValidJson(NomsType.buildArrayValue(Lists.newArrayList("one", "two", "three\""), NomsType.VARCHAR)));
-        assertTrue(isValidJson(NomsType.buildArrayValue(Lists.newArrayList(1, 2, 3), NomsType.INT)));
-        assertTrue(isValidJson(NomsType.buildArrayValue(Lists.newArrayList(100000L, 200000000L, 3000000000L), NomsType.BIGINT)));
-        assertTrue(isValidJson(NomsType.buildArrayValue(Lists.newArrayList(1.0, 2.0, 3.0), NomsType.DOUBLE)));
+        assertTrue(isValidJson(NomsType.buildArrayValue(Lists.newArrayList("one", "two", "three\""), NomsType.STRING)));
+        assertTrue(isValidJson(NomsType.buildArrayValue(Lists.newArrayList(1, 2, 3), NomsType.NUMBER)));
+        assertTrue(isValidJson(NomsType.buildArrayValue(Lists.newArrayList(100000L, 200000000L, 3000000000L), NomsType.NUMBER)));
+        assertTrue(isValidJson(NomsType.buildArrayValue(Lists.newArrayList(1.0, 2.0, 3.0), NomsType.NUMBER)));
     }
 
     private static void continueWhileNotNull(JsonParser parser, JsonToken token)

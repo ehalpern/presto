@@ -22,22 +22,24 @@ import io.airlift.slice.Slice;
 
 import java.util.List;
 
+import static com.facebook.presto.noms.NomsType.NUMBER;
 import static io.airlift.slice.Slices.utf8Slice;
 import static java.lang.Float.floatToRawIntBits;
 
 public class NomsRecordCursor
         implements RecordCursor
 {
-    private final List<FullNomsType> fullNomsTypes;
+    private final List<NomsType> nomsTypes;
     private final ResultSet rs;
     private Row currentRow;
     private long atLeastCount;
     private long count;
 
-    public NomsRecordCursor(NomsSession nomsSession, List<FullNomsType> fullNomsTypes, String cql)
+    public NomsRecordCursor(NomsSession nomsSession, List<NomsType> nomsTypes)
     {
-        this.fullNomsTypes = fullNomsTypes;
-        rs = nomsSession.execute(cql);
+        this.nomsTypes = nomsTypes;
+        // TODO: execute ngql query
+        rs = nomsSession.execute("");
         currentRow = null;
         atLeastCount = rs.getAvailableWithoutFetching();
     }
@@ -80,22 +82,15 @@ public class NomsRecordCursor
     @Override
     public double getDouble(int i)
     {
-        switch (getCassandraType(i)) {
-            case DOUBLE:
-                return currentRow.getDouble(i);
-            case FLOAT:
-                return currentRow.getFloat(i);
-            case DECIMAL:
-                return currentRow.getDecimal(i).doubleValue();
-            default:
-                throw new IllegalStateException("Cannot retrieve double for " + getCassandraType(i));
-        }
+        return currentRow.getDouble(i);
     }
 
     @Override
     public long getLong(int i)
     {
-        switch (getCassandraType(i)) {
+        throw new AssertionError("incomplete");
+        /*
+        switch (getNomsType(i)) {
             case INT:
                 return currentRow.getInt(i);
             case BIGINT:
@@ -106,19 +101,20 @@ public class NomsRecordCursor
             case FLOAT:
                 return floatToRawIntBits(currentRow.getFloat(i));
             default:
-                throw new IllegalStateException("Cannot retrieve long for " + getCassandraType(i));
+                throw new IllegalStateException("Cannot retrieve long for " + getNomsType(i));
         }
+        */
     }
 
-    private NomsType getCassandraType(int i)
+    private NomsType getNomsType(int i)
     {
-        return fullNomsTypes.get(i).getNomsType();
+        return nomsTypes.get(i);
     }
 
     @Override
     public Slice getSlice(int i)
     {
-        NullableValue value = NomsType.getColumnValue(currentRow, i, fullNomsTypes.get(i));
+        NullableValue value = NomsType.getColumnValue(currentRow, i, nomsTypes.get(i));
         if (value.getValue() instanceof Slice) {
             return (Slice) value.getValue();
         }
@@ -140,7 +136,7 @@ public class NomsRecordCursor
     @Override
     public Type getType(int i)
     {
-        return getCassandraType(i).getNativeType();
+        return getNomsType(i).getNativeType();
     }
 
     @Override

@@ -13,11 +13,18 @@
  */
 package com.facebook.presto.noms;
 
-import java.util.List;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
-public interface FullNomsType
+public class TestNomsServer
 {
-    NomsType getNomsType();
-
-    List<NomsType> getTypeArguments();
+    @Test
+    public void testServer()
+    {
+        NomsServer server = new NomsServer("nbs:/tmp/presto-noms/tpch");
+        String output = server.exec("ds");
+        System.out.println("ds output: " + output);
+        Assert.assertNotEquals(output, "");
+        server.stop();
+    }
 }

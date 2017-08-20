@@ -28,18 +28,15 @@ public class NomsRecordSet
         implements RecordSet
 {
     private final NomsSession nomsSession;
-    private final String cql;
-    private final List<FullNomsType> cassandraTypes;
+    private final List<NomsType> nomsTypes;
     private final List<Type> columnTypes;
 
-    public NomsRecordSet(NomsSession nomsSession, String cql, List<NomsColumnHandle> cassandraColumns)
+    public NomsRecordSet(NomsSession nomsSession, List<NomsColumnHandle> nomsColumns)
     {
         this.nomsSession = requireNonNull(nomsSession, "nomsSession is null");
-        this.cql = requireNonNull(cql, "cql is null");
-
-        requireNonNull(cassandraColumns, "cassandraColumns is null");
-        this.cassandraTypes = transformList(cassandraColumns, NomsColumnHandle::getFullType);
-        this.columnTypes = transformList(cassandraColumns, NomsColumnHandle::getType);
+        requireNonNull(nomsColumns, "nomsColumns is null");
+        this.nomsTypes = transformList(nomsColumns, NomsColumnHandle::getNomsType);
+        this.columnTypes = transformList(nomsColumns, NomsColumnHandle::getType);
     }
 
     @Override
@@ -51,7 +48,7 @@ public class NomsRecordSet
     @Override
     public RecordCursor cursor()
     {
-        return new NomsRecordCursor(nomsSession, cassandraTypes, cql);
+        return new NomsRecordCursor(nomsSession, nomsTypes);
     }
 
     private static <T, R> List<R> transformList(List<T> list, Function<T, R> function)
