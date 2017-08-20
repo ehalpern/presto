@@ -3,6 +3,7 @@ package com.facebook.presto.noms;
 import org.codehaus.plexus.util.IOUtil;
 
 import java.io.IOException;
+import java.net.ServerSocket;
 import java.net.URI;
 import java.util.concurrent.TimeUnit;
 
@@ -21,11 +22,12 @@ public class NomsServer {
     private URI uri;
 
     public NomsServer(String dbPath) {
-        ProcessBuilder b = new ProcessBuilder(NOMS_BINARY, "serve", "--port=18000", dbPath);
+        int port = findFreePort();
+        ProcessBuilder b = new ProcessBuilder(NOMS_BINARY, "serve", "--port=" + port, dbPath);
         b.inheritIO();
         try {
             process = b.start();
-            uri = URI.create("http://localhost:18000");
+            uri = URI.create("http://localhost:" + port);
             if (!process.isAlive()) {
                 throw new RuntimeException("Failed to start: " + String.join(" ", b.command()) + ": " + process.exitValue());
             }
@@ -57,5 +59,13 @@ public class NomsServer {
 
     public void stop() {
         process.destroyForcibly();
+    }
+
+    private int findFreePort() {
+        try (ServerSocket socket = new ServerSocket(0);) {
+            return socket.getLocalPort();
+        } catch (IOException e) {
+            throw new RuntimeException("unexpected", e);
+        }
     }
 }

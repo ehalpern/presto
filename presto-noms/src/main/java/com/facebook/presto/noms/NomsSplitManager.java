@@ -13,24 +13,12 @@
  */
 package com.facebook.presto.noms;
 
-import com.datastax.driver.core.Host;
-import com.facebook.presto.noms.util.HostAddressFactory;
-import com.facebook.presto.spi.ConnectorSession;
-import com.facebook.presto.spi.ConnectorSplit;
-import com.facebook.presto.spi.ConnectorSplitSource;
-import com.facebook.presto.spi.ConnectorTableLayoutHandle;
-import com.facebook.presto.spi.FixedSplitSource;
-import com.facebook.presto.spi.HostAddress;
+import com.facebook.presto.spi.*;
 import com.facebook.presto.spi.connector.ConnectorSplitManager;
 import com.facebook.presto.spi.connector.ConnectorTransactionHandle;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 
 import javax.inject.Inject;
-
-import java.net.InetAddress;
-import java.net.URI;
-import java.util.*;
 
 import static com.google.common.base.MoreObjects.toStringHelper;
 import static com.google.common.base.Preconditions.checkState;

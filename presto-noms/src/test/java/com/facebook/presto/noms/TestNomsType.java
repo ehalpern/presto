@@ -17,14 +17,30 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
+import io.airlift.json.JsonCodec;
+import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import static io.airlift.json.JsonCodec.jsonCodec;
 
 import java.io.IOException;
 
+import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 public class TestNomsType
 {
+    private final JsonCodec<NomsType> codec = jsonCodec(NomsType.class);
+
+    @Test
+    public void testRoundTrip()
+    {
+        NomsColumnHandle expected = new NomsColumnHandle("connector", "name", 42, NomsType.NUMBER);
+
+        Assert.assertEquals(NomsType.NUMBER, codec.fromJson(codec.toJson(NomsType.NUMBER)));
+    }
+
+
     @Test
     public void testJsonMapEncoding()
     {
@@ -46,12 +62,10 @@ public class TestNomsType
     {
         boolean valid = false;
         try {
-            JsonParser parser = new ObjectMapper().getFactory()
-                    .createParser(json);
+            JsonParser parser = new ObjectMapper().getFactory().createParser(json);
             continueWhileNotNull(parser, parser.nextToken());
             valid = true;
-        }
-        catch (IOException ignored) {
+        } catch (IOException ignored) {
         }
         return valid;
     }

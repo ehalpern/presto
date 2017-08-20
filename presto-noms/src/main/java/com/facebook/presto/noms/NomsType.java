@@ -33,7 +33,7 @@ import static com.facebook.presto.spi.StandardErrorCode.NOT_SUPPORTED;
 import static com.facebook.presto.spi.type.Varchars.isVarcharType;
 import static io.airlift.slice.Slices.utf8Slice;
 
-public class NomsType
+public class NomsType implements Comparable<NomsType>
 {
     public static final NomsType BLOB = new NomsType(VarbinaryType.VARBINARY, ByteBuffer.class);
     public static final NomsType CYCLE = new NomsType(VarbinaryType.VARBINARY, null); // TODO: verify native type
@@ -134,8 +134,11 @@ public class NomsType
         this(type, arguments, Collections.EMPTY_MAP);
     }
 
-    private NomsType(NomsType type, List<NomsType> arguments, Map<String,NomsType> fields)
-    {
+    private NomsType(
+            NomsType type,
+            List<NomsType> arguments,
+            Map<String,NomsType> fields
+    ) {
         this.type = type;
         this.arguments = arguments;
         this.fields = fields;
@@ -144,7 +147,7 @@ public class NomsType
     }
 
     public boolean typeOf(NomsType... types) {
-        return Arrays.binarySearch(types, type) < 0;
+        return Arrays.binarySearch(types, type) > -1;
     }
 
     public Type getNativeType()
@@ -247,7 +250,7 @@ public class NomsType
         } else if (elemType.typeOf(BOOLEAN, NUMBER)) {
             return object.toString();
         } else {
-            throw new IllegalStateException("Handling of type " + elemType + " is not implemented");
+            throw new IllegalStateException("Handling of type " + elemType + "[" + elemType.type + "] is not implemented");
         }
     }
 
@@ -292,5 +295,9 @@ public class NomsType
             return STRING;
         }
         throw new PrestoException(NOT_SUPPORTED, "unsupported type: " + type);
+    }
+
+    public int compareTo(NomsType other) {
+        return System.identityHashCode(type) - System.identityHashCode(other.type);
     }
 }
