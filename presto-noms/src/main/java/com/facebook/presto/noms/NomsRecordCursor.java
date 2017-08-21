@@ -22,9 +22,7 @@ import io.airlift.slice.Slice;
 
 import java.util.List;
 
-import static com.facebook.presto.noms.NomsType.NUMBER;
 import static io.airlift.slice.Slices.utf8Slice;
-import static java.lang.Float.floatToRawIntBits;
 
 public class NomsRecordCursor
         implements RecordCursor

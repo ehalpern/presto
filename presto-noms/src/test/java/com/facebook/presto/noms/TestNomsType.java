@@ -28,6 +28,7 @@ import java.io.IOException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
+
 public class TestNomsType
 {
     private final JsonCodec<NomsType> codec = jsonCodec(NomsType.class);
@@ -35,19 +36,19 @@ public class TestNomsType
     @Test
     public void testRoundTrip()
     {
-        NomsColumnHandle expected = new NomsColumnHandle("connector", "name", 42, NomsType.NUMBER);
+        NomsColumnHandle expected = new NomsColumnHandle("connector", "name", 42, RootNomsType.NUMBER);
 
-        Assert.assertEquals(NomsType.NUMBER, codec.fromJson(codec.toJson(NomsType.NUMBER)));
+        Assert.assertEquals(RootNomsType.NUMBER, codec.fromJson(codec.toJson(RootNomsType.NUMBER)));
     }
 
 
     @Test
     public void testJsonMapEncoding()
     {
-        assertTrue(isValidJson(NomsType.buildArrayValue(Lists.newArrayList("one", "two", "three\""), NomsType.STRING)));
-        assertTrue(isValidJson(NomsType.buildArrayValue(Lists.newArrayList(1, 2, 3), NomsType.NUMBER)));
-        assertTrue(isValidJson(NomsType.buildArrayValue(Lists.newArrayList(100000L, 200000000L, 3000000000L), NomsType.NUMBER)));
-        assertTrue(isValidJson(NomsType.buildArrayValue(Lists.newArrayList(1.0, 2.0, 3.0), NomsType.NUMBER)));
+        assertTrue(isValidJson(NomsType.buildArrayValue(Lists.newArrayList("one", "two", "three\""), RootNomsType.STRING)));
+        assertTrue(isValidJson(NomsType.buildArrayValue(Lists.newArrayList(1, 2, 3), RootNomsType.NUMBER)));
+        assertTrue(isValidJson(NomsType.buildArrayValue(Lists.newArrayList(100000L, 200000000L, 3000000000L), RootNomsType.NUMBER)));
+        assertTrue(isValidJson(NomsType.buildArrayValue(Lists.newArrayList(1.0, 2.0, 3.0), RootNomsType.NUMBER)));
     }
 
     private static void continueWhileNotNull(JsonParser parser, JsonToken token)

@@ -1,10 +1,9 @@
 package com.facebook.presto.noms.util;
 
-import javax.json.JsonArray;
 import javax.json.JsonObject;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class NgqlType {
     public enum Kind {
@@ -16,42 +15,49 @@ public class NgqlType {
         UNION
     }
 
-    private final JsonObject object;
     private final boolean nonNull;
+    private final String name;
     private final Kind kind;
     private final NgqlType ofType;
+    private final Map<String, NgqlType> fields;
+    private final boolean reference;
 
     /*package*/ NgqlType(JsonObject o) {
-        nonNull = o.getString("kind") == Kind.NON_NULL.toString();
-        object = nonNull ? o.getJsonObject("ofType") : o;
-        kind = Kind.valueOf(object.getString("kind"));
-        if (object.getJsonObject("ofType") == null) {
+        // if nonNull, note it and reveal the underlying type
+        nonNull = o.getString("kind").equals(Kind.NON_NULL.toString());
+        o = nonNull ? o.getJsonObject("ofType") : o;
+
+        name = o.getString("name","");
+        kind = Kind.valueOf(o.getString("kind"));
+        if (!o.containsKey("ofType") || o.isNull("ofType")) {
             ofType = null;
         } else {
-            ofType = new NgqlType(object.getJsonObject("ofType"));
+            ofType = new NgqlType(o.getJsonObject("ofType"));
+        }
+
+        // if this is an OBJECT and there's no fields entry, it's a reference
+        reference = !o.containsKey("fields") && kind == Kind.OBJECT;
+
+        if (!o.containsKey("fields") || o.isNull("fields")) {
+            this.fields = Collections.emptyMap();
+        } else {
+            this.fields = o.getJsonArray("fields").stream().collect(
+                    Collectors.toMap(
+                            v -> v.asJsonObject().getString("name"),
+                            v -> new NgqlType(v.asJsonObject().getJsonObject("type"))
+                    )
+            );
         }
     }
 
-    public String name() { return object.getString("name"); }
-
+    public boolean reference() { return reference; }
+    public String name() { return name; }
     public Kind kind() { return kind; }
-
+    public Map<String, NgqlType> fields() { return fields; }
     public NgqlType ofType() { return ofType; }
-
     public boolean nonNull() { return nonNull; }
 
-    public Map<String, NgqlType> fields() {
-        JsonArray fields = object.getJsonArray("fields");
-        if (fields == null) {
-            return Collections.emptyMap();
-        } else {
-            Map<String, NgqlType> map = new HashMap<>();
-
-            for (JsonObject f : fields.getValuesAs(JsonObject.class)) {
-                map.put(f.getString("name"), new NgqlType(f.getJsonObject("type")));
-            }
-            return map;
-        }
+    public NgqlType fieldType(String field) {
+        return fields.get(field);
     }
-
 }

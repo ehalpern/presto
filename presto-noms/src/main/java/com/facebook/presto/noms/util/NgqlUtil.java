@@ -5,12 +5,11 @@ import org.apache.http.client.fluent.Form;
 import org.apache.http.client.fluent.Request;
 
 import javax.json.Json;
-import javax.json.JsonObject;
 import javax.json.JsonReader;
 import java.io.IOException;
 import java.net.URI;
 
-public class NgqlUtils {
+public class NgqlUtil {
     private static String INTROSPECT_QUERY =
             "query IntrospectionQuery {\n" +
                     "    __schema {\n" +
@@ -97,12 +96,13 @@ public class NgqlUtils {
 
     public static NgqlSchema introspectQuery(URI ngqlURI, String dataset) throws IOException
     {
-        Content resp = Request.Post(ngqlURI).bodyForm(Form.form()
+        Content resp = Request.Post(ngqlURI.toString() + "/graphql/").bodyForm(Form.form()
                 .add("ds",  dataset)
                 .add("query",  INTROSPECT_QUERY)
                 .build())
                 .execute().returnContent();
 
+        String respString = resp.asString();
         try (JsonReader reader = Json.createReader(resp.asStream())) {
             return new NgqlSchema(reader.readObject());
         }

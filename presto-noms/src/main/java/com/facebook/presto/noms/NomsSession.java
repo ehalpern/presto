@@ -32,11 +32,9 @@ public interface NomsSession
 {
     String PRESTO_COMMENT_METADATA = "Presto Metadata:";
 
-    String getCaseSensitiveSchemaName(String caseInsensitiveSchemaName);
+    List<String> getSchemaNames();
 
-    List<String> getCaseSensitiveSchemaNames();
-
-    List<String> getCaseSensitiveTableNames(String caseInsensitiveSchemaName)
+    List<String> getTableNames(String schemaName)
             throws SchemaNotFoundException;
 
     NomsTable getTable(SchemaTableName schemaTableName)

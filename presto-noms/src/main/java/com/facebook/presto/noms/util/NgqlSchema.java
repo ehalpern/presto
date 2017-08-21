@@ -7,22 +7,28 @@ import java.util.Map;
 public class NgqlSchema {
     private final JsonObject object;
     private final NgqlType rootType;
-    private final NgqlType rootValueType;
 
     private final Map<String, NgqlType> types = new HashMap<>();
 
     /*package*/ NgqlSchema(JsonObject o) {
-        object = o.getJsonObject("/data/__schema");
+        object = o.getJsonObject("data").getJsonObject("__schema");
         for (JsonObject t : object.getJsonArray("types").getValuesAs(JsonObject.class)) {
             NgqlType type = new NgqlType(t);
             types.put(type.name(), type);
         }
-        String rootTypeName = object.getString("/queryType/name");
+        String rootTypeName = object.getJsonObject("queryType").getString("name");
         rootType = types.get(rootTypeName);
-        rootValueType = types.get(rootType.fields().get("value").name());
     }
 
-    public NgqlType rootType() { return rootType; }
-    public NgqlType rootValueType() { return rootValueType; }
-    public Map<String, NgqlType> types() { return types; }
+    public NgqlType rootValueType() {
+        return resolve(rootType.fieldType("root"));
+    }
+
+    public NgqlType lastCommitValueType() {
+        return resolve(rootValueType().fieldType("value"));
+    }
+
+    public NgqlType resolve(NgqlType type) {
+        return type.reference() ? types.get(type.name()) : type;
+    }
 }

@@ -78,22 +78,22 @@ public class TestNomsConnector
     private ConnectorMetadata metadata;
     private ConnectorSplitManager splitManager;
     private ConnectorRecordSetProvider recordSetProvider;
+    private NomsServer server;
 
     @BeforeClass
     public void setup()
             throws Exception
     {
-        EmbeddedCassandra.start();
+        server = NomsServer.start("nbs:/tmp/presto-noms/example");
 
-        String keyspace = "test_connector";
-        createTestTables(EmbeddedCassandra.getSession(), keyspace, DATE);
+        //createTestTables(EmbeddedCassandra.getSession(), keyspace, DATE);
 
-        String connectorId = "cassandra-test";
+        String connectorId = "noms-test";
         NomsConnectorFactory connectorFactory = new NomsConnectorFactory(connectorId);
 
         Connector connector = connectorFactory.create(connectorId, ImmutableMap.of(
-                "noms.contact-points", EmbeddedCassandra.getHost(),
-                "noms.native-protocol-port", Integer.toString(EmbeddedCassandra.getPort())),
+                "noms.ngql-uri", server.uri().toString(),
+                "noms.database", "example"),
                 new TestingConnectorContext());
 
         metadata = connector.getMetadata(NomsTransactionHandle.INSTANCE);
@@ -105,8 +105,8 @@ public class TestNomsConnector
         recordSetProvider = connector.getRecordSetProvider();
         assertInstanceOf(recordSetProvider, NomsRecordSetProvider.class);
 
-        database = keyspace;
-        table = new SchemaTableName(database, TABLE_ALL_TYPES.toLowerCase());
+        database = "example";
+        table = new SchemaTableName(database, "numbers-list");
         tableUnpartitioned = new SchemaTableName(database, "presto_test_unpartitioned");
         invalidTable = new SchemaTableName(database, "totally_invalid_table_name");
     }
@@ -115,6 +115,7 @@ public class TestNomsConnector
     public void tearDown()
             throws Exception
     {
+        //server.close();
     }
 
     @Test

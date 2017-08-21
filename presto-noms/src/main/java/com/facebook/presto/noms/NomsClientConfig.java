@@ -33,7 +33,6 @@ public class NomsClientConfig
 
     private URI ngqlURI = URI.create("http://localhost:8000/graphql");
     private String database = "noms";
-    private String dataset;
 
     private int fetchSize = 5_000;
     private Duration clientReadTimeout = new Duration(SocketOptions.DEFAULT_READ_TIMEOUT_MILLIS, MILLISECONDS);
@@ -57,17 +56,6 @@ public class NomsClientConfig
     public NomsClientConfig setDatabase(String db)
     {
         this.database = db;
-        return this;
-    }
-
-
-    @NotNull
-    public String getDataset() { return this.dataset; }
-
-    @Config("noms.dataset")
-    public NomsClientConfig setDataset(String ds)
-    {
-        this.dataset = ds;
         return this;
     }
 

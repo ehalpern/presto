@@ -49,7 +49,7 @@ public class NomsMetadata
     @Override
     public List<String> listSchemaNames(ConnectorSession session)
     {
-        return nomsSession.getCaseSensitiveSchemaNames().stream()
+        return nomsSession.getSchemaNames().stream()
                 .map(name -> name.toLowerCase(ENGLISH))
                 .collect(toImmutableList());
     }
@@ -94,7 +94,7 @@ public class NomsMetadata
         ImmutableList.Builder<SchemaTableName> tableNames = ImmutableList.builder();
         for (String schemaName : listSchemas(session, schemaNameOrNull)) {
             try {
-                for (String tableName : nomsSession.getCaseSensitiveTableNames(schemaName)) {
+                for (String tableName : nomsSession.getTableNames(schemaName)) {
                     tableNames.add(new SchemaTableName(schemaName, tableName.toLowerCase(ENGLISH)));
                 }
             }

@@ -7,7 +7,7 @@ import java.net.ServerSocket;
 import java.net.URI;
 import java.util.concurrent.TimeUnit;
 
-public class NomsServer {
+public class NomsServer implements AutoCloseable {
     private static final String NOMS_BINARY;
 
     static {
@@ -20,6 +20,10 @@ public class NomsServer {
 
     private Process process;
     private URI uri;
+
+    public static NomsServer start(String dbPath) {
+        return new NomsServer(dbPath);
+    }
 
     public NomsServer(String dbPath) {
         int port = findFreePort();
@@ -67,5 +71,9 @@ public class NomsServer {
         } catch (IOException e) {
             throw new RuntimeException("unexpected", e);
         }
+    }
+
+    public void close() {
+        stop();
     }
 }

@@ -13,36 +13,26 @@
  */
 package com.facebook.presto.noms;
 
-import com.datastax.driver.core.Host;
-import com.datastax.driver.core.KeyspaceMetadata;
 import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.RegularStatement;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Session;
 import com.datastax.driver.core.Statement;
-import com.datastax.driver.core.TableMetadata;
-import com.datastax.driver.core.TokenRange;
-import com.datastax.driver.core.querybuilder.Clause;
-import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.facebook.presto.noms.util.*;
 import com.facebook.presto.spi.PrestoException;
 import com.facebook.presto.spi.SchemaNotFoundException;
 import com.facebook.presto.spi.SchemaTableName;
 import com.facebook.presto.spi.TableNotFoundException;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Ordering;
 import io.airlift.log.Logger;
 
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static com.datastax.driver.core.querybuilder.QueryBuilder.eq;
 import static com.datastax.driver.core.querybuilder.QueryBuilder.select;
-import static com.datastax.driver.core.querybuilder.Select.Where;
-import static com.facebook.presto.noms.util.CassandraCqlUtils.validSchemaName;
 import static com.facebook.presto.spi.StandardErrorCode.NOT_SUPPORTED;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Iterables.filter;
@@ -65,27 +55,19 @@ public class NativeNomsSession
     }
 
     @Override
-    public String getCaseSensitiveSchemaName(String caseInsensitiveSchemaName)
-    {
-        return getKeyspaceByCaseInsensitiveName(caseInsensitiveSchemaName).getName();
-    }
-
-    @Override
-    public List<String> getCaseSensitiveSchemaNames()
+    public List<String> getSchemaNames()
     {
         return ImmutableList.of(config.getDatabase());
     }
 
     @Override
-    public List<String> getCaseSensitiveTableNames(String caseInsensitiveSchemaName)
+    public List<String> getTableNames(String schemaName)
             throws SchemaNotFoundException
     {
-        KeyspaceMetadata keyspace = getKeyspaceByCaseInsensitiveName(caseInsensitiveSchemaName);
-        ImmutableList.Builder<String> builder = ImmutableList.builder();
-        for (TableMetadata table : keyspace.getTables()) {
-            builder.add(table.getName());
+        if (!config.getDatabase().equals(schemaName)) {
+            throw new SchemaNotFoundException("Schema '" + schemaName + "' is not defined in configuration");
         }
-        return builder.build();
+        return NomsUtil.ds(config.getNgqlURI().toString());
     }
 
     @Override
@@ -94,17 +76,19 @@ public class NativeNomsSession
     {
         ImmutableList.Builder<NomsColumnHandle> columnHandles = ImmutableList.builder();
         try {
-            NgqlSchema schema = NgqlUtils.introspectQuery(config.getNgqlURI(), schemaTableName.getTableName());
-            NomsType rootType = NomsType.from(schema.rootValueType());
-            NomsType rowType = rootType;
-            if (rootType.typeOf(NomsType.LIST, NomsType.SET)) {
-                rowType = rootType.getTypeArguments().get(0);
-            } else if (rootType.typeOf(NomsType.MAP)) {
-                rowType = rootType.getTypeArguments().get(1);
+            NgqlSchema schema = NgqlUtil.introspectQuery(config.getNgqlURI(), schemaTableName.getTableName());
+            NomsType tableType = NomsType.from(schema.lastCommitValueType(), schema);
+            NomsType rowType = tableType;
+            if (tableType.typeOf(RootNomsType.LIST, RootNomsType.SET)) {
+                // Noms collections are represented by Object<List<Struct>>>
+                rowType = tableType.getTypeArguments().get(0).getTypeArguments().get(0);
+            } else if (tableType.typeOf(RootNomsType.MAP)) {
+                // Noms collections are represented by Object<List<Struct>>>
+                rowType = tableType.getTypeArguments().get(1).getTypeArguments().get(0);
             }
-            if (rowType.typeOf(NomsType.BLOB, NomsType.BOOLEAN, NomsType.NUMBER, NomsType.STRING)) {
-                columnHandles.add(new NomsColumnHandle(connectorId, "value", 0, rootType));
-            } else if (rowType.typeOf(NomsType.STRUCT)) {
+            if (rowType.typeOf(RootNomsType.BLOB, RootNomsType.BOOLEAN, RootNomsType.NUMBER, RootNomsType.STRING)) {
+                columnHandles.add(new NomsColumnHandle(connectorId, "value", 0, tableType));
+            } else if (rowType.typeOf(RootNomsType.STRUCT)) {
                 int pos = 0;
                 for (Map.Entry<String, NomsType> e : rowType.getFields().entrySet()) {
                     columnHandles.add(new NomsColumnHandle(connectorId, e.getKey(), pos++, e.getValue()));
@@ -115,7 +99,7 @@ public class NativeNomsSession
             return new NomsTable(
                     new NomsTableHandle(connectorId, config.getDatabase(), schemaTableName.getTableName()),
                     columnHandles.build(),
-                    URI.create(config.getDatabase() + "?ds=" + config.getDataset())
+                    URI.create(config.getDatabase() + "?ds=" + schemaTableName.getTableName())
             );
         } catch (IOException e) {
             // Sloppy bail
@@ -123,30 +107,6 @@ public class NativeNomsSession
         }
     }
 
-
-    private KeyspaceMetadata getKeyspaceByCaseInsensitiveName(String caseInsensitiveSchemaName)
-            throws SchemaNotFoundException
-    {
-        List<KeyspaceMetadata> keyspaces = executeWithSession(session -> session.getCluster().getMetadata().getKeyspaces());
-        KeyspaceMetadata result = null;
-        // Ensure that the error message is deterministic
-        List<KeyspaceMetadata> sortedKeyspaces = Ordering.from(comparing(KeyspaceMetadata::getName)).immutableSortedCopy(keyspaces);
-        for (KeyspaceMetadata keyspace : sortedKeyspaces) {
-            if (keyspace.getName().equalsIgnoreCase(caseInsensitiveSchemaName)) {
-                if (result != null) {
-                    throw new PrestoException(
-                            NOT_SUPPORTED,
-                            format("More than one keyspace has been found for the case insensitive schema name: %s -> (%s, %s)",
-                                    caseInsensitiveSchemaName, result.getName(), keyspace.getName()));
-                }
-                result = keyspace;
-            }
-        }
-        if (result == null) {
-            throw new SchemaNotFoundException(caseInsensitiveSchemaName);
-        }
-        return result;
-    }
 
     @Override
     public ResultSet execute(String cql, Object... values)

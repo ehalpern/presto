@@ -26,7 +26,7 @@ public class TestNomsColumnHandle
     @Test
     public void testRoundTrip()
     {
-        NomsColumnHandle expected = new NomsColumnHandle("connector", "name", 42, NomsType.NUMBER);
+        NomsColumnHandle expected = new NomsColumnHandle("connector", "name", 42, RootNomsType.NUMBER);
 
         String json = codec.toJson(expected);
         NomsColumnHandle actual = codec.fromJson(json);
@@ -44,7 +44,7 @@ public class TestNomsColumnHandle
                 "connector",
                 "name2",
                 1,
-                NomsType.MAP);
+                RootNomsType.MAP);
         String json = codec.toJson(expected);
         NomsColumnHandle actual = codec.fromJson(json);
 
