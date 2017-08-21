@@ -39,61 +39,59 @@ import static io.airlift.slice.Slices.utf8Slice;
 @JsonDeserialize(using = NomsTypeDeserializer.class)
 public interface NomsType
 {
-    static NomsType from(NgqlType ngqlType, NgqlSchema schema) {
-        final Pattern EMPTY_PATTERN = Pattern.compile("Empty(List|Map|Set)");
-        final Pattern LIST_PATTERN = Pattern.compile("(.+)List");
-        final Pattern MAP_PATTERN = Pattern.compile("(.+)To(.+)Map");
-        final Pattern REF_PATTERN = Pattern.compile("(.+)Ref");
-        final Pattern SET_PATTERN = Pattern.compile("(.+)Set");
-        final Pattern STRUCT_PATTERN = Pattern.compile("([^_]+)_.+");
-        final Pattern TYPE_PATTERN = Pattern.compile("Type_(.+)");
+    static NomsType from(NgqlType ngqlType, NgqlSchema schema)
+    {
+        final Pattern emptyPattern = Pattern.compile("Empty(List|Map|Set)");
+        final Pattern listPattern = Pattern.compile("(.+)List");
+        final Pattern mapPattern = Pattern.compile("(.+)To(.+)Map");
+        final Pattern refPattern = Pattern.compile("(.+)Ref");
+        final Pattern setPattern = Pattern.compile("(.+)Set");
+        final Pattern structPattern = Pattern.compile("([^_]+)_.+");
+        final Pattern typePattern = Pattern.compile("Type_(.+)");
 
         ngqlType = schema.resolve(ngqlType);
         switch (ngqlType.kind()) {
             case LIST:
                 return new DerivedNomsType(RootNomsType.LIST, ImmutableList.of(
-                        NomsType.from(ngqlType.ofType(), schema))
-                );
+                        NomsType.from(ngqlType.ofType(), schema)));
             case OBJECT:
                 String typeName = ngqlType.name();
-                if (EMPTY_PATTERN.matcher(typeName).matches()) {
+                if (emptyPattern.matcher(typeName).matches()) {
                     switch (typeName) {
-                        case "EmptyList": return DerivedNomsType.EMPTY_LIST;
-                        case "EmptyMap": return DerivedNomsType.EMPTY_MAP;
-                        case "EmptySet": return DerivedNomsType.EMPTY_SET;
-                        default: throw new AssertionError("unexpected " + typeName);
+                        case "EmptyList":
+                            return DerivedNomsType.EMPTY_LIST;
+                        case "EmptyMap":
+                            return DerivedNomsType.EMPTY_MAP;
+                        case "EmptySet":
+                            return DerivedNomsType.EMPTY_SET;
+                        default:
+                            throw new AssertionError("unexpected " + typeName);
                     }
                 }
-                if (LIST_PATTERN.matcher(typeName).matches()) {
+                if (listPattern.matcher(typeName).matches()) {
                     return new DerivedNomsType(RootNomsType.LIST, ImmutableList.of(
-                        NomsType.from(ngqlType.fieldType("values"), schema))
-                    );
+                            NomsType.from(ngqlType.fieldType("values"), schema)));
                 }
-                if (MAP_PATTERN.matcher(typeName).matches()) {
+                if (mapPattern.matcher(typeName).matches()) {
                     return new DerivedNomsType(RootNomsType.MAP, ImmutableList.of(
-                        NomsType.from(ngqlType.fieldType("keys"), schema),
-                        NomsType.from(ngqlType.fieldType("values"), schema)
-                    ));
+                            NomsType.from(ngqlType.fieldType("keys"), schema),
+                            NomsType.from(ngqlType.fieldType("values"), schema)));
                 }
-                if (REF_PATTERN.matcher(typeName).matches()) {
+                if (refPattern.matcher(typeName).matches()) {
                     return new DerivedNomsType(RootNomsType.MAP, ImmutableList.of(
-                        NomsType.from(ngqlType.fieldType("targetValue"), schema)
-                    ));
+                            NomsType.from(ngqlType.fieldType("targetValue"), schema)));
                 }
-                if (SET_PATTERN.matcher(typeName).matches()) {
+                if (setPattern.matcher(typeName).matches()) {
                     return new DerivedNomsType(RootNomsType.SET, ImmutableList.of(
-                        NomsType.from(ngqlType.fieldType("values"), schema)
-                    ));
+                            NomsType.from(ngqlType.fieldType("values"), schema)));
                 }
-                if (STRUCT_PATTERN.matcher(typeName).matches()) {
+                if (structPattern.matcher(typeName).matches()) {
                     return new DerivedNomsType(RootNomsType.STRUCT, Collections.EMPTY_LIST,
                             ngqlType.fields().entrySet().stream().collect(Collectors.toMap(
                                     e -> e.getKey(),
-                                    e -> NomsType.from(e.getValue(), schema)
-                            ))
-                    );
+                                    e -> NomsType.from(e.getValue(), schema))));
                 }
-                if (TYPE_PATTERN.matcher(typeName).matches()) {
+                if (typePattern.matcher(typeName).matches()) {
                     throw new AssertionError("Not implelented");
                 }
             case SCALAR:
@@ -115,11 +113,16 @@ public interface NomsType
     }
 
     boolean typeOf(RootNomsType... types);
+
     RootNomsType getRootNomsType();
+
     Type getNativeType();
+
     Class<?> getJavaType();
+
     List<NomsType> getTypeArguments();
-    Map<String,NomsType> getFields();
+
+    Map<String, NomsType> getFields();
 
     public static NullableValue getColumnValue(Row row, int i, NomsType nomsType)
     {
@@ -140,7 +143,8 @@ public interface NomsType
                 return NullableValue.of(nativeType, row.getBool(i));
             case NUMBER:
                 return NullableValue.of(nativeType, row.getDouble(i));
-            case BLOB: case SET:
+            case BLOB:
+            case SET:
                 checkTypeArguments(nomsType, 1, typeArguments);
                 return NullableValue.of(nativeType, utf8Slice(buildSetValue(row, i, typeArguments.get(0))));
             case LIST:
@@ -196,7 +200,7 @@ public interface NomsType
     }
 
     static void checkTypeArguments(NomsType type, int expectedSize,
-                                           List<NomsType> typeArguments)
+            List<NomsType> typeArguments)
     {
         if (typeArguments == null || typeArguments.size() != expectedSize) {
             throw new IllegalArgumentException("Wrong number of type arguments " + typeArguments

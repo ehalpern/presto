@@ -38,8 +38,8 @@ public class NomsSplit
             @JsonProperty("connectorId") String connectorId,
             @JsonProperty("schema") String schema,
             @JsonProperty("table") String table,
-            @JsonProperty("address") HostAddress address
-    ) {
+            @JsonProperty("address") HostAddress address)
+    {
         requireNonNull(connectorId, "connectorId is null");
         requireNonNull(schema, "schema is null");
         requireNonNull(table, "table is null");

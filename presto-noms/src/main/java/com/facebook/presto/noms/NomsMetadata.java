@@ -14,12 +14,26 @@
 package com.facebook.presto.noms;
 
 import com.facebook.presto.noms.util.CassandraCqlUtils;
-import com.facebook.presto.spi.*;
+import com.facebook.presto.spi.ColumnHandle;
+import com.facebook.presto.spi.ColumnMetadata;
+import com.facebook.presto.spi.ConnectorSession;
+import com.facebook.presto.spi.ConnectorTableHandle;
+import com.facebook.presto.spi.ConnectorTableLayout;
+import com.facebook.presto.spi.ConnectorTableLayoutHandle;
+import com.facebook.presto.spi.ConnectorTableLayoutResult;
+import com.facebook.presto.spi.ConnectorTableMetadata;
+import com.facebook.presto.spi.Constraint;
+import com.facebook.presto.spi.NotFoundException;
+import com.facebook.presto.spi.SchemaNotFoundException;
+import com.facebook.presto.spi.SchemaTableName;
+import com.facebook.presto.spi.SchemaTablePrefix;
+import com.facebook.presto.spi.TableNotFoundException;
 import com.facebook.presto.spi.connector.ConnectorMetadata;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -40,8 +54,8 @@ public class NomsMetadata
     @Inject
     public NomsMetadata(
             NomsConnectorId connectorId,
-            NomsSession nomsSession
-    ) {
+            NomsSession nomsSession)
+    {
         this.connectorId = requireNonNull(connectorId, "connectorId is null").toString();
         this.nomsSession = requireNonNull(nomsSession, "nomsSession is null");
     }

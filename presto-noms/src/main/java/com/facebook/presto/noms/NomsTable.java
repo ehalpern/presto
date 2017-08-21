@@ -13,14 +13,12 @@
  */
 package com.facebook.presto.noms;
 
-import com.facebook.presto.noms.util.CassandraCqlUtils;
 import com.google.common.collect.ImmutableList;
 
 import java.net.URI;
 import java.util.List;
 
 import static com.google.common.base.MoreObjects.toStringHelper;
-import static java.util.stream.Collectors.toList;
 
 public class NomsTable
 {
@@ -45,7 +43,10 @@ public class NomsTable
         return tableHandle;
     }
 
-    public URI getSource() { return source; }
+    public URI getSource()
+    {
+        return source;
+    }
 
     @Override
     public int hashCode()

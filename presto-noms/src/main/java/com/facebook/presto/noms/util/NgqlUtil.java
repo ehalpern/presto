@@ -1,3 +1,16 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.facebook.presto.noms.util;
 
 import org.apache.http.client.fluent.Content;
@@ -6,11 +19,17 @@ import org.apache.http.client.fluent.Request;
 
 import javax.json.Json;
 import javax.json.JsonReader;
+
 import java.io.IOException;
 import java.net.URI;
 
-public class NgqlUtil {
-    private static String INTROSPECT_QUERY =
+public class NgqlUtil
+{
+    private NgqlUtil()
+    {
+    }
+
+    private static final String INTROSPECT_QUERY =
             "query IntrospectionQuery {\n" +
                     "    __schema {\n" +
                     "      queryType { name }\n" +
@@ -94,11 +113,12 @@ public class NgqlUtil {
                     "    }\n" +
                     "  }";
 
-    public static NgqlSchema introspectQuery(URI ngqlURI, String dataset) throws IOException
+    public static NgqlSchema introspectQuery(URI ngqlURI, String dataset)
+            throws IOException
     {
         Content resp = Request.Post(ngqlURI.toString() + "/graphql/").bodyForm(Form.form()
-                .add("ds",  dataset)
-                .add("query",  INTROSPECT_QUERY)
+                .add("ds", dataset)
+                .add("query", INTROSPECT_QUERY)
                 .build())
                 .execute().returnContent();
 

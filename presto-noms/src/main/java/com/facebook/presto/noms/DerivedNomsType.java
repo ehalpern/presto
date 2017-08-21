@@ -20,7 +20,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class DerivedNomsType implements NomsType
+public class DerivedNomsType
+        implements NomsType
 {
     public static final NomsType EMPTY_LIST = new DerivedNomsType(RootNomsType.LIST);
     public static final NomsType EMPTY_MAP = new DerivedNomsType(RootNomsType.MAP);
@@ -28,7 +29,7 @@ public class DerivedNomsType implements NomsType
 
     private final RootNomsType rootType;
     private final List<NomsType> arguments;
-    private final Map<String,NomsType> fields;
+    private final Map<String, NomsType> fields;
 
     private DerivedNomsType(RootNomsType type)
     {
@@ -40,7 +41,7 @@ public class DerivedNomsType implements NomsType
         this(type, arguments, Collections.EMPTY_MAP);
     }
 
-    /*package*/ DerivedNomsType(RootNomsType rootType, List<NomsType> arguments, Map<String,NomsType> fields)
+    /*package*/ DerivedNomsType(RootNomsType rootType, List<NomsType> arguments, Map<String, NomsType> fields)
     {
         this.rootType = rootType;
         this.arguments = arguments;
@@ -67,7 +68,13 @@ public class DerivedNomsType implements NomsType
         return rootType.getJavaType();
     }
 
-    public List<NomsType> getTypeArguments() { return arguments; }
+    public List<NomsType> getTypeArguments()
+    {
+        return arguments;
+    }
 
-    public Map<String,NomsType> getFields() { return fields; }
+    public Map<String, NomsType> getFields()
+    {
+        return fields;
+    }
 }

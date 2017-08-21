@@ -13,7 +13,11 @@
  */
 package com.facebook.presto.noms;
 
-import com.facebook.presto.spi.*;
+import com.facebook.presto.spi.ConnectorSession;
+import com.facebook.presto.spi.ConnectorSplitSource;
+import com.facebook.presto.spi.ConnectorTableLayoutHandle;
+import com.facebook.presto.spi.FixedSplitSource;
+import com.facebook.presto.spi.HostAddress;
 import com.facebook.presto.spi.connector.ConnectorSplitManager;
 import com.facebook.presto.spi.connector.ConnectorTransactionHandle;
 import com.google.common.collect.ImmutableList;
@@ -24,7 +28,8 @@ import static com.google.common.base.MoreObjects.toStringHelper;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 
-public class NomsSplitManager implements ConnectorSplitManager
+public class NomsSplitManager
+        implements ConnectorSplitManager
 {
     private final String connectorId;
     private final NomsSession nomsSession;
@@ -32,14 +37,15 @@ public class NomsSplitManager implements ConnectorSplitManager
     @Inject
     public NomsSplitManager(
             NomsConnectorId connectorId,
-            NomsSession nomsSession
-    ) {
+            NomsSession nomsSession)
+    {
         this.connectorId = requireNonNull(connectorId, "connectorId is null").toString();
         this.nomsSession = requireNonNull(nomsSession, "nomsSession is null");
     }
 
     @Override
-    public ConnectorSplitSource getSplits(ConnectorTransactionHandle handle, ConnectorSession session, ConnectorTableLayoutHandle layout) {
+    public ConnectorSplitSource getSplits(ConnectorTransactionHandle handle, ConnectorSession session, ConnectorTableLayoutHandle layout)
+    {
         NomsTableLayoutHandle layoutHandle = (NomsTableLayoutHandle) layout;
         NomsTableHandle tableHandle = layoutHandle.getTable();
         NomsTable table = nomsSession.getTable(tableHandle.getSchemaTableName());
@@ -48,8 +54,7 @@ public class NomsSplitManager implements ConnectorSplitManager
 
         return new FixedSplitSource(ImmutableList.of(
                 new NomsSplit(connectorId, tableHandle.getSchemaName(), tableHandle.getTableName(),
-                        HostAddress.fromParts(table.getSource().getHost(), table.getSource().getPort()))
-        ));
+                        HostAddress.fromParts(table.getSource().getHost(), table.getSource().getPort()))));
     }
 
     @Override

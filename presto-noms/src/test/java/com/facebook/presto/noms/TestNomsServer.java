@@ -13,8 +13,9 @@
  */
 package com.facebook.presto.noms;
 
-import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import static org.testng.Assert.assertNotEquals;
 
 public class TestNomsServer
 {
@@ -24,7 +25,7 @@ public class TestNomsServer
         NomsServer server = new NomsServer("nbs:/tmp/presto-noms/tpch");
         String output = server.exec("ds");
         System.out.println("ds output: " + output);
-        Assert.assertNotEquals(output, "");
+        assertNotEquals(output, "");
         server.stop();
     }
 }

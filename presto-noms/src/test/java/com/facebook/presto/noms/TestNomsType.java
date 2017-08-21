@@ -18,16 +18,13 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import io.airlift.json.JsonCodec;
-import org.testng.Assert;
 import org.testng.annotations.Test;
-
-import static io.airlift.json.JsonCodec.jsonCodec;
 
 import java.io.IOException;
 
+import static io.airlift.json.JsonCodec.jsonCodec;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
-
 
 public class TestNomsType
 {
@@ -38,9 +35,8 @@ public class TestNomsType
     {
         NomsColumnHandle expected = new NomsColumnHandle("connector", "name", 42, RootNomsType.NUMBER);
 
-        Assert.assertEquals(RootNomsType.NUMBER, codec.fromJson(codec.toJson(RootNomsType.NUMBER)));
+        assertEquals(RootNomsType.NUMBER, codec.fromJson(codec.toJson(RootNomsType.NUMBER)));
     }
-
 
     @Test
     public void testJsonMapEncoding()
@@ -66,7 +62,8 @@ public class TestNomsType
             JsonParser parser = new ObjectMapper().getFactory().createParser(json);
             continueWhileNotNull(parser, parser.nextToken());
             valid = true;
-        } catch (IOException ignored) {
+        }
+        catch (IOException ignored) {
         }
         return valid;
     }

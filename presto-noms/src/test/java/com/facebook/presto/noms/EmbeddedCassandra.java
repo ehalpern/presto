@@ -18,7 +18,6 @@ import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.Resources;
-import io.airlift.json.JsonCodec;
 import io.airlift.log.Logger;
 import io.airlift.units.Duration;
 import org.apache.cassandra.service.CassandraDaemon;

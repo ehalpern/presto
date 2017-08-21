@@ -18,7 +18,9 @@ import com.datastax.driver.core.RegularStatement;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Session;
 import com.datastax.driver.core.Statement;
-import com.facebook.presto.noms.util.*;
+import com.facebook.presto.noms.util.NgqlSchema;
+import com.facebook.presto.noms.util.NgqlUtil;
+import com.facebook.presto.noms.util.NomsUtil;
 import com.facebook.presto.spi.PrestoException;
 import com.facebook.presto.spi.SchemaNotFoundException;
 import com.facebook.presto.spi.SchemaTableName;
@@ -27,17 +29,10 @@ import com.google.common.collect.ImmutableList;
 import io.airlift.log.Logger;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
-import static com.datastax.driver.core.querybuilder.QueryBuilder.eq;
-import static com.datastax.driver.core.querybuilder.QueryBuilder.select;
 import static com.facebook.presto.spi.StandardErrorCode.NOT_SUPPORTED;
-import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.Iterables.filter;
-import static java.lang.String.format;
-import static java.util.Comparator.comparing;
 import static java.util.Objects.requireNonNull;
 
 public class NativeNomsSession
@@ -82,31 +77,33 @@ public class NativeNomsSession
             if (tableType.typeOf(RootNomsType.LIST, RootNomsType.SET)) {
                 // Noms collections are represented by Object<List<Struct>>>
                 rowType = tableType.getTypeArguments().get(0).getTypeArguments().get(0);
-            } else if (tableType.typeOf(RootNomsType.MAP)) {
+            }
+            else if (tableType.typeOf(RootNomsType.MAP)) {
                 // Noms collections are represented by Object<List<Struct>>>
                 rowType = tableType.getTypeArguments().get(1).getTypeArguments().get(0);
             }
             if (rowType.typeOf(RootNomsType.BLOB, RootNomsType.BOOLEAN, RootNomsType.NUMBER, RootNomsType.STRING)) {
                 columnHandles.add(new NomsColumnHandle(connectorId, "value", 0, tableType));
-            } else if (rowType.typeOf(RootNomsType.STRUCT)) {
+            }
+            else if (rowType.typeOf(RootNomsType.STRUCT)) {
                 int pos = 0;
                 for (Map.Entry<String, NomsType> e : rowType.getFields().entrySet()) {
                     columnHandles.add(new NomsColumnHandle(connectorId, e.getKey(), pos++, e.getValue()));
                 }
-            } else {
+            }
+            else {
                 throw new PrestoException(NOT_SUPPORTED, "row type " + rowType + " non supported");
             }
             return new NomsTable(
                     new NomsTableHandle(connectorId, config.getDatabase(), schemaTableName.getTableName()),
                     columnHandles.build(),
-                    URI.create(config.getDatabase() + "?ds=" + schemaTableName.getTableName())
-            );
-        } catch (IOException e) {
+                    config.getNgqlURI());
+        }
+        catch (IOException e) {
             // Sloppy bail
             throw new RuntimeException(e);
         }
     }
-
 
     @Override
     public ResultSet execute(String cql, Object... values)

@@ -45,8 +45,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.facebook.presto.noms.NomsTestingUtils.TABLE_ALL_TYPES;
-import static com.facebook.presto.noms.NomsTestingUtils.createTestTables;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;

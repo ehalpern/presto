@@ -13,12 +13,18 @@
  */
 package com.facebook.presto.noms;
 
-import com.facebook.presto.spi.type.*;
+import com.facebook.presto.spi.type.BooleanType;
+import com.facebook.presto.spi.type.DoubleType;
+import com.facebook.presto.spi.type.Type;
+import com.facebook.presto.spi.type.VarbinaryType;
+import com.facebook.presto.spi.type.VarcharType;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import java.nio.ByteBuffer;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 @JsonTypeName("rootnomstype")
 public enum RootNomsType implements NomsType
@@ -62,6 +68,14 @@ public enum RootNomsType implements NomsType
     {
         return javaType;
     }
-    public List<NomsType> getTypeArguments() { return Collections.EMPTY_LIST; }
-    public Map<String,NomsType> getFields() { return Collections.EMPTY_MAP; }
+
+    public List<NomsType> getTypeArguments()
+    {
+        return Collections.EMPTY_LIST;
+    }
+
+    public Map<String, NomsType> getFields()
+    {
+        return Collections.EMPTY_MAP;
+    }
 }

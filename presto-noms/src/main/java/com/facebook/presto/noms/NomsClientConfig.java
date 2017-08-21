@@ -22,6 +22,7 @@ import io.airlift.units.MinDuration;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+
 import java.net.URI;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -40,7 +41,10 @@ public class NomsClientConfig
     private Duration noHostAvailableRetryTimeout = new Duration(1, MINUTES);
 
     @NotNull
-    public URI getNgqlURI() { return this.ngqlURI; }
+    public URI getNgqlURI()
+    {
+        return this.ngqlURI;
+    }
 
     @Config("noms.ngql-uri")
     public NomsClientConfig setNgqlURI(URI uri)
@@ -50,7 +54,10 @@ public class NomsClientConfig
     }
 
     @NotNull
-    public String getDatabase() { return this.database; }
+    public String getDatabase()
+    {
+        return this.database;
+    }
 
     @Config("noms.database")
     public NomsClientConfig setDatabase(String db)

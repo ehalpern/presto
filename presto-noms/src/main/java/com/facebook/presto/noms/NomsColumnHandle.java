@@ -41,8 +41,8 @@ public class NomsColumnHandle
             @JsonProperty("connectorId") String connectorId,
             @JsonProperty("name") String name,
             @JsonProperty("ordinalPosition") int ordinalPosition,
-            @JsonProperty("nomsType") NomsType nomsType
-    ) {
+            @JsonProperty("nomsType") NomsType nomsType)
+    {
         this.connectorId = requireNonNull(connectorId, "connectorId is null");
         this.name = requireNonNull(name, "name is null");
         checkArgument(ordinalPosition >= 0, "ordinalPosition is negative");

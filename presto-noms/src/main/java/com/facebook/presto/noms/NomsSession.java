@@ -13,20 +13,15 @@
  */
 package com.facebook.presto.noms;
 
-import com.datastax.driver.core.Host;
 import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.RegularStatement;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Statement;
-import com.datastax.driver.core.TokenRange;
-import com.datastax.driver.core.VersionNumber;
 import com.facebook.presto.spi.SchemaNotFoundException;
 import com.facebook.presto.spi.SchemaTableName;
 import com.facebook.presto.spi.TableNotFoundException;
 
-import java.nio.ByteBuffer;
 import java.util.List;
-import java.util.Set;
 
 public interface NomsSession
 {
