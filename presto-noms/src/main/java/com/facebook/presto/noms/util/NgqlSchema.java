@@ -49,4 +49,9 @@ public class NgqlSchema
     {
         return type.reference() ? types.get(type.name()) : type;
     }
+
+    public Map<String, NgqlType> types()
+    {
+        return types;
+    }
 }

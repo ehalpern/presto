@@ -33,18 +33,18 @@ public class TestNomsType
     @Test
     public void testRoundTrip()
     {
-        NomsColumnHandle expected = new NomsColumnHandle("connector", "name", 42, RootNomsType.NUMBER);
+        NomsColumnHandle expected = new NomsColumnHandle("connector", "name", 42, RootNomsType.Number);
 
-        assertEquals(RootNomsType.NUMBER, codec.fromJson(codec.toJson(RootNomsType.NUMBER)));
+        assertEquals(RootNomsType.Number, codec.fromJson(codec.toJson(RootNomsType.Number)));
     }
 
     @Test
     public void testJsonMapEncoding()
     {
-        assertTrue(isValidJson(NomsType.buildArrayValue(Lists.newArrayList("one", "two", "three\""), RootNomsType.STRING)));
-        assertTrue(isValidJson(NomsType.buildArrayValue(Lists.newArrayList(1, 2, 3), RootNomsType.NUMBER)));
-        assertTrue(isValidJson(NomsType.buildArrayValue(Lists.newArrayList(100000L, 200000000L, 3000000000L), RootNomsType.NUMBER)));
-        assertTrue(isValidJson(NomsType.buildArrayValue(Lists.newArrayList(1.0, 2.0, 3.0), RootNomsType.NUMBER)));
+        assertTrue(isValidJson(NomsType.buildArrayValue(Lists.newArrayList("one", "two", "three\""), RootNomsType.String)));
+        assertTrue(isValidJson(NomsType.buildArrayValue(Lists.newArrayList(1, 2, 3), RootNomsType.Number)));
+        assertTrue(isValidJson(NomsType.buildArrayValue(Lists.newArrayList(100000L, 200000000L, 3000000000L), RootNomsType.Number)));
+        assertTrue(isValidJson(NomsType.buildArrayValue(Lists.newArrayList(1.0, 2.0, 3.0), RootNomsType.Number)));
     }
 
     private static void continueWhileNotNull(JsonParser parser, JsonToken token)

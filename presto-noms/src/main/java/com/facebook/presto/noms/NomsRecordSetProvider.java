@@ -53,12 +53,8 @@ public class NomsRecordSetProvider
                 .map(column -> (NomsColumnHandle) column)
                 .collect(toList());
 
-        /*
-         *  TODO:
-         *  - build ngql query for columns
-         *
-         */
-        return new NomsRecordSet(nomsSession, nomsColumns);
+        NomsTable table = nomsSession.getTable(nomsSplit.getTableName());
+        return new NomsRecordSet(nomsSession, nomsSplit, table, nomsColumns);
     }
 
     @Override

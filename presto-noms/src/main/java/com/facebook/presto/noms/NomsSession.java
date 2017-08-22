@@ -35,6 +35,7 @@ public interface NomsSession
     NomsTable getTable(SchemaTableName schemaTableName)
             throws TableNotFoundException;
 
+    // NomsResultSet execute(NomsQuery query);
     ResultSet execute(String cql, Object... values);
 
     PreparedStatement prepare(RegularStatement statement);

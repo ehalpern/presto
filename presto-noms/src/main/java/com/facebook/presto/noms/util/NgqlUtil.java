@@ -13,15 +13,19 @@
  */
 package com.facebook.presto.noms.util;
 
+import com.google.common.base.Strings;
 import org.apache.http.client.fluent.Content;
 import org.apache.http.client.fluent.Form;
 import org.apache.http.client.fluent.Request;
 
 import javax.json.Json;
+import javax.json.JsonObject;
 import javax.json.JsonReader;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.List;
+import java.util.Map;
 
 public class NgqlUtil
 {
@@ -113,18 +117,64 @@ public class NgqlUtil
                     "    }\n" +
                     "  }";
 
-    public static NgqlSchema introspectQuery(URI ngqlURI, String dataset)
+    public static JsonObject executeQuery(URI nomsURI, String dataset, String query)
             throws IOException
     {
-        Content resp = Request.Post(ngqlURI.toString() + "/graphql/").bodyForm(Form.form()
+        Content resp = Request.Post(nomsURI.toString() + "/graphql/").bodyForm(Form.form()
                 .add("ds", dataset)
-                .add("query", INTROSPECT_QUERY)
+                .add("query", query)
                 .build())
                 .execute().returnContent();
 
-        String respString = resp.asString();
         try (JsonReader reader = Json.createReader(resp.asStream())) {
-            return new NgqlSchema(reader.readObject());
+            return reader.readObject();
         }
+    }
+
+    public static NgqlSchema introspectQuery(URI nomsURI, String dataset)
+            throws IOException
+    {
+        return new NgqlSchema(executeQuery(nomsURI, dataset, INTROSPECT_QUERY));
+    }
+
+    public static String buildTableQuery(List<String> rootPath, Map<String, NgqlType> fields)
+    {
+        return "{\n" + buildQuery(rootPath, fields, 1) + "}\n";
+    }
+
+    private static String buildQuery(List<String> path, Map<String, NgqlType> fields, int indent)
+    {
+        assert path.size() > 0;
+        String tabs = Strings.repeat("\t", indent);
+        StringBuilder b = new StringBuilder(tabs + path.get(0) + " {\n");
+        if (path.size() == 1) {
+            b.append(buildFieldQuery(fields, indent + 1));
+        } else {
+            b.append(buildQuery(path.subList(1, path.size()), fields, indent + 1));
+        }
+        return b.append(tabs + "}\n").toString();
+    }
+
+    private static String buildFieldQuery(Map<String, NgqlType> fields, int indent)
+    {
+        String tabs = Strings.repeat("\t", indent);
+        StringBuilder b = new StringBuilder();
+        for (String field : fields.keySet()) {
+            b.append(tabs + field);
+            NgqlType type = fields.get(field);
+            switch (type.kind()) {
+                case SCALAR:
+                case ENUM:
+                    break;
+                case OBJECT:
+                    b.append(" {\n" + buildFieldQuery(type.fields(), indent + 1) + indent + "}");
+                    break;
+                case LIST:
+                case NON_NULL:
+                case UNION:
+                    throw new AssertionError("kind " + type.kind() + " not implemented");
+            }
+        }
+        return b.toString();
     }
 }

@@ -29,18 +29,18 @@ import java.util.Map;
 @JsonTypeName("rootnomstype")
 public enum RootNomsType implements NomsType
 {
-    BLOB(VarbinaryType.VARBINARY, ByteBuffer.class),
-    CYCLE(VarbinaryType.VARBINARY, null), // TODO: verify native type
-    BOOLEAN(BooleanType.BOOLEAN, Boolean.class),
-    NUMBER(DoubleType.DOUBLE, Double.class),
-    STRING(VarcharType.VARCHAR, String.class),
-    LIST(VarcharType.VARCHAR, null),    // TODO: Why not List?
-    MAP(VarcharType.VARCHAR, null),    // TODO: Why not Map?
-    REF(VarcharType.VARCHAR, null),     // TODO: Verify native type
-    SET(VarcharType.VARCHAR, null),     // TODO: Why not Set?
-    STRUCT(VarcharType.VARCHAR, null),  // TODO: Why not Row?
-    TYPE(VarcharType.VARCHAR, null),    // TODO: Verify native type
-    UNION(VarcharType.VARCHAR, null);   // TODO: determine native type
+    Blob(VarbinaryType.VARBINARY, ByteBuffer.class),
+    Cycle(VarbinaryType.VARBINARY, null), // TODO: verify native type
+    Boolean(BooleanType.BOOLEAN, Boolean.class),
+    Number(DoubleType.DOUBLE, Double.class),
+    String(VarcharType.VARCHAR, String.class),
+    List(VarcharType.VARCHAR, null),    // TODO: Why not List?
+    Map(VarcharType.VARCHAR, null),    // TODO: Why not Map?
+    Ref(VarcharType.VARCHAR, null),     // TODO: Verify native type
+    Set(VarcharType.VARCHAR, null),     // TODO: Why not Set?
+    Struct(VarcharType.VARCHAR, null),  // TODO: Why not Row?
+    Type(VarcharType.VARCHAR, null),    // TODO: Verify native type
+    Union(VarcharType.VARCHAR, null);   // TODO: determine native type
 
     private final Type nativeType;
     private final Class<?> javaType;
@@ -56,6 +56,7 @@ public enum RootNomsType implements NomsType
         return Arrays.binarySearch(rootTypes, this) > -1;
     }
 
+    public String getName() { return this.name(); }
     public RootNomsType getRootNomsType()
     {
         return this;

@@ -15,6 +15,7 @@ package com.facebook.presto.noms;
 
 import com.facebook.presto.spi.ConnectorSplit;
 import com.facebook.presto.spi.HostAddress;
+import com.facebook.presto.spi.SchemaTableName;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
@@ -69,6 +70,10 @@ public class NomsSplit
         return table;
     }
 
+    public SchemaTableName getTableName() {
+        return new SchemaTableName(schema, table);
+    }
+
     @JsonProperty
     @Override
     public List<HostAddress> getAddresses()
@@ -98,9 +103,5 @@ public class NomsSplit
         return toStringHelper(this)
                 .addValue(table)
                 .toString();
-    }
-    public NomsTableHandle getCassandraTableHandle()
-    {
-        return new NomsTableHandle(connectorId, schema, table);
     }
 }

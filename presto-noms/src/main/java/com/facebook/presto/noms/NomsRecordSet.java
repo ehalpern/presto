@@ -28,15 +28,18 @@ public class NomsRecordSet
         implements RecordSet
 {
     private final NomsSession nomsSession;
-    private final List<NomsType> nomsTypes;
+    private final NomsTable table;
     private final List<Type> columnTypes;
+    private final List<NomsColumnHandle> columns;
+    private final NomsSplit split;
 
-    public NomsRecordSet(NomsSession nomsSession, List<NomsColumnHandle> nomsColumns)
+    public NomsRecordSet(NomsSession session, NomsSplit split, NomsTable table, List<NomsColumnHandle> columns)
     {
-        this.nomsSession = requireNonNull(nomsSession, "nomsSession is null");
-        requireNonNull(nomsColumns, "nomsColumns is null");
-        this.nomsTypes = transformList(nomsColumns, NomsColumnHandle::getNomsType);
-        this.columnTypes = transformList(nomsColumns, NomsColumnHandle::getType);
+        this.nomsSession = requireNonNull(session, "nomsSession is null");
+        this.columns = requireNonNull(columns, "columns is null");
+        this.columnTypes = transformList(columns, NomsColumnHandle::getType);
+        this.table = table;
+        this.split = split;
     }
 
     @Override
@@ -48,7 +51,7 @@ public class NomsRecordSet
     @Override
     public RecordCursor cursor()
     {
-        return new NomsRecordCursor(nomsSession, nomsTypes);
+        return new NomsRecordCursor(nomsSession, split, table, columns);
     }
 
     private static <T, R> List<R> transformList(List<T> list, Function<T, R> function)

@@ -62,30 +62,34 @@ public class NativeNomsSession
         if (!config.getDatabase().equals(schemaName)) {
             throw new SchemaNotFoundException("Schema '" + schemaName + "' is not defined in configuration");
         }
+        // Hack by using noms CLI for now. Would be nice for ngql to provide a dataset query.
         return NomsUtil.ds(config.getNgqlURI().toString());
     }
 
     @Override
     public NomsTable getTable(SchemaTableName schemaTableName)
-            throws TableNotFoundException
+            throws SchemaNotFoundException, TableNotFoundException
     {
+        if (!getTableNames(schemaTableName.getSchemaName()).contains(schemaTableName.getTableName())) {
+            throw new TableNotFoundException(schemaTableName);
+        }
         ImmutableList.Builder<NomsColumnHandle> columnHandles = ImmutableList.builder();
         try {
             NgqlSchema schema = NgqlUtil.introspectQuery(config.getNgqlURI(), schemaTableName.getTableName());
             NomsType tableType = NomsType.from(schema.lastCommitValueType(), schema);
             NomsType rowType = tableType;
-            if (tableType.typeOf(RootNomsType.LIST, RootNomsType.SET)) {
+            if (tableType.typeOf(RootNomsType.List, RootNomsType.Set)) {
                 // Noms collections are represented by Object<List<Struct>>>
                 rowType = tableType.getTypeArguments().get(0).getTypeArguments().get(0);
             }
-            else if (tableType.typeOf(RootNomsType.MAP)) {
+            else if (tableType.typeOf(RootNomsType.Map)) {
                 // Noms collections are represented by Object<List<Struct>>>
                 rowType = tableType.getTypeArguments().get(1).getTypeArguments().get(0);
             }
-            if (rowType.typeOf(RootNomsType.BLOB, RootNomsType.BOOLEAN, RootNomsType.NUMBER, RootNomsType.STRING)) {
+            if (rowType.typeOf(RootNomsType.Blob, RootNomsType.Boolean, RootNomsType.Number, RootNomsType.String)) {
                 columnHandles.add(new NomsColumnHandle(connectorId, "value", 0, tableType));
             }
-            else if (rowType.typeOf(RootNomsType.STRUCT)) {
+            else if (rowType.typeOf(RootNomsType.Struct)) {
                 int pos = 0;
                 for (Map.Entry<String, NomsType> e : rowType.getFields().entrySet()) {
                     columnHandles.add(new NomsColumnHandle(connectorId, e.getKey(), pos++, e.getValue()));
@@ -96,6 +100,8 @@ public class NativeNomsSession
             }
             return new NomsTable(
                     new NomsTableHandle(connectorId, config.getDatabase(), schemaTableName.getTableName()),
+                    schema,
+                    tableType,
                     columnHandles.build(),
                     config.getNgqlURI());
         }

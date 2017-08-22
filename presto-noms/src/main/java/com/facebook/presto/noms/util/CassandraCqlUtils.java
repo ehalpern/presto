@@ -37,12 +37,12 @@ public final class CassandraCqlUtils
     }
 
     private static final String[] KEYWORDS = {"ADD", "ALL", "ALLOW", "ALTER", "AND", "APPLY",
-            "ASC", "ASCII", "AUTHORIZE", "BATCH", "BEGIN", "BIGINT", "BLOB", "BOOLEAN", "BY",
+            "ASC", "ASCII", "AUTHORIZE", "BATCH", "BEGIN", "BIGINT", "Blob", "Boolean", "BY",
             "CLUSTERING", "COLUMNFAMILY", "COMPACT", "COUNT", "COUNTER", "CREATE", "DECIMAL",
             "DELETE", "DESC", "DOUBLE", "DROP", "FILTERING", "FLOAT", "FROM", "GRANT", "IN",
             "INDEX", "INET", "INSERT", "INT", "INTO", "KEY", "KEYSPACE", "KEYSPACES", "LIMIT",
-            "LIST", "MAP", "MODIFY", "NORECURSIVE", "NOSUPERUSER", "OF", "ON", "ORDER", "PASSWORD",
-            "PERMISSION", "PERMISSIONS", "PRIMARY", "RENAME", "REVOKE", "SCHEMA", "SELECT", "SET",
+            "List", "Map", "MODIFY", "NORECURSIVE", "NOSUPERUSER", "OF", "ON", "ORDER", "PASSWORD",
+            "PERMISSION", "PERMISSIONS", "PRIMARY", "RENAME", "REVOKE", "SCHEMA", "SELECT", "Set",
             "STORAGE", "SUPERUSER", "TABLE", "TEXT", "TIMESTAMP", "TIMEUUID", "TO", "TOKEN",
             "TRUNCATE", "TTL", "TYPE", "UNLOGGED", "UPDATE", "USE", "USER", "USERS", "USING",
             "UUID", "VALUES", "VARCHAR", "VARINT", "WHERE", "WITH", "WRITETIME"};

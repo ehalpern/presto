@@ -13,45 +13,110 @@
  */
 package com.facebook.presto.noms;
 
-import com.datastax.driver.core.ResultSet;
-import com.datastax.driver.core.Row;
+import com.facebook.presto.noms.util.NgqlType;
+import com.facebook.presto.noms.util.NgqlUtil;
 import com.facebook.presto.spi.RecordCursor;
 import com.facebook.presto.spi.predicate.NullableValue;
 import com.facebook.presto.spi.type.Type;
+import com.google.common.base.Verify;
 import io.airlift.slice.Slice;
 
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonObject;
+import javax.json.JsonValue;
+
+import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static io.airlift.slice.Slices.utf8Slice;
+import static java.util.Objects.requireNonNull;
 
 public class NomsRecordCursor
         implements RecordCursor
 {
-    private final List<NomsType> nomsTypes;
-    private final ResultSet rs;
-    private Row currentRow;
-    private long atLeastCount;
-    private long count;
+    private final List<NomsColumnHandle> columns;
+    private String query;
+    private NomsSplit split;
+    private NomsTable table;
+    private int resultIndex;
+    private List<String> path;
 
-    public NomsRecordCursor(NomsSession nomsSession, List<NomsType> nomsTypes)
+    private Iterator<JsonValue> results = JsonValue.EMPTY_JSON_ARRAY.iterator();
+    private JsonObject row = JsonValue.EMPTY_JSON_OBJECT;
+
+    private long totalCount = 0;
+    private long completedCount = 0;
+    private int batchSize = 100;
+
+    public NomsRecordCursor(NomsSession session, NomsSplit nomsSplit, NomsTable table, List<NomsColumnHandle> columns)
     {
-        this.nomsTypes = nomsTypes;
-        // TODO: execute ngql query
-        rs = nomsSession.execute("");
-        currentRow = null;
-        atLeastCount = rs.getAvailableWithoutFetching();
+        requireNonNull(columns, "columns is null");
+
+        Map<String, NgqlType> fields = columns.stream().collect(Collectors.toMap(
+                c -> c.getName(),
+                c -> ngqlType(table, c)));
+        this.path = NomsType.pathToTable(table.getTableType());
+        this.columns = columns;
+        this.query = NgqlUtil.buildTableQuery(path, fields);
+        this.table = table;
+    }
+
+    private static NgqlType ngqlType(NomsTable table, NomsColumnHandle column) {
+        String name = column.getNomsType().getName();
+        if (name.equals("Number")) {
+            name = "Float";
+        }
+        return requireNonNull(table.getSchema().types().get(name), "NgqlType " + name + " not found");
+    }
+
+    private JsonArray queryTable(long offset, long limit) throws IOException
+    {
+        JsonObject result = NgqlUtil.executeQuery(
+                table.getSource(),
+                table.getTableHandle().getTableName(),
+                query);
+        JsonValue tableValue = result.getValue("/data/" + String.join("/", path));
+        if (tableValue.getValueType() == JsonValue.ValueType.ARRAY) {
+            return tableValue.asJsonArray();
+        } else {
+            return Json.createArrayBuilder().add(tableValue).build();
+        }
     }
 
     @Override
     public boolean advanceNextPosition()
     {
-        if (!rs.isExhausted()) {
-            currentRow = rs.one();
-            count++;
-            atLeastCount = count + rs.getAvailableWithoutFetching();
+        if (results.hasNext()) {
+            JsonValue rowValue = results.next();
+            if (rowValue.getValueType() != JsonValue.ValueType.OBJECT) {
+                Verify.verify(columns.size() == 1, "expecting a single column");
+                row = Json.createObjectBuilder().add(columns.get(0).getName(), rowValue).build();
+            } else {
+                row = rowValue.asJsonObject();
+            }
+            completedCount += 1;
             return true;
+        } else if (totalCount % batchSize != 0) {
+            return false;
+        } else {
+            try {
+                JsonArray next = queryTable(totalCount, batchSize);
+                totalCount += next.size();
+                results = next.iterator();
+                if (!results.hasNext()) {
+                    return false;
+                } else {
+                    return advanceNextPosition();
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
-        return false;
     }
 
     @Override
@@ -59,16 +124,21 @@ public class NomsRecordCursor
     {
     }
 
+    private JsonValue columnValue(int i) {
+        String field = columns.get(i).getName();
+        return row.get(field);
+    }
+
     @Override
     public boolean getBoolean(int i)
     {
-        return currentRow.getBool(i);
+        return Boolean.parseBoolean(columnValue(i).toString());
     }
 
     @Override
     public long getCompletedBytes()
     {
-        return count;
+        return completedCount;
     }
 
     @Override
@@ -80,43 +150,76 @@ public class NomsRecordCursor
     @Override
     public double getDouble(int i)
     {
-        return currentRow.getDouble(i);
+        return Double.parseDouble(columnValue(i).toString());
     }
 
     @Override
     public long getLong(int i)
     {
-        throw new AssertionError("incomplete");
-        /*
-        switch (getNomsType(i)) {
-            case INT:
-                return currentRow.getInt(i);
-            case BIGINT:
-            case COUNTER:
-                return currentRow.getLong(i);
-            case TIMESTAMP:
-                return currentRow.getTimestamp(i).getTime();
-            case FLOAT:
-                return floatToRawIntBits(currentRow.getFloat(i));
-            default:
-                throw new IllegalStateException("Cannot retrieve long for " + getNomsType(i));
-        }
-        */
+        return Long.parseLong(columnValue(i).toString());
     }
 
     private NomsType getNomsType(int i)
     {
-        return nomsTypes.get(i);
+        return columns.get(i).getNomsType();
     }
 
     @Override
     public Slice getSlice(int i)
     {
-        NullableValue value = NomsType.getColumnValue(currentRow, i, nomsTypes.get(i));
+        NomsType nomsType = columns.get(i).getNomsType();
+        Type nativeType = nomsType.getNativeType();
+        NullableValue value;
+        if (isNull(i)) {
+            value = NullableValue.asNull(nativeType);
+        } else {
+            switch (nomsType.getRootNomsType()) {
+                case String:
+                    String s = columnValue(i).toString();
+                    // Strip quotes
+                    s = s.substring(1, s.length() - 1);
+                    value = NullableValue.of(nativeType, utf8Slice(s));
+                    break;
+                case Boolean:
+                    value = NullableValue.of(nativeType, getBoolean(i));
+                    break;
+                case Number:
+                    value = NullableValue.of(nativeType, getDouble(i));
+                    break;
+                case Blob:
+                case Set:
+                    NomsType.checkTypeArguments(nomsType, 1, nomsType.getTypeArguments());
+                    value = NullableValue.of(nativeType, utf8Slice(buildSetValue(i, nomsType.getTypeArguments().get(0))));
+                    break;
+                case List:
+                    NomsType.checkTypeArguments(nomsType, 1, nomsType.getTypeArguments());
+                    value = NullableValue.of(nativeType, utf8Slice(buildListValue(i, nomsType.getTypeArguments().get(0))));
+                    break;
+                case Map:
+                    NomsType.checkTypeArguments(nomsType, 2, nomsType.getTypeArguments());
+                    value = NullableValue.of(nativeType, utf8Slice(buildMapValue(i, nomsType.getTypeArguments().get(0), nomsType.getTypeArguments().get(1))));
+                    break;
+                default:
+                    throw new IllegalStateException("Handling of type " + nomsType + " is not implemented");
+            }
+        }
         if (value.getValue() instanceof Slice) {
             return (Slice) value.getValue();
         }
         return utf8Slice(value.getValue().toString());
+    }
+
+    private <String, V> Map<String, V> getMap(int i, Class<String> keysClass, Class<V> valuesClass) {
+        throw new AssertionError("not implemented");
+    }
+
+    private <T> Set<T> getSet(int i, Class<T> elementsClass)
+    {
+        throw new AssertionError("not implemented");
+    }
+
+    private <T> List<T> getList(int i, Class<T> elementsClass) {
+        throw new AssertionError("not implemented");
     }
 
     @Override
@@ -128,7 +231,7 @@ public class NomsRecordCursor
     @Override
     public long getTotalBytes()
     {
-        return atLeastCount;
+        return totalCount;
     }
 
     @Override
@@ -140,6 +243,32 @@ public class NomsRecordCursor
     @Override
     public boolean isNull(int i)
     {
-        return currentRow.isNull(i);
+        return columnValue(i) == JsonValue.NULL;
+    }
+
+    private String buildSetValue(int i, NomsType elemType)
+    {
+        return NomsType.buildArrayValue(getSet(i, elemType.getJavaType()), elemType);
+    }
+
+    private String buildListValue(int i, NomsType elemType)
+    {
+        return NomsType.buildArrayValue(getList(i, elemType.getJavaType()), elemType);
+    }
+
+    private String buildMapValue(int i, NomsType keyType, NomsType valueType)
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{");
+        for (Map.Entry<?, ?> entry : getMap(i, keyType.getJavaType(), valueType.getJavaType()).entrySet()) {
+            if (sb.length() > 1) {
+                sb.append(",");
+            }
+            sb.append(NomsType.objectToString(entry.getKey(), keyType));
+            sb.append(":");
+            sb.append(NomsType.objectToString(entry.getValue(), valueType));
+        }
+        sb.append("}");
+        return sb.toString();
     }
 }

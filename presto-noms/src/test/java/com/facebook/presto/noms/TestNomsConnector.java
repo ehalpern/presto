@@ -36,6 +36,7 @@ import com.facebook.presto.spi.type.Type;
 import com.facebook.presto.testing.TestingConnectorContext;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -82,16 +83,15 @@ public class TestNomsConnector
     public void setup()
             throws Exception
     {
-        server = NomsServer.start("nbs:/tmp/presto-noms/example");
-
-        //createTestTables(EmbeddedCassandra.getSession(), keyspace, DATE);
+        database = "test";
+        server = NomsServer.start("nbs:/tmp/presto-noms/" + database);
 
         String connectorId = "noms-test";
         NomsConnectorFactory connectorFactory = new NomsConnectorFactory(connectorId);
 
         Connector connector = connectorFactory.create(connectorId, ImmutableMap.of(
                 "noms.ngql-uri", server.uri().toString(),
-                "noms.database", "example"),
+                "noms.database", database),
                 new TestingConnectorContext());
 
         metadata = connector.getMetadata(NomsTransactionHandle.INSTANCE);
@@ -103,22 +103,16 @@ public class TestNomsConnector
         recordSetProvider = connector.getRecordSetProvider();
         assertInstanceOf(recordSetProvider, NomsRecordSetProvider.class);
 
-        database = "example";
-        table = new SchemaTableName(database, "numbers-list");
+        table = new SchemaTableName(database, "types");
         tableUnpartitioned = new SchemaTableName(database, "presto_test_unpartitioned");
         invalidTable = new SchemaTableName(database, "totally_invalid_table_name");
     }
 
-    @AfterMethod
+    @AfterClass
     public void tearDown()
             throws Exception
     {
-        //server.close();
-    }
-
-    @Test
-    public void testGetClient()
-    {
+        server.close();
     }
 
     @Test
@@ -184,22 +178,19 @@ public class TestNomsConnector
 
                     rowNumber++;
 
-                    String keyValue = cursor.getSlice(columnIndex.get("key")).toStringUtf8();
-                    assertTrue(keyValue.startsWith("key "));
-                    int rowId = Integer.parseInt(keyValue.substring(4));
+                    String keyValue = cursor.getSlice(columnIndex.get("typestring")).toStringUtf8();
+                    assertTrue(keyValue.startsWith("string"));
+                    int rowId = Integer.parseInt(keyValue.substring(6));
 
-                    assertEquals(keyValue, String.format("key %d", rowId));
+                    assertEquals(keyValue, String.format("string%d", rowId));
 
-                    assertEquals(Bytes.toHexString(cursor.getSlice(columnIndex.get("typebytes")).getBytes()), String.format("0x%08X", rowId));
 
                     // VARINT is returned as a string
-                    assertEquals(cursor.getSlice(columnIndex.get("typeinteger")).toStringUtf8(), String.valueOf(rowId));
+                    //assertEquals(cursor.getSlice(columnIndex.get("typedoubleinteger")).toStringUtf8(), String.valueOf(rowId));
 
-                    assertEquals(cursor.getLong(columnIndex.get("typelong")), 1000 + rowId);
+                    assertEquals(cursor.getDouble(columnIndex.get("typedouble")), 1000.0 + rowId);
 
-                    assertEquals(cursor.getSlice(columnIndex.get("typeuuid")).toStringUtf8(), String.format("00000000-0000-0000-0000-%012d", rowId));
-
-                    assertEquals(cursor.getSlice(columnIndex.get("typetimestamp")).toStringUtf8(), Long.valueOf(DATE.getTime()).toString());
+                    assertEquals(cursor.getBoolean(columnIndex.get("typebool")), rowId % 2 == 1, "rowId:" + rowId);
 
                     long newCompletedBytes = cursor.getCompletedBytes();
                     assertTrue(newCompletedBytes >= completedBytes);
@@ -207,7 +198,7 @@ public class TestNomsConnector
                 }
             }
         }
-        assertEquals(rowNumber, 9);
+        assertEquals(rowNumber, 6);
     }
 
     private static void assertReadFields(RecordCursor cursor, List<ColumnMetadata> schema)

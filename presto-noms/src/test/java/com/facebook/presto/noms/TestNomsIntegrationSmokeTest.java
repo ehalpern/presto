@@ -86,7 +86,7 @@ public class TestNomsIntegrationSmokeTest
         createTestTables(session, KEYSPACE, DATE_LOCAL);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testPartitionKeyPredicate()
     {
         String sql = "SELECT *" +
@@ -115,7 +115,7 @@ public class TestNomsIntegrationSmokeTest
         assertEquals(result.getRowCount(), 1);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testSelect()
             throws Exception
     {
@@ -123,7 +123,7 @@ public class TestNomsIntegrationSmokeTest
         assertSelect(TABLE_ALL_TYPES_PARTITION_KEY, false);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testCreateTableAs()
             throws Exception
     {
@@ -133,7 +133,7 @@ public class TestNomsIntegrationSmokeTest
         execute("DROP TABLE table_all_types_copy");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testClusteringPredicates()
             throws Exception
     {
@@ -157,7 +157,7 @@ public class TestNomsIntegrationSmokeTest
         assertEquals(execute(sql).getRowCount(), 2);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testMultiplePartitionClusteringPredicates()
             throws Exception
     {
@@ -185,7 +185,7 @@ public class TestNomsIntegrationSmokeTest
         assertEquals(execute(sql).getRowCount(), 2);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testClusteringKeyOnlyPushdown()
             throws Exception
     {
@@ -225,7 +225,7 @@ public class TestNomsIntegrationSmokeTest
         assertEquals(execute(sql).getRowCount(), 1);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testClusteringKeyPushdownInequality()
             throws Exception
     {
@@ -253,7 +253,7 @@ public class TestNomsIntegrationSmokeTest
         assertEquals(execute(sql).getRowCount(), 1);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testUpperCaseNameUnescapedInCassandra()
             throws Exception
     {
@@ -284,7 +284,7 @@ public class TestNomsIntegrationSmokeTest
         session.execute("DROP KEYSPACE keyspace_1");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testUppercaseNameEscaped()
             throws Exception
     {
@@ -315,7 +315,7 @@ public class TestNomsIntegrationSmokeTest
         session.execute("DROP KEYSPACE \"KEYSPACE_2\"");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testKeyspaceNameAmbiguity()
             throws Exception
     {
@@ -340,7 +340,7 @@ public class TestNomsIntegrationSmokeTest
         session.execute("DROP KEYSPACE \"kEySpAcE_3\"");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testTableNameAmbiguity()
             throws Exception
     {
@@ -372,7 +372,7 @@ public class TestNomsIntegrationSmokeTest
         session.execute("DROP KEYSPACE keyspace_4");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testColumnNameAmbiguity()
             throws Exception
     {
@@ -398,7 +398,7 @@ public class TestNomsIntegrationSmokeTest
         session.execute("DROP KEYSPACE keyspace_5");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testInsert()
     {
         String sql = "SELECT key, typeuuid, typeinteger, typelong, typebytes, typetimestamp, typeansi, typeboolean, typedecimal, " +

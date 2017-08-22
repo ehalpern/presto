@@ -201,7 +201,7 @@ public class NomsTestingUtils
                 "   typetimestamp, " +
                 "   typeansi, " +
                 "   typeboolean, " +
-                // TODO: PRECISION LOST. IMPLEMENT IT AS STRING
+                // TODO: PRECISION LOST. IMPLEMENT IT AS String
                 //  "   typedecimal, " +
                 "   typedouble, " +
                 "   typefloat, " +

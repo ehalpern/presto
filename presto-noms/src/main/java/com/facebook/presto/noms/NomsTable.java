@@ -13,6 +13,7 @@
  */
 package com.facebook.presto.noms;
 
+import com.facebook.presto.noms.util.NgqlSchema;
 import com.google.common.collect.ImmutableList;
 
 import java.net.URI;
@@ -23,12 +24,17 @@ import static com.google.common.base.MoreObjects.toStringHelper;
 public class NomsTable
 {
     private final NomsTableHandle tableHandle;
+    private final NgqlSchema schema;
+    private final NomsType tableType;
+
     private final List<NomsColumnHandle> columns;
     private final URI source;
 
-    public NomsTable(NomsTableHandle tableHandle, List<NomsColumnHandle> columns, URI source)
+    public NomsTable(NomsTableHandle tableHandle, NgqlSchema schema, NomsType tableType, List<NomsColumnHandle> columns, URI source)
     {
         this.tableHandle = tableHandle;
+        this.schema = schema;
+        this.tableType = tableType;
         this.columns = ImmutableList.copyOf(columns);
         this.source = source;
     }
@@ -42,6 +48,10 @@ public class NomsTable
     {
         return tableHandle;
     }
+
+    public NgqlSchema getSchema() { return schema; }
+
+    public NomsType getTableType() { return tableType; }
 
     public URI getSource()
     {

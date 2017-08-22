@@ -15,9 +15,13 @@ import() {
     #noms2 show nbs:/tmp/presto-noms2/${db}::${ds}
 }
 
+test_fields="typestring,typebool,typedouble"
+test_types="String,Bool,Number"
+import $test_fields 0 $test_types "test" "types"
+
 number_fields="text,value"
 number_types="String,Number"
-import $number_fields 0 $number_types "example" "numbers"
+import $number_fields 0 $number_types "test" "numbers"
 
 lineitem_fields="orderkey,partkey,suppkey,linenumber,quantity,discount,tax,returnflag,linestatus,shipdate,commitdate,receiptdate,shipinstruct,shipmode,comment"
 lineitem_types="Number,Number,Number,Number,Number,Number,Number,String,String,String,String,String,String,String,String"
