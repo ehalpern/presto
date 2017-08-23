@@ -16,29 +16,119 @@ package com.facebook.presto.noms;
 import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.RegularStatement;
 import com.datastax.driver.core.ResultSet;
+import com.datastax.driver.core.Session;
 import com.datastax.driver.core.Statement;
+import com.facebook.presto.noms.util.NgqlSchema;
+import com.facebook.presto.noms.util.NgqlUtil;
+import com.facebook.presto.noms.util.NomsUtil;
+import com.facebook.presto.spi.PrestoException;
 import com.facebook.presto.spi.SchemaNotFoundException;
 import com.facebook.presto.spi.SchemaTableName;
 import com.facebook.presto.spi.TableNotFoundException;
+import com.google.common.collect.ImmutableList;
+import io.airlift.log.Logger;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
-public interface NomsSession
+import static com.facebook.presto.spi.StandardErrorCode.NOT_SUPPORTED;
+import static java.util.Objects.requireNonNull;
+
+public class NomsSession
 {
-    String PRESTO_COMMENT_METADATA = "Presto Metadata:";
+    private static final Logger log = Logger.get(NomsSession.class);
 
-    List<String> getSchemaNames();
+    private final String connectorId;
+    private final NomsClientConfig config;
 
-    List<String> getTableNames(String schemaName)
-            throws SchemaNotFoundException;
+    public NomsSession(String connectorId, NomsClientConfig config)
+    {
+        this.connectorId = requireNonNull(connectorId, "connectorId is null");
+        this.config = requireNonNull(config, "config is null");
+    }
 
-    NomsTable getTable(SchemaTableName schemaTableName)
-            throws TableNotFoundException;
+    public List<String> getSchemaNames()
+    {
+        return ImmutableList.of(config.getDatabase());
+    }
 
-    // NomsResultSet execute(NomsQuery query);
-    ResultSet execute(String cql, Object... values);
+    public List<String> getTableNames(String schemaName)
+            throws SchemaNotFoundException
+    {
+        if (!config.getDatabase().equals(schemaName)) {
+            throw new SchemaNotFoundException("Schema '" + schemaName + "' is not defined in configuration");
+        }
+        // Hack by using noms CLI for now. Would be nice for ngql to provide a dataset query.
+        return NomsUtil.ds(config.getNgqlURI().toString());
+    }
 
-    PreparedStatement prepare(RegularStatement statement);
+    public NomsTable getTable(SchemaTableName schemaTableName)
+            throws SchemaNotFoundException, TableNotFoundException
+    {
+        if (!getTableNames(schemaTableName.getSchemaName()).contains(schemaTableName.getTableName())) {
+            throw new TableNotFoundException(schemaTableName);
+        }
+        ImmutableList.Builder<NomsColumnHandle> columnHandles = ImmutableList.builder();
+        try {
+            NgqlSchema schema = NgqlUtil.introspectQuery(config.getNgqlURI(), schemaTableName.getTableName());
+            NomsType tableType = NomsType.from(schema.lastCommitValueType(), schema);
+            NomsType rowType = tableType;
+            if (tableType.kindOf(NomsType.Kind.List, NomsType.Kind.Set)) {
+                // Noms collections are represented by Object<List<Struct>>>
+                rowType = tableType.getArguments().get(0).getArguments().get(0);
+            }
+            else if (tableType.kindOf(NomsType.Kind.Map)) {
+                // Noms collections are represented by Object<List<Struct>>>
+                rowType = tableType.getArguments().get(1).getArguments().get(0);
+            }
+            if (rowType.kindOf(NomsType.Kind.Blob, NomsType.Kind.Boolean, NomsType.Kind.Number, NomsType.Kind.String)) {
+                columnHandles.add(new NomsColumnHandle(connectorId, "value", 0, tableType));
+            }
+            else if (rowType.kindOf(NomsType.Kind.Struct)) {
+                int pos = 0;
+                for (Map.Entry<String, NomsType> e : rowType.getFields().entrySet()) {
+                    columnHandles.add(new NomsColumnHandle(connectorId, e.getKey(), pos++, e.getValue()));
+                }
+            }
+            else {
+                throw new PrestoException(NOT_SUPPORTED, "row type " + rowType + " non supported");
+            }
+            return new NomsTable(
+                    new NomsTableHandle(connectorId, config.getDatabase(), schemaTableName.getTableName()),
+                    schema,
+                    tableType,
+                    columnHandles.build(),
+                    config.getNgqlURI());
+        }
+        catch (IOException e) {
+            // Sloppy bail
+            throw new RuntimeException(e);
+        }
+    }
 
-    ResultSet execute(Statement statement);
+    public ResultSet execute(String cql, Object... values)
+    {
+        return executeWithSession(session -> session.execute(cql, values));
+    }
+
+    public PreparedStatement prepare(RegularStatement statement)
+    {
+        return executeWithSession(session -> session.prepare(statement));
+    }
+
+    public ResultSet execute(Statement statement)
+    {
+        return executeWithSession(session -> session.execute(statement));
+    }
+
+    private <T> T executeWithSession(SessionCallable<T> sessionCallable)
+    {
+        throw new AssertionError("out of order");
+    }
+
+    private interface SessionCallable<T>
+    {
+        T executeWithSession(Session session);
+    }
 }

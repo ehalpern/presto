@@ -53,6 +53,6 @@ public class NomsClientModule
             NomsClientConfig config)
     {
         requireNonNull(config, "config is null");
-        return new NativeNomsSession(connectorId.toString(), config);
+        return new NomsSession(connectorId.toString(), config);
     }
 }
