@@ -13,11 +13,13 @@
  */
 package com.facebook.presto.noms;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import io.airlift.json.JsonCodec;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
 import java.util.Collections;
 
 import static io.airlift.json.JsonCodec.jsonCodec;
@@ -34,14 +36,14 @@ public class TestNomsColumnHandle
                 new NomsColumnHandle("cid", "c0", 0, RootNomsType.Number),
                 new NomsColumnHandle("cid", "c1", 1, DerivedNomsType.EMPTY_LIST),
                 new NomsColumnHandle("cid", "c2", 2, new DerivedNomsType(
-                        "NumberList", RootNomsType.List, ImmutableList.of(RootNomsType.Number))),
+                        "NumberList", RootNomsType.List, ImmutableList.of(RootNomsType.String))),
                 new NomsColumnHandle("cid", "c3", 3, new DerivedNomsType(
                         "TestStruct", RootNomsType.Struct, Collections.EMPTY_LIST, ImmutableMap.of("test", RootNomsType.String)))
         };
 
         for (int i = 0; i < columns.length; i++) {
             NomsColumnHandle expected = columns[i];
-            String json = codec.toJson(expected);
+            byte[] json = codec.toJsonBytes(expected);
             NomsColumnHandle actual = codec.fromJson(json);
             assertEquals(actual.getConnectorId(), expected.getConnectorId(), "column: " + expected.getName());
             assertEquals(actual.getName(), expected.getName());
@@ -49,4 +51,15 @@ public class TestNomsColumnHandle
             assertEquals(actual.getNomsType(), expected.getNomsType());
         }
     }
+
+    public void givenAbstractClass_whenDeserializing_thenException() throws IOException {
+        String json = "{ \"connectorId\":\"cid\",\"name\":\"c0\",\"ordinalPosition\":6,\"nomsType\":\"Number\"}";
+        ObjectMapper mapper = new ObjectMapper();
+        NomsColumnHandle handle = (NomsColumnHandle)mapper.reader().forType(NomsColumnHandle.class).readValue(json);
+        assertEquals(handle.getNomsType(), RootNomsType.Number);
+        byte[] bytes = mapper.writer().writeValueAsBytes(handle);
+        NomsColumnHandle handle2 = mapper.reader().forType(NomsColumnHandle.class).readValue(bytes);
+        assertEquals(handle.getNomsType(), handle2.getNomsType());
+    }
+
 }

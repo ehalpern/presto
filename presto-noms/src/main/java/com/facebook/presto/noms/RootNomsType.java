@@ -75,7 +75,7 @@ public enum RootNomsType
         return javaType;
     }
 
-    public List<NomsType> getTypeArguments()
+    public List<NomsType> getArguments()
     {
         return Collections.EMPTY_LIST;
     }

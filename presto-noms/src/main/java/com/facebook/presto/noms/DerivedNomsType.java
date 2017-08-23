@@ -88,7 +88,7 @@ public class DerivedNomsType
     }
 
     @JsonProperty
-    public List<NomsType> getTypeArguments()
+    public List<NomsType> getArguments()
     {
         return arguments;
     }

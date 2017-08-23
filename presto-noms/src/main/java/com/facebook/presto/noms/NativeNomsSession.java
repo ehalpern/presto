@@ -80,11 +80,11 @@ public class NativeNomsSession
             NomsType rowType = tableType;
             if (tableType.typeOf(RootNomsType.List, RootNomsType.Set)) {
                 // Noms collections are represented by Object<List<Struct>>>
-                rowType = tableType.getTypeArguments().get(0).getTypeArguments().get(0);
+                rowType = tableType.getArguments().get(0).getArguments().get(0);
             }
             else if (tableType.typeOf(RootNomsType.Map)) {
                 // Noms collections are represented by Object<List<Struct>>>
-                rowType = tableType.getTypeArguments().get(1).getTypeArguments().get(0);
+                rowType = tableType.getArguments().get(1).getArguments().get(0);
             }
             if (rowType.typeOf(RootNomsType.Blob, RootNomsType.Boolean, RootNomsType.Number, RootNomsType.String)) {
                 columnHandles.add(new NomsColumnHandle(connectorId, "value", 0, tableType));

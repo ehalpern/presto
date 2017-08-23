@@ -142,7 +142,7 @@ public interface NomsType
 
     Class<?> getJavaType();
 
-    List<NomsType> getTypeArguments();
+    List<NomsType> getArguments();
 
     Map<String, NomsType> getFields();
 

@@ -198,16 +198,16 @@ public class NomsRecordCursor
                     break;
                 case Blob:
                 case Set:
-                    NomsType.checkTypeArguments(nomsType, 1, nomsType.getTypeArguments());
-                    value = NullableValue.of(nativeType, utf8Slice(buildSetValue(i, nomsType.getTypeArguments().get(0))));
+                    NomsType.checkTypeArguments(nomsType, 1, nomsType.getArguments());
+                    value = NullableValue.of(nativeType, utf8Slice(buildSetValue(i, nomsType.getArguments().get(0))));
                     break;
                 case List:
-                    NomsType.checkTypeArguments(nomsType, 1, nomsType.getTypeArguments());
-                    value = NullableValue.of(nativeType, utf8Slice(buildListValue(i, nomsType.getTypeArguments().get(0))));
+                    NomsType.checkTypeArguments(nomsType, 1, nomsType.getArguments());
+                    value = NullableValue.of(nativeType, utf8Slice(buildListValue(i, nomsType.getArguments().get(0))));
                     break;
                 case Map:
-                    NomsType.checkTypeArguments(nomsType, 2, nomsType.getTypeArguments());
-                    value = NullableValue.of(nativeType, utf8Slice(buildMapValue(i, nomsType.getTypeArguments().get(0), nomsType.getTypeArguments().get(1))));
+                    NomsType.checkTypeArguments(nomsType, 2, nomsType.getArguments());
+                    value = NullableValue.of(nativeType, utf8Slice(buildMapValue(i, nomsType.getArguments().get(0), nomsType.getArguments().get(1))));
                     break;
                 default:
                     throw new IllegalStateException("Handling of type " + nomsType + " is not implemented");

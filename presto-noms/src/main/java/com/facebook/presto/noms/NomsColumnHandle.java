@@ -21,7 +21,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
-import java.util.List;
 import java.util.Objects;
 
 import static com.google.common.base.MoreObjects.toStringHelper;
@@ -74,12 +73,6 @@ public class NomsColumnHandle
         return nomsType;
     }
 
-    @JsonProperty
-    public List<NomsType> getTypeArguments()
-    {
-        return nomsType.getTypeArguments();
-    }
-
     public ColumnMetadata getColumnMetadata()
     {
         return new ColumnMetadata(CassandraCqlUtils.cqlNameToSqlName(name), nomsType.getNativeType(), null, false);
@@ -125,8 +118,8 @@ public class NomsColumnHandle
                 .add("ordinalPosition", ordinalPosition)
                 .add("nomsType", nomsType);
 
-        if (!nomsType.getTypeArguments().isEmpty()) {
-            helper.add("typeArguments", nomsType.getTypeArguments());
+        if (!nomsType.getArguments().isEmpty()) {
+            helper.add("typeArguments", nomsType.getArguments());
         }
 
         return helper.toString();

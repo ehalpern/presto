@@ -27,6 +27,12 @@ import static io.airlift.json.JsonCodec.jsonCodec;
 public class NomsTypeDeserializer
         extends JsonDeserializer<NomsType>
 {
+    public NomsTypeDeserializer()
+    {
+        int i = 0;
+        i++;
+    }
+
     private final JsonCodec<DerivedNomsType> derivedCodec = jsonCodec(DerivedNomsType.class);
 
     @Override
