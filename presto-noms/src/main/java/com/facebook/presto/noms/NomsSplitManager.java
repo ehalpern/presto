@@ -54,7 +54,7 @@ public class NomsSplitManager
 
         return new FixedSplitSource(ImmutableList.of(
                 new NomsSplit(connectorId, tableHandle.getSchemaName(), tableHandle.getTableName(),
-                        HostAddress.fromParts(table.getSource().getHost(), table.getSource().getPort()))));
+                        ImmutableList.of(HostAddress.fromParts(table.getSource().getHost(), table.getSource().getPort())))));
     }
 
     @Override

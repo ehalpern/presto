@@ -33,17 +33,17 @@ public class TestNomsType
     @Test
     public void testRoundTrip()
     {
-        assertEquals(RootNomsType.Number, codec.fromJson(codec.toJson(RootNomsType.Number)));
-        assertEquals(DerivedNomsType.EMPTY_LIST, codec.fromJson(codec.toJson(DerivedNomsType.EMPTY_LIST)));
+        assertEquals(NomsType.NUMBER, codec.fromJson(codec.toJson(NomsType.NUMBER)));
+        assertEquals(NomsType.EMPTY_LIST, codec.fromJson(codec.toJson(NomsType.EMPTY_LIST)));
     }
 
     @Test
     public void testJsonMapEncoding()
     {
-        assertTrue(isValidJson(NomsType.buildArrayValue(Lists.newArrayList("one", "two", "three\""), RootNomsType.String)));
-        assertTrue(isValidJson(NomsType.buildArrayValue(Lists.newArrayList(1, 2, 3), RootNomsType.Number)));
-        assertTrue(isValidJson(NomsType.buildArrayValue(Lists.newArrayList(100000L, 200000000L, 3000000000L), RootNomsType.Number)));
-        assertTrue(isValidJson(NomsType.buildArrayValue(Lists.newArrayList(1.0, 2.0, 3.0), RootNomsType.Number)));
+        assertTrue(isValidJson(NomsType.buildArrayValue(Lists.newArrayList("one", "two", "three\""), NomsType.STRING)));
+        assertTrue(isValidJson(NomsType.buildArrayValue(Lists.newArrayList(1, 2, 3), NomsType.STRING)));
+        assertTrue(isValidJson(NomsType.buildArrayValue(Lists.newArrayList(100000L, 200000000L, 3000000000L), NomsType.NUMBER)));
+        assertTrue(isValidJson(NomsType.buildArrayValue(Lists.newArrayList(1.0, 2.0, 3.0), NomsType.NUMBER)));
     }
 
     private static void continueWhileNotNull(JsonParser parser, JsonToken token)

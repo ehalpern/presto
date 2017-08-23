@@ -183,7 +183,7 @@ public class NomsRecordCursor
             value = NullableValue.asNull(nativeType);
         }
         else {
-            switch (nomsType.getRootType()) {
+            switch (nomsType.getKind()) {
                 case String:
                     String s = columnValue(i).toString();
                     // Strip quotes

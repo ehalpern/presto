@@ -13,7 +13,6 @@
  */
 package com.facebook.presto.noms;
 
-import com.facebook.presto.noms.util.CassandraCqlUtils;
 import com.facebook.presto.spi.ColumnHandle;
 import com.facebook.presto.spi.ColumnMetadata;
 import com.facebook.presto.spi.ConnectorSession;
@@ -135,7 +134,7 @@ public class NomsMetadata
         NomsTable table = nomsSession.getTable(getTableName(tableHandle));
         ImmutableMap.Builder<String, ColumnHandle> columnHandles = ImmutableMap.builder();
         for (NomsColumnHandle columnHandle : table.getColumns()) {
-            columnHandles.put(CassandraCqlUtils.cqlNameToSqlName(columnHandle.getName()).toLowerCase(ENGLISH), columnHandle);
+            columnHandles.put(columnHandle.getName().toLowerCase(ENGLISH), columnHandle);
         }
         return columnHandles.build();
     }

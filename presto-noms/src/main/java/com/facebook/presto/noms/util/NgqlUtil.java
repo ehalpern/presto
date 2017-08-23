@@ -148,14 +148,18 @@ public class NgqlUtil
     {
         verify(path.size() > 0);
         String tabs = Strings.repeat("\t", indent);
-        StringBuilder b = new StringBuilder(tabs + path.get(0) + " {\n");
-        if (path.size() == 1) {
-            b.append(buildFieldQuery(fields, indent + 1));
+        StringBuilder b = new StringBuilder(tabs + path.get(0));
+        String nested;
+        if (path.size() > 1) {
+            nested = buildQuery(path.subList(1, path.size()), fields, indent + 1);
         }
         else {
-            b.append(buildQuery(path.subList(1, path.size()), fields, indent + 1));
+            nested = buildFieldQuery(fields, indent + 1);
         }
-        return b.append(tabs + "}\n").toString();
+        if (nested.length() > 0) {
+            b.append(" {\n" + nested + tabs + "}");
+        }
+        return b.append("\n").toString();
     }
 
     private static String buildFieldQuery(Map<String, NgqlType> fields, int indent)
@@ -170,13 +174,17 @@ public class NgqlUtil
                 case ENUM:
                     break;
                 case OBJECT:
-                    b.append(" {\n" + buildFieldQuery(type.fields(), indent + 1) + indent + "}");
+                    String nested = buildFieldQuery(type.fields(), indent + 1);
+                    if (nested.length() > 0) {
+                        b.append(" {\n" + nested + indent + "}");
+                    }
                     break;
                 case LIST:
                 case NON_NULL:
                 case UNION:
                     throw new AssertionError("kind " + type.kind() + " not implemented");
             }
+            b.append("\n");
         }
         return b.toString();
     }

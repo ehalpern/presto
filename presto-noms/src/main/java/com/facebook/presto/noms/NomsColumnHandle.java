@@ -13,7 +13,6 @@
  */
 package com.facebook.presto.noms;
 
-import com.facebook.presto.noms.util.CassandraCqlUtils;
 import com.facebook.presto.spi.ColumnHandle;
 import com.facebook.presto.spi.ColumnMetadata;
 import com.facebook.presto.spi.type.Type;
@@ -75,7 +74,7 @@ public class NomsColumnHandle
 
     public ColumnMetadata getColumnMetadata()
     {
-        return new ColumnMetadata(CassandraCqlUtils.cqlNameToSqlName(name), nomsType.getNativeType(), null, false);
+        return new ColumnMetadata(name, nomsType.getNativeType(), null, false);
     }
 
     public Type getType()

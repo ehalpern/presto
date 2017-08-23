@@ -78,18 +78,18 @@ public class NativeNomsSession
             NgqlSchema schema = NgqlUtil.introspectQuery(config.getNgqlURI(), schemaTableName.getTableName());
             NomsType tableType = NomsType.from(schema.lastCommitValueType(), schema);
             NomsType rowType = tableType;
-            if (tableType.typeOf(RootNomsType.List, RootNomsType.Set)) {
+            if (tableType.kindOf(NomsType.Kind.List, NomsType.Kind.Set)) {
                 // Noms collections are represented by Object<List<Struct>>>
                 rowType = tableType.getArguments().get(0).getArguments().get(0);
             }
-            else if (tableType.typeOf(RootNomsType.Map)) {
+            else if (tableType.kindOf(NomsType.Kind.Map)) {
                 // Noms collections are represented by Object<List<Struct>>>
                 rowType = tableType.getArguments().get(1).getArguments().get(0);
             }
-            if (rowType.typeOf(RootNomsType.Blob, RootNomsType.Boolean, RootNomsType.Number, RootNomsType.String)) {
+            if (rowType.kindOf(NomsType.Kind.Blob, NomsType.Kind.Boolean, NomsType.Kind.Number, NomsType.Kind.String)) {
                 columnHandles.add(new NomsColumnHandle(connectorId, "value", 0, tableType));
             }
-            else if (rowType.typeOf(RootNomsType.Struct)) {
+            else if (rowType.kindOf(NomsType.Kind.Struct)) {
                 int pos = 0;
                 for (Map.Entry<String, NomsType> e : rowType.getFields().entrySet()) {
                     columnHandles.add(new NomsColumnHandle(connectorId, e.getKey(), pos++, e.getValue()));
