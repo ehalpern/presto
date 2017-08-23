@@ -18,7 +18,6 @@ import com.facebook.presto.spi.type.DoubleType;
 import com.facebook.presto.spi.type.Type;
 import com.facebook.presto.spi.type.VarbinaryType;
 import com.facebook.presto.spi.type.VarcharType;
-import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -26,8 +25,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-@JsonTypeName("rootnomstype")
-public enum RootNomsType implements NomsType
+public enum RootNomsType
+        implements NomsType
 {
     Blob(VarbinaryType.VARBINARY, ByteBuffer.class),
     Cycle(VarbinaryType.VARBINARY, null), // TODO: verify native type
@@ -56,15 +55,21 @@ public enum RootNomsType implements NomsType
         return Arrays.binarySearch(rootTypes, this) > -1;
     }
 
-    public String getName() { return this.name(); }
-    public RootNomsType getRootNomsType()
+    public String getName()
+    {
+        return this.name();
+    }
+
+    public RootNomsType getRootType()
     {
         return this;
     }
+
     public Type getNativeType()
     {
         return nativeType;
     }
+
     public Class<?> getJavaType()
     {
         return javaType;

@@ -27,17 +27,16 @@ import static io.airlift.json.JsonCodec.jsonCodec;
 public class NomsTypeDeserializer
         extends JsonDeserializer<NomsType>
 {
-    private final JsonCodec<DerivedNomsType> actualCodec = jsonCodec(DerivedNomsType.class);
+    private final JsonCodec<DerivedNomsType> derivedCodec = jsonCodec(DerivedNomsType.class);
 
     @Override
     public NomsType deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException
     {
         ObjectCodec oc = jsonParser.getCodec();
         JsonNode node = oc.readTree(jsonParser);
-        boolean hasArguments = node.has("arguments");
-        boolean hasFields = node.has("fields");
-        if (hasArguments || hasFields) {
-            return actualCodec.fromJson(node.toString());
+        if (node.isObject()) {
+            NomsType t = derivedCodec.fromJson(node.toString());
+            return t;
         }
         else {
             return RootNomsType.valueOf(node.textValue());

@@ -15,9 +15,6 @@ package com.facebook.presto.noms.util;
 
 import javax.json.JsonObject;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class NgqlResult
 {
     private final JsonObject object;

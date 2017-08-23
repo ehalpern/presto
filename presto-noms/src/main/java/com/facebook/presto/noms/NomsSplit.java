@@ -70,7 +70,8 @@ public class NomsSplit
         return table;
     }
 
-    public SchemaTableName getTableName() {
+    public SchemaTableName getTableName()
+    {
         return new SchemaTableName(schema, table);
     }
 

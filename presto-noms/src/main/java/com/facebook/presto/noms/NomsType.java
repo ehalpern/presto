@@ -110,11 +110,12 @@ public interface NomsType
         }
     }
 
-    static List<String> pathToTable(NomsType tableType) {
+    static List<String> pathToTable(NomsType tableType)
+    {
         List<String> path = new ArrayList<>();
         path.add("root");
         path.add("value");
-        switch (tableType.getRootNomsType()) {
+        switch (tableType.getRootType()) {
             case String:
             case Boolean:
             case Number:
@@ -126,7 +127,7 @@ public interface NomsType
                 path.add("values");
                 break;
             default:
-                throw new IllegalStateException("Handling of type " + tableType.getRootNomsType() + " is not implemented");
+                throw new IllegalStateException("Handling of type " + tableType.getRootType() + " is not implemented");
         }
         return path;
     }
@@ -135,7 +136,7 @@ public interface NomsType
 
     String getName();
 
-    RootNomsType getRootNomsType();
+    RootNomsType getRootType();
 
     Type getNativeType();
 
@@ -171,7 +172,7 @@ public interface NomsType
 
     static String objectToString(Object object, NomsType elemType)
     {
-        switch (elemType.getRootNomsType()) {
+        switch (elemType.getRootType()) {
             case String:
                 return CassandraCqlUtils.quoteStringLiteralForJson(object.toString());
             case Blob:

@@ -13,8 +13,12 @@
  */
 package com.facebook.presto.noms;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import io.airlift.json.JsonCodec;
 import org.testng.annotations.Test;
+
+import java.util.Collections;
 
 import static io.airlift.json.JsonCodec.jsonCodec;
 import static org.testng.Assert.assertEquals;
@@ -26,31 +30,23 @@ public class TestNomsColumnHandle
     @Test
     public void testRoundTrip()
     {
-        NomsColumnHandle expected = new NomsColumnHandle("connector", "name", 42, RootNomsType.Number);
+        NomsColumnHandle[] columns = {
+                new NomsColumnHandle("cid", "c0", 0, RootNomsType.Number),
+                new NomsColumnHandle("cid", "c1", 1, DerivedNomsType.EMPTY_LIST),
+                new NomsColumnHandle("cid", "c2", 2, new DerivedNomsType(
+                        "NumberList", RootNomsType.List, ImmutableList.of(RootNomsType.Number))),
+                new NomsColumnHandle("cid", "c3", 3, new DerivedNomsType(
+                        "TestStruct", RootNomsType.Struct, Collections.EMPTY_LIST, ImmutableMap.of("test", RootNomsType.String)))
+        };
 
-        String json = codec.toJson(expected);
-        NomsColumnHandle actual = codec.fromJson(json);
-
-        assertEquals(actual.getConnectorId(), expected.getConnectorId());
-        assertEquals(actual.getName(), expected.getName());
-        assertEquals(actual.getOrdinalPosition(), expected.getOrdinalPosition());
-        assertEquals(actual.getNomsType(), expected.getNomsType());
-    }
-
-    @Test
-    public void testRoundTrip2()
-    {
-        NomsColumnHandle expected = new NomsColumnHandle(
-                "connector",
-                "name2",
-                1,
-                RootNomsType.Map);
-        String json = codec.toJson(expected);
-        NomsColumnHandle actual = codec.fromJson(json);
-
-        assertEquals(actual.getConnectorId(), expected.getConnectorId());
-        assertEquals(actual.getName(), expected.getName());
-        assertEquals(actual.getOrdinalPosition(), expected.getOrdinalPosition());
-        assertEquals(actual.getNomsType(), expected.getNomsType());
+        for (int i = 0; i < columns.length; i++) {
+            NomsColumnHandle expected = columns[i];
+            String json = codec.toJson(expected);
+            NomsColumnHandle actual = codec.fromJson(json);
+            assertEquals(actual.getConnectorId(), expected.getConnectorId(), "column: " + expected.getName());
+            assertEquals(actual.getName(), expected.getName());
+            assertEquals(actual.getOrdinalPosition(), expected.getOrdinalPosition());
+            assertEquals(actual.getNomsType(), expected.getNomsType());
+        }
     }
 }

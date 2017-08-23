@@ -13,7 +13,6 @@
  */
 package com.facebook.presto.noms;
 
-import com.datastax.driver.core.utils.Bytes;
 import com.facebook.presto.spi.ColumnHandle;
 import com.facebook.presto.spi.ColumnMetadata;
 import com.facebook.presto.spi.ConnectorSplit;
@@ -37,7 +36,6 @@ import com.facebook.presto.testing.TestingConnectorContext;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -183,10 +181,6 @@ public class TestNomsConnector
                     int rowId = Integer.parseInt(keyValue.substring(6));
 
                     assertEquals(keyValue, String.format("string%d", rowId));
-
-
-                    // VARINT is returned as a string
-                    //assertEquals(cursor.getSlice(columnIndex.get("typedoubleinteger")).toStringUtf8(), String.valueOf(rowId));
 
                     assertEquals(cursor.getDouble(columnIndex.get("typedouble")), 1000.0 + rowId);
 

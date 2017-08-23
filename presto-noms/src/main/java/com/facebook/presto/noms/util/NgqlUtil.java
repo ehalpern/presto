@@ -27,6 +27,8 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
+import static com.google.common.base.Verify.verify;
+
 public class NgqlUtil
 {
     private NgqlUtil()
@@ -144,12 +146,13 @@ public class NgqlUtil
 
     private static String buildQuery(List<String> path, Map<String, NgqlType> fields, int indent)
     {
-        assert path.size() > 0;
+        verify(path.size() > 0);
         String tabs = Strings.repeat("\t", indent);
         StringBuilder b = new StringBuilder(tabs + path.get(0) + " {\n");
         if (path.size() == 1) {
             b.append(buildFieldQuery(fields, indent + 1));
-        } else {
+        }
+        else {
             b.append(buildQuery(path.subList(1, path.size()), fields, indent + 1));
         }
         return b.append(tabs + "}\n").toString();

@@ -14,12 +14,17 @@
 package com.facebook.presto.noms;
 
 import com.facebook.presto.spi.type.Type;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+@JsonDeserialize(using = JsonDeserializer.None.class) // Allow NomsTypeDeserializer to explicitly desererialize this type
 public class DerivedNomsType
         implements NomsType
 {
@@ -42,12 +47,17 @@ public class DerivedNomsType
         this(name, type, arguments, Collections.EMPTY_MAP);
     }
 
-    /*package*/ DerivedNomsType(String name, RootNomsType rootType, List<NomsType> arguments, Map<String, NomsType> fields)
+    @JsonCreator
+    public DerivedNomsType(
+            @JsonProperty("name") String name,
+            @JsonProperty("rootType") RootNomsType rootType,
+            @JsonProperty("arguments") List<NomsType> arguments,
+            @JsonProperty("fields") Map<String, NomsType> fields)
     {
         this.name = name;
         this.rootType = rootType;
-        this.arguments = arguments;
-        this.fields = fields;
+        this.arguments = (arguments == null) ? Collections.EMPTY_LIST : arguments;
+        this.fields = (fields == null) ? Collections.EMPTY_MAP : fields;
     }
 
     public boolean typeOf(RootNomsType... rootTypes)
@@ -55,12 +65,14 @@ public class DerivedNomsType
         return Arrays.binarySearch(rootTypes, rootType) > -1;
     }
 
+    @JsonProperty
     public String getName()
     {
         return name;
     }
 
-    public RootNomsType getRootNomsType()
+    @JsonProperty
+    public RootNomsType getRootType()
     {
         return rootType;
     }
@@ -75,13 +87,26 @@ public class DerivedNomsType
         return rootType.getJavaType();
     }
 
+    @JsonProperty
     public List<NomsType> getTypeArguments()
     {
         return arguments;
     }
 
+    @JsonProperty
     public Map<String, NomsType> getFields()
     {
         return fields;
+    }
+
+    public int hashCode()
+    {
+        return name.hashCode() ^ rootType.hashCode();
+    }
+
+    public boolean equals(Object o)
+    {
+        DerivedNomsType other = (DerivedNomsType) o;
+        return rootType == other.rootType && name.equals(other.name);
     }
 }

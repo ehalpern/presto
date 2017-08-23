@@ -49,9 +49,15 @@ public class NomsTable
         return tableHandle;
     }
 
-    public NgqlSchema getSchema() { return schema; }
+    public NgqlSchema getSchema()
+    {
+        return schema;
+    }
 
-    public NomsType getTableType() { return tableType; }
+    public NomsType getTableType()
+    {
+        return tableType;
+    }
 
     public URI getSource()
     {

@@ -66,7 +66,8 @@ public class NomsRecordCursor
         this.table = table;
     }
 
-    private static NgqlType ngqlType(NomsTable table, NomsColumnHandle column) {
+    private static NgqlType ngqlType(NomsTable table, NomsColumnHandle column)
+    {
         String name = column.getNomsType().getName();
         if (name.equals("Number")) {
             name = "Float";
@@ -74,7 +75,8 @@ public class NomsRecordCursor
         return requireNonNull(table.getSchema().types().get(name), "NgqlType " + name + " not found");
     }
 
-    private JsonArray queryTable(long offset, long limit) throws IOException
+    private JsonArray queryTable(long offset, long limit)
+            throws IOException
     {
         JsonObject result = NgqlUtil.executeQuery(
                 table.getSource(),
@@ -83,7 +85,8 @@ public class NomsRecordCursor
         JsonValue tableValue = result.getValue("/data/" + String.join("/", path));
         if (tableValue.getValueType() == JsonValue.ValueType.ARRAY) {
             return tableValue.asJsonArray();
-        } else {
+        }
+        else {
             return Json.createArrayBuilder().add(tableValue).build();
         }
     }
@@ -96,24 +99,29 @@ public class NomsRecordCursor
             if (rowValue.getValueType() != JsonValue.ValueType.OBJECT) {
                 Verify.verify(columns.size() == 1, "expecting a single column");
                 row = Json.createObjectBuilder().add(columns.get(0).getName(), rowValue).build();
-            } else {
+            }
+            else {
                 row = rowValue.asJsonObject();
             }
             completedCount += 1;
             return true;
-        } else if (totalCount % batchSize != 0) {
+        }
+        else if (totalCount % batchSize != 0) {
             return false;
-        } else {
+        }
+        else {
             try {
                 JsonArray next = queryTable(totalCount, batchSize);
                 totalCount += next.size();
                 results = next.iterator();
                 if (!results.hasNext()) {
                     return false;
-                } else {
+                }
+                else {
                     return advanceNextPosition();
                 }
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
@@ -124,7 +132,8 @@ public class NomsRecordCursor
     {
     }
 
-    private JsonValue columnValue(int i) {
+    private JsonValue columnValue(int i)
+    {
         String field = columns.get(i).getName();
         return row.get(field);
     }
@@ -172,8 +181,9 @@ public class NomsRecordCursor
         NullableValue value;
         if (isNull(i)) {
             value = NullableValue.asNull(nativeType);
-        } else {
-            switch (nomsType.getRootNomsType()) {
+        }
+        else {
+            switch (nomsType.getRootType()) {
                 case String:
                     String s = columnValue(i).toString();
                     // Strip quotes
@@ -209,7 +219,8 @@ public class NomsRecordCursor
         return utf8Slice(value.getValue().toString());
     }
 
-    private <String, V> Map<String, V> getMap(int i, Class<String> keysClass, Class<V> valuesClass) {
+    private <K, V> Map<K, V> getMap(int i, Class<K> keysClass, Class<V> valuesClass)
+    {
         throw new AssertionError("not implemented");
     }
 
@@ -218,7 +229,8 @@ public class NomsRecordCursor
         throw new AssertionError("not implemented");
     }
 
-    private <T> List<T> getList(int i, Class<T> elementsClass) {
+    private <T> List<T> getList(int i, Class<T> elementsClass)
+    {
         throw new AssertionError("not implemented");
     }
 

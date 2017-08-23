@@ -33,9 +33,8 @@ public class TestNomsType
     @Test
     public void testRoundTrip()
     {
-        NomsColumnHandle expected = new NomsColumnHandle("connector", "name", 42, RootNomsType.Number);
-
         assertEquals(RootNomsType.Number, codec.fromJson(codec.toJson(RootNomsType.Number)));
+        assertEquals(DerivedNomsType.EMPTY_LIST, codec.fromJson(codec.toJson(DerivedNomsType.EMPTY_LIST)));
     }
 
     @Test
