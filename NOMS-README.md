@@ -61,3 +61,9 @@ Query some data:
     SELECT orderkey, quanity FROM lineitem WHERE quantity < 5;
 
 ## TODO:
+
+- Predicate pushdown 
+- Lazy loading
+- Partitioning 
+- Non-scalar column types
+
