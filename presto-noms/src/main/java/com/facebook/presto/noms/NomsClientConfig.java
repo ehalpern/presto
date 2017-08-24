@@ -13,43 +13,29 @@
  */
 package com.facebook.presto.noms;
 
-import com.datastax.driver.core.SocketOptions;
-import com.google.common.base.Splitter;
 import io.airlift.configuration.Config;
-import io.airlift.units.Duration;
-import io.airlift.units.MaxDuration;
-import io.airlift.units.MinDuration;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import java.net.URI;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.MINUTES;
-
 public class NomsClientConfig
 {
-    private static final Splitter SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
-
-    private URI ngqlURI = URI.create("http://localhost:8000/graphql");
+    private URI uri = URI.create("http://localhost:8000");
     private String database = "noms";
-
     private int fetchSize = 5_000;
-    private Duration clientReadTimeout = new Duration(SocketOptions.DEFAULT_READ_TIMEOUT_MILLIS, MILLISECONDS);
-    private Duration clientConnectTimeout = new Duration(SocketOptions.DEFAULT_CONNECT_TIMEOUT_MILLIS, MILLISECONDS);
-    private Duration noHostAvailableRetryTimeout = new Duration(1, MINUTES);
 
     @NotNull
-    public URI getNgqlURI()
+    public URI getURI()
     {
-        return this.ngqlURI;
+        return this.uri;
     }
 
-    @Config("noms.ngql-uri")
-    public NomsClientConfig setNgqlURI(URI uri)
+    @Config("noms.uri")
+    public NomsClientConfig setURI(URI uri)
     {
-        this.ngqlURI = uri;
+        this.uri = uri;
         return this;
     }
 
@@ -76,47 +62,6 @@ public class NomsClientConfig
     public NomsClientConfig setFetchSize(int fetchSize)
     {
         this.fetchSize = fetchSize;
-        return this;
-    }
-
-    @MinDuration("1ms")
-    @MaxDuration("1h")
-    public Duration getClientReadTimeout()
-    {
-        return clientReadTimeout;
-    }
-
-    @Config("noms.client.read-timeout")
-    public NomsClientConfig setClientReadTimeout(Duration clientReadTimeout)
-    {
-        this.clientReadTimeout = clientReadTimeout;
-        return this;
-    }
-
-    @MinDuration("1ms")
-    @MaxDuration("1h")
-    public Duration getClientConnectTimeout()
-    {
-        return clientConnectTimeout;
-    }
-
-    @Config("noms.client.connect-timeout")
-    public NomsClientConfig setClientConnectTimeout(Duration clientConnectTimeout)
-    {
-        this.clientConnectTimeout = clientConnectTimeout;
-        return this;
-    }
-
-    @NotNull
-    public Duration getNoHostAvailableRetryTimeout()
-    {
-        return noHostAvailableRetryTimeout;
-    }
-
-    @Config("noms.no-host-available-retry-timeout")
-    public NomsClientConfig setNoHostAvailableRetryTimeout(Duration noHostAvailableRetryTimeout)
-    {
-        this.noHostAvailableRetryTimeout = noHostAvailableRetryTimeout;
         return this;
     }
 }

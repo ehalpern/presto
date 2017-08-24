@@ -18,9 +18,10 @@ import com.datastax.driver.core.RegularStatement;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Session;
 import com.datastax.driver.core.Statement;
+import com.facebook.presto.noms.util.NgqlQuery;
+import com.facebook.presto.noms.util.NgqlResult;
 import com.facebook.presto.noms.util.NgqlSchema;
-import com.facebook.presto.noms.util.NgqlUtil;
-import com.facebook.presto.noms.util.NomsUtil;
+import com.facebook.presto.noms.util.NomsRunner;
 import com.facebook.presto.spi.PrestoException;
 import com.facebook.presto.spi.SchemaNotFoundException;
 import com.facebook.presto.spi.SchemaTableName;
@@ -29,6 +30,7 @@ import com.google.common.collect.ImmutableList;
 import io.airlift.log.Logger;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
@@ -40,11 +42,13 @@ public class NomsSession
     private static final Logger log = Logger.get(NomsSession.class);
 
     private final String connectorId;
+    private final URI nomsURI;
     private final NomsClientConfig config;
 
     public NomsSession(String connectorId, NomsClientConfig config)
     {
         this.connectorId = requireNonNull(connectorId, "connectorId is null");
+        this.nomsURI = config.getURI();
         this.config = requireNonNull(config, "config is null");
     }
 
@@ -60,7 +64,7 @@ public class NomsSession
             throw new SchemaNotFoundException("Schema '" + schemaName + "' is not defined in configuration");
         }
         // Hack by using noms CLI for now. Would be nice for ngql to provide a dataset query.
-        return NomsUtil.ds(config.getNgqlURI().toString());
+        return NomsRunner.ds(nomsURI.toString());
     }
 
     public NomsTable getTable(SchemaTableName schemaTableName)
@@ -70,46 +74,53 @@ public class NomsSession
             throw new TableNotFoundException(schemaTableName);
         }
         ImmutableList.Builder<NomsColumnHandle> columnHandles = ImmutableList.builder();
-        try {
-            NgqlSchema schema = NgqlUtil.introspectQuery(config.getNgqlURI(), schemaTableName.getTableName());
-            NomsType tableType = NomsType.from(schema.lastCommitValueType(), schema);
-            NomsType rowType = tableType;
-            if (tableType.kindOf(NomsType.Kind.List, NomsType.Kind.Set)) {
-                // Noms collections are represented by Object<List<Struct>>>
-                rowType = tableType.getArguments().get(0).getArguments().get(0);
-            }
-            else if (tableType.kindOf(NomsType.Kind.Map)) {
-                // Noms collections are represented by Object<List<Struct>>>
-                rowType = tableType.getArguments().get(1).getArguments().get(0);
-            }
-            if (rowType.kindOf(NomsType.Kind.Blob, NomsType.Kind.Boolean, NomsType.Kind.Number, NomsType.Kind.String)) {
-                columnHandles.add(new NomsColumnHandle(connectorId, "value", 0, tableType));
-            }
-            else if (rowType.kindOf(NomsType.Kind.Struct)) {
-                int pos = 0;
-                for (Map.Entry<String, NomsType> e : rowType.getFields().entrySet()) {
-                    columnHandles.add(new NomsColumnHandle(connectorId, e.getKey(), pos++, e.getValue()));
-                }
-            }
-            else {
-                throw new PrestoException(NOT_SUPPORTED, "row type " + rowType + " non supported");
-            }
-            return new NomsTable(
-                    new NomsTableHandle(connectorId, config.getDatabase(), schemaTableName.getTableName()),
-                    schema,
-                    tableType,
-                    columnHandles.build(),
-                    config.getNgqlURI());
+
+        NgqlSchema schema = getSchema(schemaTableName.getTableName());
+        NomsType tableType = NomsType.from(schema.lastCommitValueType(), schema);
+        NomsType rowType = tableType;
+        if (tableType.kindOf(NomsType.Kind.List, NomsType.Kind.Set)) {
+            // Noms collections are represented by Object<List<Struct>>>
+            rowType = tableType.getArguments().get(0).getArguments().get(0);
         }
-        catch (IOException e) {
-            // Sloppy bail
-            throw new RuntimeException(e);
+        else if (tableType.kindOf(NomsType.Kind.Map)) {
+            // Noms collections are represented by Object<List<Struct>>>
+            rowType = tableType.getArguments().get(1).getArguments().get(0);
         }
+        if (rowType.kindOf(NomsType.Kind.Blob, NomsType.Kind.Boolean, NomsType.Kind.Number, NomsType.Kind.String)) {
+            columnHandles.add(new NomsColumnHandle(connectorId, "value", 0, tableType));
+        }
+        else if (rowType.kindOf(NomsType.Kind.Struct)) {
+            int pos = 0;
+            for (Map.Entry<String, NomsType> e : rowType.getFields().entrySet()) {
+                columnHandles.add(new NomsColumnHandle(connectorId, e.getKey(), pos++, e.getValue()));
+            }
+        }
+        else {
+            throw new PrestoException(NOT_SUPPORTED, "row type " + rowType + " non supported");
+        }
+        return new NomsTable(
+                new NomsTableHandle(connectorId, config.getDatabase(), schemaTableName.getTableName()),
+                schema,
+                tableType,
+                columnHandles.build(),
+                nomsURI);
     }
 
-    public ResultSet execute(String cql, Object... values)
+    private NgqlSchema getSchema(String table)
     {
-        return executeWithSession(session -> session.execute(cql, values));
+        return new NgqlSchema(execute(table, NgqlQuery.introspectQuery()));
+    }
+
+    public NgqlResult execute(String table, NgqlQuery query)
+    {
+        try {
+            // TODO: retry
+            return NgqlQuery.execute(nomsURI, table, query);
+        }
+        catch (IOException e) {
+            // TODO: better error handling
+            throw new RuntimeException(e);
+        }
     }
 
     public PreparedStatement prepare(RegularStatement statement)

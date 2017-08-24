@@ -21,11 +21,11 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class NomsUtil
+public class NomsRunner
 {
     private static final String NOMS_BINARY;
 
-    private NomsUtil() {}
+    private NomsRunner() {}
 
     static {
         String goPath = System.getenv("GOPATH");

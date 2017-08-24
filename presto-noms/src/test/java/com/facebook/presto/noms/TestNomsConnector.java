@@ -88,7 +88,7 @@ public class TestNomsConnector
         NomsConnectorFactory connectorFactory = new NomsConnectorFactory(connectorId);
 
         Connector connector = connectorFactory.create(connectorId, ImmutableMap.of(
-                "noms.ngql-uri", server.uri().toString(),
+                "noms.uri", server.uri().toString(),
                 "noms.database", database),
                 new TestingConnectorContext());
 

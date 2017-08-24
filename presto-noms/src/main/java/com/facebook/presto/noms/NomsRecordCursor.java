@@ -13,8 +13,9 @@
  */
 package com.facebook.presto.noms;
 
+import com.facebook.presto.noms.util.NgqlQuery;
+import com.facebook.presto.noms.util.NgqlResult;
 import com.facebook.presto.noms.util.NgqlType;
-import com.facebook.presto.noms.util.NgqlUtil;
 import com.facebook.presto.spi.RecordCursor;
 import com.facebook.presto.spi.predicate.NullableValue;
 import com.facebook.presto.spi.type.Type;
@@ -39,12 +40,11 @@ import static java.util.Objects.requireNonNull;
 public class NomsRecordCursor
         implements RecordCursor
 {
+    private final NomsSession session;
+    private final NomsTable table;
     private final List<NomsColumnHandle> columns;
-    private String query;
-    private NomsSplit split;
-    private NomsTable table;
-    private int resultIndex;
-    private List<String> path;
+    private final List<String> path;
+    private final NgqlQuery query;
 
     private Iterator<JsonValue> results = JsonValue.EMPTY_JSON_ARRAY.iterator();
     private JsonObject row = JsonValue.EMPTY_JSON_OBJECT;
@@ -62,8 +62,9 @@ public class NomsRecordCursor
                 c -> ngqlType(table, c)));
         this.path = NomsType.pathToTable(table.getTableType());
         this.columns = columns;
-        this.query = NgqlUtil.buildTableQuery(path, fields);
+        this.query = NgqlQuery.tableQuery(path, fields);
         this.table = table;
+        this.session = session;
     }
 
     private static NgqlType ngqlType(NomsTable table, NomsColumnHandle column)
@@ -78,11 +79,10 @@ public class NomsRecordCursor
     private JsonArray queryTable(long offset, long limit)
             throws IOException
     {
-        JsonObject result = NgqlUtil.executeQuery(
-                table.getSource(),
+        NgqlResult result = session.execute(
                 table.getTableHandle().getTableName(),
                 query);
-        JsonValue tableValue = result.getValue("/data/" + String.join("/", path));
+        JsonValue tableValue = result.json().getValue("/data/" + String.join("/", path));
         if (tableValue.getValueType() == JsonValue.ValueType.ARRAY) {
             return tableValue.asJsonArray();
         }

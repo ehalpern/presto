@@ -17,10 +17,15 @@ import javax.json.JsonObject;
 
 public class NgqlResult
 {
-    private final JsonObject object;
+    private final JsonObject json;
 
-    /*package*/ NgqlResult(JsonObject o)
+    /*package*/ NgqlResult(JsonObject json)
     {
-        object = o;
+        this.json = json;
+    }
+
+    public JsonObject json()
+    {
+        return json;
     }
 }

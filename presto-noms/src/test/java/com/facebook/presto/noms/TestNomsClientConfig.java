@@ -13,17 +13,12 @@
  */
 package com.facebook.presto.noms;
 
-import com.datastax.driver.core.SocketOptions;
 import com.google.common.collect.ImmutableMap;
 import io.airlift.configuration.testing.ConfigAssertions;
-import io.airlift.units.Duration;
 import org.testng.annotations.Test;
 
 import java.net.URI;
 import java.util.Map;
-
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.MINUTES;
 
 public class TestNomsClientConfig
 {
@@ -31,33 +26,24 @@ public class TestNomsClientConfig
     public void testDefaults()
     {
         ConfigAssertions.assertRecordedDefaults(ConfigAssertions.recordDefaults(NomsClientConfig.class)
-                .setNgqlURI(URI.create("http://localhost:8000/graphql"))
+                .setURI(URI.create("http://localhost:8000"))
                 .setDatabase("noms")
-                .setFetchSize(5_000)
-                .setClientReadTimeout(new Duration(SocketOptions.DEFAULT_READ_TIMEOUT_MILLIS, MILLISECONDS))
-                .setClientConnectTimeout(new Duration(SocketOptions.DEFAULT_CONNECT_TIMEOUT_MILLIS, MILLISECONDS))
-                .setNoHostAvailableRetryTimeout(new Duration(1, MINUTES)));
+                .setFetchSize(5_000));
     }
 
     @Test
     public void testExplicitPropertyMappings()
     {
         Map<String, String> properties = new ImmutableMap.Builder<String, String>()
-                .put("noms.ngql-uri", "http://test.com:8000/graphql")
-                .put("noms.database", "test-db")
+                .put("noms.uri", "http://test.com:8000")
+                .put("noms.database", "testdb")
                 .put("noms.fetch-size", "10000")
-                .put("noms.client.read-timeout", "11ms")
-                .put("noms.client.connect-timeout", "22ms")
-                .put("noms.no-host-available-retry-timeout", "3m")
                 .build();
 
         NomsClientConfig expected = new NomsClientConfig()
-                .setNgqlURI(URI.create("http://test.com:8000/graphql"))
-                .setDatabase("test-db")
-                .setFetchSize(10_000)
-                .setClientReadTimeout(new Duration(11, MILLISECONDS))
-                .setClientConnectTimeout(new Duration(22, MILLISECONDS))
-                .setNoHostAvailableRetryTimeout(new Duration(3, MINUTES));
+                .setURI(URI.create("http://test.com:8000"))
+                .setDatabase("testdb")
+                .setFetchSize(10_000);
 
         ConfigAssertions.assertFullMapping(properties, expected);
     }

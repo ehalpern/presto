@@ -24,9 +24,9 @@ public class NgqlSchema
     private final NgqlType rootType;
     private final Map<String, NgqlType> types = new HashMap<>();
 
-    /*package*/ NgqlSchema(JsonObject o)
+    public NgqlSchema(NgqlResult result)
     {
-        object = o.getJsonObject("data").getJsonObject("__schema");
+        object = result.json().getJsonObject("data").getJsonObject("__schema");
         for (JsonObject t : object.getJsonArray("types").getValuesAs(JsonObject.class)) {
             NgqlType type = new NgqlType(t);
             types.put(type.name(), type);
