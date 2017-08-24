@@ -41,7 +41,6 @@ public class NomsClientModule
         binder.bind(NomsMetadata.class).in(Scopes.SINGLETON);
         binder.bind(NomsSplitManager.class).in(Scopes.SINGLETON);
         binder.bind(NomsRecordSetProvider.class).in(Scopes.SINGLETON);
-        binder.bind(NomsConnectorRecordSinkProvider.class).in(Scopes.SINGLETON);
 
         configBinder(binder).bindConfig(NomsClientConfig.class);
     }
