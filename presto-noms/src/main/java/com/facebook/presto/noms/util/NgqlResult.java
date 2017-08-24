@@ -13,19 +13,42 @@
  */
 package com.facebook.presto.noms.util;
 
+import com.google.common.collect.ImmutableList;
+
 import javax.json.JsonObject;
+import javax.json.JsonValue;
+
+import java.util.Iterator;
+import java.util.List;
 
 public class NgqlResult
 {
-    private final JsonObject json;
+    private final JsonValue valueAtPath;
 
-    /*package*/ NgqlResult(JsonObject json)
+    /*package*/ NgqlResult(JsonObject json, List<String> path)
     {
-        this.json = json;
+        String fullPath = path.isEmpty() ? "/data" : "/data/" + String.join("/", path);
+        this.valueAtPath = json.getValue(fullPath);
     }
 
-    public JsonObject json()
+    public int size()
     {
-        return json;
+        return valueAtPath.getValueType() == JsonValue.ValueType.ARRAY ?
+            valueAtPath.asJsonArray().size() : 1;
+    }
+
+    public JsonValue value()
+    {
+        return valueAtPath;
+    }
+
+    public Iterator<JsonValue> rows()
+    {
+        if (valueAtPath.getValueType() == JsonValue.ValueType.ARRAY) {
+            return valueAtPath.asJsonArray().iterator();
+        }
+        else {
+            return ImmutableList.of(valueAtPath).iterator();
+        }
     }
 }

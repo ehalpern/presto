@@ -29,7 +29,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -39,6 +38,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.facebook.presto.spi.StandardErrorCode.NOT_SUPPORTED;
+import static com.google.common.base.Verify.verify;
 
 public class NomsType
 {
@@ -164,28 +164,6 @@ public class NomsType
         }
     }
 
-    static List<String> pathToTable(NomsType tableType)
-    {
-        List<String> path = new ArrayList<>();
-        path.add("root");
-        path.add("value");
-        switch (tableType.getKind()) {
-            case String:
-            case Boolean:
-            case Number:
-            case Blob:
-                break;
-            case Set:
-            case List:
-            case Map:
-                path.add("values");
-                break;
-            default:
-                throw new IllegalStateException("Handling of type " + tableType.getKind() + " is not implemented");
-        }
-        return path;
-    }
-
     private final String name;
     private final Kind kind;
     private final List<NomsType> arguments;
@@ -284,13 +262,10 @@ public class NomsType
         return sb.toString();
     }
 
-    static void checkTypeArguments(NomsType type, int expectedSize,
-            List<NomsType> typeArguments)
+    public void checkArguments(int expectedSize)
     {
-        if (typeArguments == null || typeArguments.size() != expectedSize) {
-            throw new IllegalArgumentException("Wrong number of type arguments " + typeArguments
-                    + " for " + type);
-        }
+        verify(arguments != null && arguments.size() == expectedSize,
+                "Wrong number of type arguments " + arguments + " for " + this);
     }
 
     static String objectToString(Object object, NomsType elemType)

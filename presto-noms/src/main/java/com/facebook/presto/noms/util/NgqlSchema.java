@@ -26,7 +26,7 @@ public class NgqlSchema
 
     public NgqlSchema(NgqlResult result)
     {
-        object = result.json().getJsonObject("data").getJsonObject("__schema");
+        object = result.value().asJsonObject();
         for (JsonObject t : object.getJsonArray("types").getValuesAs(JsonObject.class)) {
             NgqlType type = new NgqlType(t);
             types.put(type.name(), type);
@@ -35,7 +35,7 @@ public class NgqlSchema
         rootType = types.get(rootTypeName);
     }
 
-    public NgqlType rootValueType()
+    private NgqlType rootValueType()
     {
         return resolve(rootType.fieldType("root"));
     }

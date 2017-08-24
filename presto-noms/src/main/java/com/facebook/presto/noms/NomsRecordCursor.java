@@ -15,7 +15,6 @@ package com.facebook.presto.noms;
 
 import com.facebook.presto.noms.util.NgqlQuery;
 import com.facebook.presto.noms.util.NgqlResult;
-import com.facebook.presto.noms.util.NgqlType;
 import com.facebook.presto.spi.RecordCursor;
 import com.facebook.presto.spi.predicate.NullableValue;
 import com.facebook.presto.spi.type.Type;
@@ -23,16 +22,13 @@ import com.google.common.base.Verify;
 import io.airlift.slice.Slice;
 
 import javax.json.Json;
-import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonValue;
 
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static io.airlift.slice.Slices.utf8Slice;
 import static java.util.Objects.requireNonNull;
@@ -43,7 +39,6 @@ public class NomsRecordCursor
     private final NomsSession session;
     private final NomsTable table;
     private final List<NomsColumnHandle> columns;
-    private final List<String> path;
     private final NgqlQuery query;
 
     private Iterator<JsonValue> results = JsonValue.EMPTY_JSON_ARRAY.iterator();
@@ -57,38 +52,17 @@ public class NomsRecordCursor
     {
         requireNonNull(columns, "columns is null");
 
-        Map<String, NgqlType> fields = columns.stream().collect(Collectors.toMap(
-                c -> c.getName(),
-                c -> ngqlType(table, c)));
-        this.path = NomsType.pathToTable(table.getTableType());
         this.columns = columns;
-        this.query = NgqlQuery.tableQuery(path, fields);
+        this.query = NgqlQuery.tableQuery(table, columns);
         this.table = table;
         this.session = session;
     }
 
-    private static NgqlType ngqlType(NomsTable table, NomsColumnHandle column)
+    private NgqlResult queryTable(long offset, long limit)
     {
-        String name = column.getNomsType().getName();
-        if (name.equals("Number")) {
-            name = "Float";
-        }
-        return requireNonNull(table.getSchema().types().get(name), "NgqlType " + name + " not found");
-    }
-
-    private JsonArray queryTable(long offset, long limit)
-            throws IOException
-    {
-        NgqlResult result = session.execute(
+        return session.execute(
                 table.getTableHandle().getTableName(),
                 query);
-        JsonValue tableValue = result.json().getValue("/data/" + String.join("/", path));
-        if (tableValue.getValueType() == JsonValue.ValueType.ARRAY) {
-            return tableValue.asJsonArray();
-        }
-        else {
-            return Json.createArrayBuilder().add(tableValue).build();
-        }
     }
 
     @Override
@@ -110,19 +84,15 @@ public class NomsRecordCursor
             return false;
         }
         else {
-            try {
-                JsonArray next = queryTable(totalCount, batchSize);
-                totalCount += next.size();
-                results = next.iterator();
-                if (!results.hasNext()) {
-                    return false;
-                }
-                else {
-                    return advanceNextPosition();
-                }
+            NgqlResult r = queryTable(totalCount, batchSize);
+            results = r.rows();
+            totalCount += r.size();
+            results = r.rows();
+            if (!results.hasNext()) {
+                return false;
             }
-            catch (IOException e) {
-                throw new RuntimeException(e);
+            else {
+                return advanceNextPosition();
             }
         }
     }
@@ -198,15 +168,15 @@ public class NomsRecordCursor
                     break;
                 case Blob:
                 case Set:
-                    NomsType.checkTypeArguments(nomsType, 1, nomsType.getArguments());
+                    nomsType.checkArguments(1);
                     value = NullableValue.of(nativeType, utf8Slice(buildSetValue(i, nomsType.getArguments().get(0))));
                     break;
                 case List:
-                    NomsType.checkTypeArguments(nomsType, 1, nomsType.getArguments());
+                    nomsType.checkArguments(1);
                     value = NullableValue.of(nativeType, utf8Slice(buildListValue(i, nomsType.getArguments().get(0))));
                     break;
                 case Map:
-                    NomsType.checkTypeArguments(nomsType, 2, nomsType.getArguments());
+                    nomsType.checkArguments(2);
                     value = NullableValue.of(nativeType, utf8Slice(buildMapValue(i, nomsType.getArguments().get(0), nomsType.getArguments().get(1))));
                     break;
                 default:

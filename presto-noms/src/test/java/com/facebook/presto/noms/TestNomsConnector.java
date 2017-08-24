@@ -237,7 +237,7 @@ public class TestNomsConnector
     private ConnectorTableHandle getTableHandle(SchemaTableName tableName)
     {
         ConnectorTableHandle handle = metadata.getTableHandle(SESSION, tableName);
-        checkArgument(handle != null, "table not found: %s", tableName);
+        checkArgument(handle != null, "rows not found: %s", tableName);
         return handle;
     }
 

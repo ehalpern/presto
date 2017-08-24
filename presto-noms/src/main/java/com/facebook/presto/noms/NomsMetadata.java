@@ -75,7 +75,7 @@ public class NomsMetadata
             return nomsSession.getTable(tableName).getTableHandle();
         }
         catch (TableNotFoundException | SchemaNotFoundException e) {
-            // table was not found
+            // rows was not found
             return null;
         }
     }
@@ -149,7 +149,7 @@ public class NomsMetadata
                 columns.put(tableName, getTableMetadata(tableName).getColumns());
             }
             catch (NotFoundException e) {
-                // table disappeared during listing operation
+                // rows disappeared during listing operation
             }
         }
         return columns.build();
@@ -191,5 +191,5 @@ public class NomsMetadata
                 .toString();
     }
 
-    // See ConnectorMetadata super class for available table management and insert hooks
+    // See ConnectorMetadata super class for available rows management and insert hooks
 }

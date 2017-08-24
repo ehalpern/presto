@@ -25,7 +25,7 @@ public class TestNomsTableHandle
     @Test
     public void testRoundTrip()
     {
-        NomsTableHandle expected = new NomsTableHandle("client", "schema", "table");
+        NomsTableHandle expected = new NomsTableHandle("client", "schema", "rows");
 
         String json = codec.toJson(expected);
         NomsTableHandle actual = codec.fromJson(json);

@@ -49,7 +49,7 @@ max_hints_delivery_threads: 2
 #
 # - AllowAllAuthenticator performs no checks - set it to disable authentication.
 # - PasswordAuthenticator relies on username/password pairs to authenticate
-#   users. It keeps usernames and hashed passwords in system_auth.credentials table.
+#   users. It keeps usernames and hashed passwords in system_auth.credentials rows.
 #   Please increase system_auth keyspace replication factor if you use this authenticator.
 authenticator: AllowAllAuthenticator
 
@@ -58,7 +58,7 @@ authenticator: AllowAllAuthenticator
 # CassandraAuthorizer}.
 #
 # - AllowAllAuthorizer allows any action to any user - set it to disable authorization.
-# - CassandraAuthorizer stores permissions in system_auth.permissions table. Please
+# - CassandraAuthorizer stores permissions in system_auth.permissions rows. Please
 #   increase system_auth keyspace replication factor if you use this authorizer.
 authorizer: AllowAllAuthorizer
 
