@@ -11,38 +11,46 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.facebook.presto.noms.util;
+package com.facebook.presto.noms.ngql;
 
 import com.google.common.collect.ImmutableList;
 
+import javax.json.JsonException;
 import javax.json.JsonObject;
 import javax.json.JsonValue;
 
 import java.util.Iterator;
 import java.util.List;
 
-public class NgqlResult
+public class NomsResult
 {
     private final JsonValue valueAtPath;
 
-    /*package*/ NgqlResult(JsonObject json, List<String> path)
+    /*package*/ NomsResult(JsonObject json, List<String> path)
     {
         String fullPath = path.isEmpty() ? "/data" : "/data/" + String.join("/", path);
-        this.valueAtPath = json.getValue(fullPath);
+        JsonValue value;
+        try {
+            value = json.getValue(fullPath);
+        }
+        catch (JsonException e) {
+            value = JsonValue.EMPTY_JSON_ARRAY;
+        }
+        this.valueAtPath = value;
     }
 
-    public int size()
+    /*package*/ int size()
     {
         return valueAtPath.getValueType() == JsonValue.ValueType.ARRAY ?
             valueAtPath.asJsonArray().size() : 1;
     }
 
-    public JsonValue value()
+    /*package*/ JsonValue value()
     {
         return valueAtPath;
     }
 
-    public Iterator<JsonValue> rows()
+    /*package*/ Iterator<JsonValue> rows()
     {
         if (valueAtPath.getValueType() == JsonValue.ValueType.ARRAY) {
             return valueAtPath.asJsonArray().iterator();

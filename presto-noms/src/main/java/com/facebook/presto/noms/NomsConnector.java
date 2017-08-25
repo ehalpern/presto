@@ -13,6 +13,7 @@
  */
 package com.facebook.presto.noms;
 
+import com.facebook.presto.noms.ngql.NgqlRecordSetProvider;
 import com.facebook.presto.spi.connector.Connector;
 import com.facebook.presto.spi.connector.ConnectorMetadata;
 import com.facebook.presto.spi.connector.ConnectorRecordSetProvider;
@@ -43,7 +44,7 @@ public class NomsConnector
             LifeCycleManager lifeCycleManager,
             NomsMetadata metadata,
             NomsSplitManager splitManager,
-            NomsRecordSetProvider recordSetProvider)
+            NgqlRecordSetProvider recordSetProvider)
     {
         this.lifeCycleManager = requireNonNull(lifeCycleManager, "lifeCycleManager is null");
         this.metadata = requireNonNull(metadata, "metadata is null");

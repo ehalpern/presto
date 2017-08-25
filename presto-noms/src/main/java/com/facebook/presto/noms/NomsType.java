@@ -14,9 +14,6 @@
 package com.facebook.presto.noms;
 
 import com.datastax.driver.core.utils.Bytes;
-import com.facebook.presto.noms.util.NgqlSchema;
-import com.facebook.presto.noms.util.NgqlType;
-import com.facebook.presto.spi.PrestoException;
 import com.facebook.presto.spi.type.BooleanType;
 import com.facebook.presto.spi.type.DoubleType;
 import com.facebook.presto.spi.type.Type;
@@ -26,19 +23,12 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.io.JsonStringEncoder;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableList;
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import static com.facebook.presto.spi.StandardErrorCode.NOT_SUPPORTED;
-import static com.google.common.base.Verify.verify;
 
 public class NomsType
 {
@@ -91,98 +81,10 @@ public class NomsType
     public static final NomsType EMPTY_MAP = new NomsType("EmptyList", Kind.Map);
     public static final NomsType EMPTY_SET = new NomsType("EmptySet", Kind.Set);
 
-    static NomsType from(NgqlType ngqlType, NgqlSchema schema)
-    {
-        final Pattern emptyPattern = Pattern.compile("Empty(List|Map|Set)");
-        final Pattern listPattern = Pattern.compile("(.+)List");
-        final Pattern mapPattern = Pattern.compile("(.+)To(.+)Map");
-        final Pattern refPattern = Pattern.compile("(.+)Ref");
-        final Pattern setPattern = Pattern.compile("(.+)Set");
-        final Pattern structPattern = Pattern.compile("([^_]+)_.+");
-        final Pattern typePattern = Pattern.compile("Type_(.+)");
-
-        ngqlType = schema.resolve(ngqlType);
-        switch (ngqlType.kind()) {
-            case LIST:
-                return new NomsType(ngqlType.name(), Kind.List, ImmutableList.of(
-                        NomsType.from(ngqlType.ofType(), schema)));
-            case OBJECT:
-                String typeName = ngqlType.name();
-                if (emptyPattern.matcher(typeName).matches()) {
-                    switch (typeName) {
-                        case "EmptyList":
-                            return NomsType.EMPTY_LIST;
-                        case "EmptyMap":
-                            return NomsType.EMPTY_MAP;
-                        case "EmptySet":
-                            return NomsType.EMPTY_SET;
-                        default:
-                            throw new AssertionError("unexpected " + typeName);
-                    }
-                }
-                if (listPattern.matcher(typeName).matches()) {
-                    return new NomsType(typeName, Kind.List, ImmutableList.of(
-                            NomsType.from(ngqlType.fieldType("values"), schema)));
-                }
-                if (mapPattern.matcher(typeName).matches()) {
-                    return new NomsType(typeName, Kind.Map, ImmutableList.of(
-                            NomsType.from(ngqlType.fieldType("keys"), schema),
-                            NomsType.from(ngqlType.fieldType("values"), schema)));
-                }
-                if (refPattern.matcher(typeName).matches()) {
-                    return new NomsType(typeName, Kind.Map, ImmutableList.of(
-                            NomsType.from(ngqlType.fieldType("targetValue"), schema)));
-                }
-                if (setPattern.matcher(typeName).matches()) {
-                    return new NomsType(typeName, Kind.Set, ImmutableList.of(
-                            NomsType.from(ngqlType.fieldType("values"), schema)));
-                }
-                if (structPattern.matcher(typeName).matches()) {
-                    return new NomsType(typeName, Kind.Struct, Collections.EMPTY_LIST,
-                            ngqlType.fields().entrySet().stream().collect(Collectors.toMap(
-                                    e -> e.getKey(),
-                                    e -> NomsType.from(e.getValue(), schema))));
-                }
-                if (typePattern.matcher(typeName).matches()) {
-                    throw new AssertionError("Not implelented");
-                }
-            case SCALAR:
-                switch (ngqlType.name()) {
-                    case "Boolean":
-                        return BOOLEAN;
-                    case "Float":
-                        return NUMBER;
-                    case "String":
-                        return STRING;
-                    default:
-                        throw new PrestoException(NOT_SUPPORTED, "unsupported SCALAR name: " + ngqlType.name());
-                }
-            case ENUM:
-            case UNION:
-            default:
-                throw new PrestoException(NOT_SUPPORTED, "unsupported kind: " + ngqlType.name());
-        }
-    }
-
     private final String name;
     private final Kind kind;
     private final List<NomsType> arguments;
     private final Map<String, NomsType> fields;
-
-    private NomsType(Kind kind)
-    {
-        this(kind.name(), kind);
-    }
-
-    private NomsType(String name, Kind kind)
-    {
-        this(name, kind, Collections.EMPTY_LIST, Collections.EMPTY_MAP);
-    }
-
-    /*package*/ NomsType(String name, Kind kind, List<NomsType> arguments)
-    {
-        this(name, kind, arguments, Collections.EMPTY_MAP);
-    }
 
     @JsonCreator
     public NomsType(
@@ -197,43 +99,53 @@ public class NomsType
         this.fields = (fields == null) ? Collections.EMPTY_MAP : fields;
     }
 
-    public boolean kindOf(Kind... kinds)
+    public NomsType(String name, Kind kind, List<NomsType> arguments)
     {
-        return Arrays.binarySearch(kinds, kind) > -1;
+        this(name, kind, arguments, Collections.EMPTY_MAP);
+    }
+
+    private NomsType(Kind kind)
+    {
+        this(kind.name(), kind);
+    }
+
+    private NomsType(String name, Kind kind)
+    {
+        this(name, kind, Collections.EMPTY_LIST, Collections.EMPTY_MAP);
     }
 
     @JsonProperty
-    public String getName()
+    public String name()
     {
         return name;
     }
 
     @JsonProperty
-    public Kind getKind()
+    public Kind kind()
     {
         return kind;
     }
 
-    public Type getNativeType()
-    {
-        return kind.nativeType();
-    }
-
-    public Class<?> getJavaType()
-    {
-        return kind.javaType();
-    }
-
     @JsonProperty
-    public List<NomsType> getArguments()
+    public List<NomsType> arguments()
     {
         return arguments;
     }
 
     @JsonProperty
-    public Map<String, NomsType> getFields()
+    public Map<String, NomsType> fields()
     {
         return fields;
+    }
+
+    public Type nativeType()
+    {
+        return kind.nativeType();
+    }
+
+    public Class<?> javaType()
+    {
+        return kind.javaType();
     }
 
     public int hashCode()
@@ -248,7 +160,7 @@ public class NomsType
     }
 
     @VisibleForTesting
-    static String buildArrayValue(Collection<?> collection, NomsType elemType)
+    public static String buildArrayValue(Collection<?> collection, NomsType elemType)
     {
         StringBuilder sb = new StringBuilder();
         sb.append("[");
@@ -262,15 +174,9 @@ public class NomsType
         return sb.toString();
     }
 
-    public void checkArguments(int expectedSize)
+    public static String objectToString(Object object, NomsType elemType)
     {
-        verify(arguments != null && arguments.size() == expectedSize,
-                "Wrong number of type arguments " + arguments + " for " + this);
-    }
-
-    static String objectToString(Object object, NomsType elemType)
-    {
-        switch (elemType.getKind()) {
+        switch (elemType.kind()) {
             case String:
                 return quoteStringLiteralForJson(object.toString());
             case Blob:

@@ -18,9 +18,9 @@ import com.datastax.driver.core.RegularStatement;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Session;
 import com.datastax.driver.core.Statement;
-import com.facebook.presto.noms.util.NgqlQuery;
-import com.facebook.presto.noms.util.NgqlResult;
-import com.facebook.presto.noms.util.NgqlSchema;
+import com.facebook.presto.noms.ngql.NomsQuery;
+import com.facebook.presto.noms.ngql.NomsResult;
+import com.facebook.presto.noms.ngql.NomsSchema;
 import com.facebook.presto.noms.util.NomsRunner;
 import com.facebook.presto.spi.PrestoException;
 import com.facebook.presto.spi.SchemaNotFoundException;
@@ -75,28 +75,33 @@ public class NomsSession
         }
         ImmutableList.Builder<NomsColumnHandle> columnHandles = ImmutableList.builder();
 
-        NgqlSchema schema = getSchema(schemaTableName.getTableName());
-        NomsType tableType = NomsType.from(schema.lastCommitValueType(), schema);
-        NomsType rowType = tableType;
-        if (tableType.kindOf(NomsType.Kind.List, NomsType.Kind.Set)) {
-            // Noms collections are represented by Object<List<Struct>>>
-            rowType = tableType.getArguments().get(0).getArguments().get(0);
+        NomsSchema schema = getSchema(schemaTableName.getTableName());
+        NomsType tableType = schema.tableType();
+        NomsType rowType;
+        switch (tableType.kind()) {
+            case List: case Set:
+                rowType = tableType.arguments().get(0).arguments().get(0);
+                break;
+            case Map:
+                // TODO: map should include key as synthetic column
+                rowType = tableType.arguments().get(1).arguments().get(0);
+                break;
+            default:
+                rowType = tableType;
+                break;
         }
-        else if (tableType.kindOf(NomsType.Kind.Map)) {
-            // Noms collections are represented by Object<List<Struct>>>
-            rowType = tableType.getArguments().get(1).getArguments().get(0);
-        }
-        if (rowType.kindOf(NomsType.Kind.Blob, NomsType.Kind.Boolean, NomsType.Kind.Number, NomsType.Kind.String)) {
-            columnHandles.add(new NomsColumnHandle(connectorId, "value", 0, tableType));
-        }
-        else if (rowType.kindOf(NomsType.Kind.Struct)) {
-            int pos = 0;
-            for (Map.Entry<String, NomsType> e : rowType.getFields().entrySet()) {
-                columnHandles.add(new NomsColumnHandle(connectorId, e.getKey(), pos++, e.getValue()));
-            }
-        }
-        else {
-            throw new PrestoException(NOT_SUPPORTED, "row type " + rowType + " non supported");
+        switch (rowType.kind()) {
+            case Blob: case Boolean: case Number: case String:
+                columnHandles.add(new NomsColumnHandle(connectorId, "value", 0, tableType));
+                break;
+            case Struct:
+                int pos = 0;
+                for (Map.Entry<String, NomsType> e : rowType.fields().entrySet()) {
+                    columnHandles.add(new NomsColumnHandle(connectorId, e.getKey(), pos++, e.getValue()));
+                }
+                break;
+            default:
+                throw new PrestoException(NOT_SUPPORTED, "row type " + rowType + " non supported");
         }
         return new NomsTable(
                 new NomsTableHandle(connectorId, config.getDatabase(), schemaTableName.getTableName()),
@@ -106,16 +111,16 @@ public class NomsSession
                 nomsURI);
     }
 
-    private NgqlSchema getSchema(String table)
+    private NomsSchema getSchema(String table)
     {
-        return new NgqlSchema(execute(table, NgqlQuery.introspectQuery()));
+        return new NomsSchema(execute(table, NomsQuery.introspectQuery()));
     }
 
-    public NgqlResult execute(String table, NgqlQuery query)
+    public NomsResult execute(String table, NomsQuery query)
     {
         try {
             // TODO: retry
-            return NgqlQuery.execute(nomsURI, table, query);
+            return NomsQuery.execute(nomsURI, table, query);
         }
         catch (IOException e) {
             // TODO: better error handling

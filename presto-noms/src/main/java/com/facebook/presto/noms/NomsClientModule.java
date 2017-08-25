@@ -13,6 +13,7 @@
  */
 package com.facebook.presto.noms;
 
+import com.facebook.presto.noms.ngql.NgqlRecordSetProvider;
 import com.google.inject.Binder;
 import com.google.inject.Module;
 import com.google.inject.Provides;
@@ -40,7 +41,7 @@ public class NomsClientModule
         binder.bind(NomsConnector.class).in(Scopes.SINGLETON);
         binder.bind(NomsMetadata.class).in(Scopes.SINGLETON);
         binder.bind(NomsSplitManager.class).in(Scopes.SINGLETON);
-        binder.bind(NomsRecordSetProvider.class).in(Scopes.SINGLETON);
+        binder.bind(NgqlRecordSetProvider.class).in(Scopes.SINGLETON);
 
         configBinder(binder).bindConfig(NomsClientConfig.class);
     }

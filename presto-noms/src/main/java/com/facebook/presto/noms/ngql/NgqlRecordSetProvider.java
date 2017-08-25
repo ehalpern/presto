@@ -11,8 +11,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.facebook.presto.noms;
+package com.facebook.presto.noms.ngql;
 
+import com.facebook.presto.noms.NomsColumnHandle;
+import com.facebook.presto.noms.NomsConnectorId;
+import com.facebook.presto.noms.NomsSession;
+import com.facebook.presto.noms.NomsSplit;
+import com.facebook.presto.noms.NomsTable;
 import com.facebook.presto.spi.ColumnHandle;
 import com.facebook.presto.spi.ConnectorSession;
 import com.facebook.presto.spi.ConnectorSplit;
@@ -29,16 +34,16 @@ import static com.google.common.base.MoreObjects.toStringHelper;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
 
-public class NomsRecordSetProvider
+public class NgqlRecordSetProvider
         implements ConnectorRecordSetProvider
 {
-    private static final Logger log = Logger.get(NomsRecordSetProvider.class);
+    private static final Logger log = Logger.get(NgqlRecordSetProvider.class);
 
     private final String connectorId;
     private final NomsSession nomsSession;
 
     @Inject
-    public NomsRecordSetProvider(NomsConnectorId connectorId, NomsSession nomsSession)
+    public NgqlRecordSetProvider(NomsConnectorId connectorId, NomsSession nomsSession)
     {
         this.connectorId = requireNonNull(connectorId, "connectorId is null").toString();
         this.nomsSession = requireNonNull(nomsSession, "nomsSession is null");
@@ -54,7 +59,7 @@ public class NomsRecordSetProvider
                 .collect(toList());
 
         NomsTable table = nomsSession.getTable(nomsSplit.getTableName());
-        return new NomsRecordSet(nomsSession, nomsSplit, table, nomsColumns);
+        return new NgqlRecordSet(nomsSession, nomsSplit, table, nomsColumns);
     }
 
     @Override

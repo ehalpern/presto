@@ -11,20 +11,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.facebook.presto.noms.util;
+package com.facebook.presto.noms.ngql;
+
+import com.facebook.presto.noms.NomsType;
 
 import javax.json.JsonObject;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class NgqlSchema
+public class NomsSchema
 {
     private final JsonObject object;
     private final NgqlType rootType;
     private final Map<String, NgqlType> types = new HashMap<>();
 
-    public NgqlSchema(NgqlResult result)
+    public NomsSchema(NomsResult result)
     {
         object = result.value().asJsonObject();
         for (JsonObject t : object.getJsonArray("types").getValuesAs(JsonObject.class)) {
@@ -35,23 +37,28 @@ public class NgqlSchema
         rootType = types.get(rootTypeName);
     }
 
+    public NomsType tableType()
+    {
+        return NgqlType.nomsType(lastCommitValueType(), this);
+    }
+
+    /*package*/ NgqlType resolve(NgqlType type)
+    {
+        return type.reference() ? types.get(type.name()) : type;
+    }
+
+    /*package*/ Map<String, NgqlType> types()
+    {
+        return types;
+    }
+
     private NgqlType rootValueType()
     {
         return resolve(rootType.fieldType("root"));
     }
 
-    public NgqlType lastCommitValueType()
+    private NgqlType lastCommitValueType()
     {
         return resolve(rootValueType().fieldType("value"));
-    }
-
-    public NgqlType resolve(NgqlType type)
-    {
-        return type.reference() ? types.get(type.name()) : type;
-    }
-
-    public Map<String, NgqlType> types()
-    {
-        return types;
     }
 }

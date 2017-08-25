@@ -74,12 +74,12 @@ public class NomsColumnHandle
 
     public ColumnMetadata getColumnMetadata()
     {
-        return new ColumnMetadata(name, nomsType.getNativeType(), null, false);
+        return new ColumnMetadata(name, nomsType.nativeType(), null, false);
     }
 
     public Type getType()
     {
-        return nomsType.getNativeType();
+        return nomsType.nativeType();
     }
 
     @Override
@@ -117,8 +117,8 @@ public class NomsColumnHandle
                 .add("ordinalPosition", ordinalPosition)
                 .add("nomsType", nomsType);
 
-        if (!nomsType.getArguments().isEmpty()) {
-            helper.add("typeArguments", nomsType.getArguments());
+        if (!nomsType.arguments().isEmpty()) {
+            helper.add("typeArguments", nomsType.arguments());
         }
 
         return helper.toString();

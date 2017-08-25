@@ -11,18 +11,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.facebook.presto.noms;
+package com.facebook.presto.noms.ngql;
 
-import com.facebook.presto.noms.util.NgqlQuery;
-import com.facebook.presto.noms.util.NgqlResult;
+import com.facebook.presto.noms.NomsColumnHandle;
+import com.facebook.presto.noms.NomsSession;
+import com.facebook.presto.noms.NomsSplit;
+import com.facebook.presto.noms.NomsTable;
+import com.facebook.presto.noms.NomsType;
 import com.facebook.presto.spi.RecordCursor;
 import com.facebook.presto.spi.predicate.NullableValue;
 import com.facebook.presto.spi.type.Type;
-import com.google.common.base.Verify;
 import io.airlift.slice.Slice;
 
 import javax.json.Json;
+import javax.json.JsonNumber;
 import javax.json.JsonObject;
+import javax.json.JsonString;
 import javax.json.JsonValue;
 
 import java.util.Iterator;
@@ -30,16 +34,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.google.common.base.Verify.verify;
+import static com.google.common.base.Verify.verifyNotNull;
 import static io.airlift.slice.Slices.utf8Slice;
-import static java.util.Objects.requireNonNull;
 
-public class NomsRecordCursor
+public class NgqlRecordCursor
         implements RecordCursor
 {
     private final NomsSession session;
     private final NomsTable table;
     private final List<NomsColumnHandle> columns;
-    private final NgqlQuery query;
+    private final NomsQuery query;
 
     private Iterator<JsonValue> results = JsonValue.EMPTY_JSON_ARRAY.iterator();
     private JsonObject row = JsonValue.EMPTY_JSON_OBJECT;
@@ -48,21 +53,28 @@ public class NomsRecordCursor
     private long completedCount = 0;
     private int batchSize = 100;
 
-    public NomsRecordCursor(NomsSession session, NomsSplit nomsSplit, NomsTable table, List<NomsColumnHandle> columns)
+    /*pacakge*/ NgqlRecordCursor(NomsSession session, NomsSplit nomsSplit, NomsTable table, List<NomsColumnHandle> columns)
     {
-        requireNonNull(columns, "columns is null");
+        verifyNotNull(columns, "columns is null");
 
         this.columns = columns;
-        this.query = NgqlQuery.tableQuery(table, columns);
+        this.query = NomsQuery.tableQuery(table, columns);
         this.table = table;
         this.session = session;
     }
 
-    private NgqlResult queryTable(long offset, long limit)
+    private Iterator<JsonValue> nextBatch()
     {
-        return session.execute(
-                table.getTableHandle().getTableName(),
-                query);
+        // TODO: Implement batching. For now, read all rows on
+        // the first bactch and terminate the cursor on the second
+        if (totalCount > 0) {
+            return JsonValue.EMPTY_JSON_ARRAY.iterator();
+        }
+        else {
+            NomsResult result = session.execute(table.tableHandle().getTableName(), query);
+            totalCount = result.size();
+            return result.rows();
+        }
     }
 
     @Override
@@ -71,7 +83,7 @@ public class NomsRecordCursor
         if (results.hasNext()) {
             JsonValue rowValue = results.next();
             if (rowValue.getValueType() != JsonValue.ValueType.OBJECT) {
-                Verify.verify(columns.size() == 1, "expecting a single column");
+                verify(columns.size() == 1, "expecting a single column");
                 row = Json.createObjectBuilder().add(columns.get(0).getName(), rowValue).build();
             }
             else {
@@ -80,14 +92,8 @@ public class NomsRecordCursor
             completedCount += 1;
             return true;
         }
-        else if (totalCount % batchSize != 0) {
-            return false;
-        }
         else {
-            NgqlResult r = queryTable(totalCount, batchSize);
-            results = r.rows();
-            totalCount += r.size();
-            results = r.rows();
+            results = nextBatch();
             if (!results.hasNext()) {
                 return false;
             }
@@ -95,23 +101,6 @@ public class NomsRecordCursor
                 return advanceNextPosition();
             }
         }
-    }
-
-    @Override
-    public void close()
-    {
-    }
-
-    private JsonValue columnValue(int i)
-    {
-        String field = columns.get(i).getName();
-        return row.get(field);
-    }
-
-    @Override
-    public boolean getBoolean(int i)
-    {
-        return Boolean.parseBoolean(columnValue(i).toString());
     }
 
     @Override
@@ -127,37 +116,56 @@ public class NomsRecordCursor
     }
 
     @Override
+    public void close()
+    {
+    }
+
+    private String nameOf(int i)
+    {
+        return columns.get(i).getName();
+    }
+
+    private NomsType typeOf(int i)
+    {
+        return columns.get(i).getNomsType();
+    }
+
+    private JsonValue valueOf(int i)
+    {
+        return row.get(nameOf(i));
+    }
+
+    @Override
+    public boolean getBoolean(int i)
+    {
+        return Boolean.parseBoolean(valueOf(i).toString());
+    }
+
+    @Override
     public double getDouble(int i)
     {
-        return Double.parseDouble(columnValue(i).toString());
+        return ((JsonNumber) valueOf(i)).doubleValue();
     }
 
     @Override
     public long getLong(int i)
     {
-        return Long.parseLong(columnValue(i).toString());
-    }
-
-    private NomsType getNomsType(int i)
-    {
-        return columns.get(i).getNomsType();
+        return ((JsonNumber) valueOf(i)).longValue();
     }
 
     @Override
     public Slice getSlice(int i)
     {
-        NomsType nomsType = columns.get(i).getNomsType();
-        Type nativeType = nomsType.getNativeType();
+        NomsType nomsType = typeOf(i);
+        Type nativeType = getType(i);
         NullableValue value;
         if (isNull(i)) {
             value = NullableValue.asNull(nativeType);
         }
         else {
-            switch (nomsType.getKind()) {
+            switch (nomsType.kind()) {
                 case String:
-                    String s = columnValue(i).toString();
-                    // Strip quotes
-                    s = s.substring(1, s.length() - 1);
+                    String s = ((JsonString) valueOf(i)).getString();
                     value = NullableValue.of(nativeType, utf8Slice(s));
                     break;
                 case Boolean:
@@ -168,16 +176,13 @@ public class NomsRecordCursor
                     break;
                 case Blob:
                 case Set:
-                    nomsType.checkArguments(1);
-                    value = NullableValue.of(nativeType, utf8Slice(buildSetValue(i, nomsType.getArguments().get(0))));
+                    value = NullableValue.of(nativeType, utf8Slice(buildSetValue(i, nomsType.arguments().get(0))));
                     break;
                 case List:
-                    nomsType.checkArguments(1);
-                    value = NullableValue.of(nativeType, utf8Slice(buildListValue(i, nomsType.getArguments().get(0))));
+                    value = NullableValue.of(nativeType, utf8Slice(buildListValue(i, nomsType.arguments().get(0))));
                     break;
                 case Map:
-                    nomsType.checkArguments(2);
-                    value = NullableValue.of(nativeType, utf8Slice(buildMapValue(i, nomsType.getArguments().get(0), nomsType.getArguments().get(1))));
+                    value = NullableValue.of(nativeType, utf8Slice(buildMapValue(i, nomsType.arguments().get(0), nomsType.arguments().get(1))));
                     break;
                 default:
                     throw new IllegalStateException("Handling of type " + nomsType + " is not implemented");
@@ -189,17 +194,17 @@ public class NomsRecordCursor
         return utf8Slice(value.getValue().toString());
     }
 
+    private <T> List<T> getList(int i, Class<T> elementsClass)
+    {
+        throw new AssertionError("not implemented");
+    }
+
     private <K, V> Map<K, V> getMap(int i, Class<K> keysClass, Class<V> valuesClass)
     {
         throw new AssertionError("not implemented");
     }
 
     private <T> Set<T> getSet(int i, Class<T> elementsClass)
-    {
-        throw new AssertionError("not implemented");
-    }
-
-    private <T> List<T> getList(int i, Class<T> elementsClass)
     {
         throw new AssertionError("not implemented");
     }
@@ -219,30 +224,30 @@ public class NomsRecordCursor
     @Override
     public Type getType(int i)
     {
-        return getNomsType(i).getNativeType();
+        return typeOf(i).nativeType();
     }
 
     @Override
     public boolean isNull(int i)
     {
-        return columnValue(i) == JsonValue.NULL;
+        return valueOf(i) == JsonValue.NULL;
     }
 
     private String buildSetValue(int i, NomsType elemType)
     {
-        return NomsType.buildArrayValue(getSet(i, elemType.getJavaType()), elemType);
+        return NomsType.buildArrayValue(getSet(i, elemType.javaType()), elemType);
     }
 
     private String buildListValue(int i, NomsType elemType)
     {
-        return NomsType.buildArrayValue(getList(i, elemType.getJavaType()), elemType);
+        return NomsType.buildArrayValue(getList(i, elemType.javaType()), elemType);
     }
 
     private String buildMapValue(int i, NomsType keyType, NomsType valueType)
     {
         StringBuilder sb = new StringBuilder();
         sb.append("{");
-        for (Map.Entry<?, ?> entry : getMap(i, keyType.getJavaType(), valueType.getJavaType()).entrySet()) {
+        for (Map.Entry<?, ?> entry : getMap(i, keyType.javaType(), valueType.javaType()).entrySet()) {
             if (sb.length() > 1) {
                 sb.append(",");
             }

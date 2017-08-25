@@ -13,6 +13,7 @@
  */
 package com.facebook.presto.noms;
 
+import com.facebook.presto.noms.ngql.NgqlRecordSetProvider;
 import com.facebook.presto.spi.ColumnHandle;
 import com.facebook.presto.spi.ColumnMetadata;
 import com.facebook.presto.spi.ConnectorSplit;
@@ -99,7 +100,7 @@ public class TestNomsConnector
         assertInstanceOf(splitManager, NomsSplitManager.class);
 
         recordSetProvider = connector.getRecordSetProvider();
-        assertInstanceOf(recordSetProvider, NomsRecordSetProvider.class);
+        assertInstanceOf(recordSetProvider, NgqlRecordSetProvider.class);
 
         table = new SchemaTableName(database, "types");
         tableUnpartitioned = new SchemaTableName(database, "presto_test_unpartitioned");

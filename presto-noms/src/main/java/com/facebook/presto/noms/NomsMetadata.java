@@ -72,7 +72,7 @@ public class NomsMetadata
     {
         requireNonNull(tableName, "tableName is null");
         try {
-            return nomsSession.getTable(tableName).getTableHandle();
+            return nomsSession.getTable(tableName).tableHandle();
         }
         catch (TableNotFoundException | SchemaNotFoundException e) {
             // rows was not found
@@ -95,7 +95,7 @@ public class NomsMetadata
     private ConnectorTableMetadata getTableMetadata(SchemaTableName tableName)
     {
         NomsTable table = nomsSession.getTable(tableName);
-        List<ColumnMetadata> columns = table.getColumns().stream()
+        List<ColumnMetadata> columns = table.columns().stream()
                 .map(NomsColumnHandle::getColumnMetadata)
                 .collect(toList());
         return new ConnectorTableMetadata(tableName, columns);
@@ -133,7 +133,7 @@ public class NomsMetadata
         requireNonNull(tableHandle, "tableHandle is null");
         NomsTable table = nomsSession.getTable(getTableName(tableHandle));
         ImmutableMap.Builder<String, ColumnHandle> columnHandles = ImmutableMap.builder();
-        for (NomsColumnHandle columnHandle : table.getColumns()) {
+        for (NomsColumnHandle columnHandle : table.columns()) {
             columnHandles.put(columnHandle.getName().toLowerCase(ENGLISH), columnHandle);
         }
         return columnHandles.build();

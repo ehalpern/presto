@@ -11,8 +11,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.facebook.presto.noms;
+package com.facebook.presto.noms.ngql;
 
+import com.facebook.presto.noms.NomsColumnHandle;
+import com.facebook.presto.noms.NomsSession;
+import com.facebook.presto.noms.NomsSplit;
+import com.facebook.presto.noms.NomsTable;
 import com.facebook.presto.spi.RecordCursor;
 import com.facebook.presto.spi.RecordSet;
 import com.facebook.presto.spi.type.Type;
@@ -24,7 +28,7 @@ import java.util.function.Function;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
 
-public class NomsRecordSet
+public class NgqlRecordSet
         implements RecordSet
 {
     private final NomsSession nomsSession;
@@ -33,7 +37,7 @@ public class NomsRecordSet
     private final List<NomsColumnHandle> columns;
     private final NomsSplit split;
 
-    public NomsRecordSet(NomsSession session, NomsSplit split, NomsTable table, List<NomsColumnHandle> columns)
+    /*package*/ NgqlRecordSet(NomsSession session, NomsSplit split, NomsTable table, List<NomsColumnHandle> columns)
     {
         this.nomsSession = requireNonNull(session, "nomsSession is null");
         this.columns = requireNonNull(columns, "columns is null");
@@ -51,7 +55,7 @@ public class NomsRecordSet
     @Override
     public RecordCursor cursor()
     {
-        return new NomsRecordCursor(nomsSession, split, table, columns);
+        return new NgqlRecordCursor(nomsSession, split, table, columns);
     }
 
     private static <T, R> List<R> transformList(List<T> list, Function<T, R> function)
