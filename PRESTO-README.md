@@ -1,4 +1,4 @@
-#### See [NOMS-README](NOMS-README.md) for noms connector details 
+#### See [Noms README](README.md) for noms connector details 
 
 ---
 # Presto [![Build Status](https://travis-ci.org/prestodb/presto.svg?branch=master)](https://travis-ci.org/prestodb/presto)
