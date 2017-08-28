@@ -22,7 +22,7 @@ public class TestNomsServer
     @Test
     public void testServer()
     {
-        NomsServer server = new NomsServer("nbs:/tmp/presto-noms/tpch");
+        NomsServer server = new NomsServer("nbs:/tmp/presto-noms/test");
         String output = server.exec("ds");
         System.out.println("ds output: " + output);
         assertNotEquals(output, "");

@@ -9,6 +9,7 @@ import() {
     ds=$5
     echo ${fields} > ${ds}-all.csv
     cat ${ds}-?.csv | sed 's/, /,/g' >> ${ds}-all.csv
+    mkdir -p /tmp/presto-noms/${db}
     echo csv-import --column-types="${types}" --dest-type=map:$pk ${ds}-all.csv nbs:/tmp/presto-noms/${db}::${ds}
     csv-import --column-types="${types}" --dest-type=map:$pk ${ds}-all.csv nbs:/tmp/presto-noms/${db}::${ds}
     csv-import --column-types="${types}" --dest-type=list ${ds}-all.csv nbs:/tmp/presto-noms/${db}::${ds}-list
