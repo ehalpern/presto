@@ -21,7 +21,6 @@ import com.facebook.presto.spi.predicate.Domain;
 import com.facebook.presto.spi.predicate.Marker;
 import com.facebook.presto.spi.predicate.Range;
 import com.facebook.presto.spi.predicate.TupleDomain;
-import com.facebook.presto.spi.predicate.ValueSet;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import org.apache.http.client.fluent.Content;
@@ -165,54 +164,67 @@ public class NomsQuery
         return new NomsQuery(query, path, params);
     }
 
+    /**
+     * Build parameter list from query constraints (specified in TupleDomain).
+     * Specifically, if there are constraints on the primary key column,
+     * - If only exact key values are specified, use (keys: [values]) to select only those rows.
+     * - If one or more non-exact key bounds (> or <) are specified, determine the range that spans
+     *   the full set and use (key: start, through: end) to query that range. Note that the range
+     *   query result will include rows corresponding to the low and high bounds if they exist, even
+     *   if they are not required in the range. For example, a query for keys in the range 10 < k <= 100
+     *   will include row 10 if it exists.
+     */
     private static List<String> paramsFromConstraints(NomsSchema schema, List<NomsColumnHandle> columns, TupleDomain<ColumnHandle> domain)
     {
         if (domain.isAll() || schema.primaryKey() == null) {
-            return Collections.EMPTY_LIST;
+            return ImmutableList.of();
         }
         else {
-            // TODO: use discrete values instead of range
             String pk = schema.primaryKey();
-            Optional<Range> range = columns.stream().filter(c -> c.getName().equals(pk)).map(c -> {
-                Domain constraint = domain.getDomains().get().get(c);
-                return keyBounds(constraint);
-            }).findFirst();
-
-            if (!range.isPresent()) {
-                return Collections.EMPTY_LIST;
-            }
-            else {
-                Range r = range.get();
-                return ImmutableList.of("key:" + r.getLow().getValue(), "through:" + r.getHigh().getValue());
-            }
+            return columns.stream().filter(c -> c.getName().equals(pk)).map(c -> {
+                Domain constraints = domain.getDomains().get().get(c);
+                List<String> params = new ArrayList();
+                return exactValues(constraints).map(values -> {
+                    params.add("keys: " + values);
+                    return params;
+                }).orElseGet(() ->
+                        keyBounds(constraints).map(bounds -> {
+                            if (bounds.getLow().getValueBlock().isPresent()) {
+                                params.add("key: " + bounds.getLow().getValue());
+                            }
+                            if (bounds.getHigh().getValueBlock().isPresent()) {
+                                params.add("through: " + bounds.getHigh().getValue());
+                            }
+                            return params;
+                        }).get());
+            }).findFirst().get();
         }
     }
 
-    private static Range keyBounds(Domain domain)
+    private static Optional<List<Object>> exactValues(Domain domain)
     {
-        ValueSet values = domain.getValues();
-        if (values.isNone()) {
-            return null;
-        }
-        else if (values.isSingleValue()) {
-            return values.getRanges().getOrderedRanges().get(0);
-        }
-        else {
-            //DiscreteValues discrete = values.getDiscreteValues();
-            Range range = null;
-            for (Range r : values.getRanges().getOrderedRanges()) {
-                if (r.getLow().getBound() != Marker.Bound.EXACTLY) {
-                    return null;
-                }
-                else if (range == null) {
-                    range = r;
-                }
-                else {
-                    range = range.span(r);
-                }
+        List<Object> values = new ArrayList<Object>();
+        for (Range r : domain.getValues().getRanges().getOrderedRanges()) {
+            if (r.getLow().getBound() != Marker.Bound.EXACTLY) {
+                return Optional.empty();
             }
-            return range;
+            values.add(r.getLow().getValue());
         }
+        return Optional.of(values);
+    }
+
+    private static Optional<Range> keyBounds(Domain domain)
+    {
+        Range range = null;
+        for (Range r : domain.getValues().getRanges().getOrderedRanges()) {
+            if (range == null) {
+                range = r;
+            }
+            else {
+                range = range.span(r);
+            }
+        }
+        return Optional.ofNullable(range);
     }
 
     private static NgqlType ngqlType(NomsTable table, NomsColumnHandle column)

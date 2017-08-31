@@ -80,7 +80,14 @@ public class NgqlRecordCursor
     {
         if (results.hasNext()) {
             JsonValue rowValue = results.next();
-            if (rowValue.getValueType() != JsonValue.ValueType.OBJECT) {
+            while (rowValue.equals(JsonValue.NULL) && results.hasNext()) {
+                completedCount += 1;
+                rowValue = results.next();
+            }
+            if (rowValue.equals(JsonValue.NULL)) {
+                return false;
+            }
+            else if (rowValue.getValueType() != JsonValue.ValueType.OBJECT) {
                 verify(columns.size() == 1, "expecting a single column");
                 row = Json.createObjectBuilder().add(columns.get(0).getName(), rowValue).build();
             }
