@@ -171,14 +171,25 @@ public class NomsMetadata
     }
 
     /**
-     * TODO: understand this
+     * Given the table, columns and constraints of a query, returns layout
+     * information to be used by presto to execute and (potentially) distribute
+     * the query.
      *
-     * Given the columns and constraints specified in a query, returns information that can help
-     * presto optimize and partition queries. This may include:
-     *   - A predicate that specifies the universe of values that the given columns can contain. This
-     *     is somehow useful for query optimization. Don't yet understand the details.
-     *   - The partitioning scheme used to distribute work across worker nodes. Don't yet understand the details.
-     *   - The columns used for partitioning streams (?)
+     * At a high-level, this method examines the query to determine how/if
+     * it constrains columns that contribute to a partition or cluster key.
+     * If so, it determines the list of partitions and/or buckets that need
+     * to be queried. In returns a description of the query to execute and
+     * the partitions to execute it on.
+     *
+     * Consider the example of HiveMetadata.getTableLayouts:
+     *   - If the query constrains the partition key, issue a query to
+     *     determine the distinct partition key matching the predicate.
+     *   - If the query constrains the cluster key (by specifying exact
+     *     values), determine the buckets for these values
+     *   - Return a layout that specifies the new query (minus the partition
+     *     key predicates), the list of partitions and the list of buckets
+     *
+     * TBD
      */
     @Override
     public List<ConnectorTableLayoutResult> getTableLayouts(

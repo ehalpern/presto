@@ -72,18 +72,18 @@
         <module>presto-array</module>
         <module>presto-jmx</module>
         <module>presto-record-decoder</module>
-        <module>presto-kafka</module>
         <module>presto-cassandra</module>
         <module>presto-blackhole</module>
         <module>presto-memory</module>
         <module>presto-noms</module>
         <module>presto-orc</module>
+        <module>presto-hive</module>
+        <module>presto-hive-hadoop2</module>
         <module>presto-local-file</module>
         <module>presto-tpch</module>
         <module>presto-tpcds</module>
         <module>presto-base-jdbc</module>
         <module>presto-mysql</module>
-        <module>presto-postgresql</module>
         <module>presto-bytecode</module>
         <module>presto-client</module>
         <module>presto-parser</module>
