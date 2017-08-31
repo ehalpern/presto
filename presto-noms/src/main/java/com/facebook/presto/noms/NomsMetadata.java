@@ -70,6 +70,7 @@ public class NomsMetadata
     @Override
     public NomsTableHandle getTableHandle(ConnectorSession session, SchemaTableName tableName)
     {
+        // TODO: Sould nomsSession be associated with session?
         requireNonNull(tableName, "tableName is null");
         try {
             return nomsSession.getTable(tableName).tableHandle();
@@ -169,12 +170,26 @@ public class NomsMetadata
         return ((NomsColumnHandle) columnHandle).getColumnMetadata();
     }
 
+    /**
+     * TODO: understand this
+     *
+     * Given the columns and constraints specified in a query, returns information that can help
+     * presto optimize and partition queries. This may include:
+     *   - A predicate that specifies the universe of values that the given columns can contain. This
+     *     is somehow useful for query optimization. Don't yet understand the details.
+     *   - The partitioning scheme used to distribute work across worker nodes. Don't yet understand the details.
+     *   - The columns used for partitioning streams (?)
+     */
     @Override
-    public List<ConnectorTableLayoutResult> getTableLayouts(ConnectorSession session, ConnectorTableHandle table, Constraint<ColumnHandle> constraint, Optional<Set<ColumnHandle>> desiredColumns)
+    public List<ConnectorTableLayoutResult> getTableLayouts(
+            ConnectorSession session,
+            ConnectorTableHandle table,
+            Constraint<ColumnHandle> constraint,
+            Optional<Set<ColumnHandle>> desiredColumns)
     {
-        NomsTableHandle tableHandle = (NomsTableHandle) table;
-        ConnectorTableLayout layout = new ConnectorTableLayout(new NomsTableLayoutHandle(tableHandle, constraint.getSummary()));
-        return ImmutableList.of(new ConnectorTableLayoutResult(layout, constraint.getSummary()));
+        return ImmutableList.of(new ConnectorTableLayoutResult(
+                new ConnectorTableLayout(new NomsTableLayoutHandle((NomsTableHandle) table, constraint.getSummary())),
+                constraint.getSummary()));
     }
 
     @Override
@@ -191,5 +206,5 @@ public class NomsMetadata
                 .toString();
     }
 
-    // See ConnectorMetadata super class for available rows management and insert hooks
+    // See ConnectorMetadata super class for available row management and insert hooks
 }

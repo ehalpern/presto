@@ -31,12 +31,12 @@ public class TestNomsColumnHandle
     public void testRoundTrip()
     {
         NomsColumnHandle[] columns = {
-                new NomsColumnHandle("cid", "c0", 0, NomsType.NUMBER),
-                new NomsColumnHandle("cid", "c1", 1, NomsType.EMPTY_LIST),
+                new NomsColumnHandle("cid", "c0", 0, NomsType.NUMBER, false),
+                new NomsColumnHandle("cid", "c1", 1, NomsType.EMPTY_LIST, false),
                 new NomsColumnHandle("cid", "c2", 2, new NomsType(
-                        "NumberList", NomsType.Kind.List, ImmutableList.of(NomsType.STRING))),
+                        "NumberList", NomsType.Kind.List, ImmutableList.of(NomsType.STRING)), false),
                 new NomsColumnHandle("cid", "c3", 3, new NomsType(
-                        "TestStruct", NomsType.Kind.Struct, Collections.EMPTY_LIST, ImmutableMap.of("test", NomsType.STRING)))
+                        "TestStruct", NomsType.Kind.Struct, Collections.EMPTY_LIST, ImmutableMap.of("test", NomsType.STRING)), false)
         };
 
         for (int i = 0; i < columns.length; i++) {

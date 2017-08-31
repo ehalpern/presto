@@ -33,19 +33,22 @@ public class NomsColumnHandle
     private final String name;
     private final int ordinalPosition;
     private final NomsType nomsType;
+    private final boolean primaryKey;
 
     @JsonCreator
     public NomsColumnHandle(
             @JsonProperty("connectorId") String connectorId,
             @JsonProperty("name") String name,
             @JsonProperty("ordinalPosition") int ordinalPosition,
-            @JsonProperty("nomsType") NomsType nomsType)
+            @JsonProperty("nomsType") NomsType nomsType,
+            @JsonProperty("primaryKey") boolean primaryKey)
     {
         this.connectorId = requireNonNull(connectorId, "connectorId is null");
         this.name = requireNonNull(name, "name is null");
         checkArgument(ordinalPosition >= 0, "ordinalPosition is negative");
         this.ordinalPosition = ordinalPosition;
         this.nomsType = requireNonNull(nomsType, "nomsType is null");
+        this.primaryKey = primaryKey;
     }
 
     @JsonProperty
@@ -64,6 +67,12 @@ public class NomsColumnHandle
     public int getOrdinalPosition()
     {
         return ordinalPosition;
+    }
+
+    @JsonProperty
+    public boolean isPrimaryKey()
+    {
+        return primaryKey;
     }
 
     @JsonProperty

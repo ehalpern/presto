@@ -157,6 +157,8 @@ public class TestNomsConnector
 
         ConnectorTransactionHandle transaction = NomsTransactionHandle.INSTANCE;
 
+        //TupleDomain.fromFixedValues();
+
         List<ConnectorTableLayoutResult> layouts = metadata.getTableLayouts(SESSION, tableHandle, Constraint.alwaysTrue(), Optional.empty());
         ConnectorTableLayoutHandle layout = getOnlyElement(layouts).getTableLayout().getHandle();
         List<ConnectorSplit> splits = getAllSplits(splitManager.getSplits(transaction, SESSION, layout));

@@ -53,12 +53,10 @@ public class NgqlRecordCursor
     private long completedCount = 0;
     private int batchSize = 100;
 
-    /*pacakge*/ NgqlRecordCursor(NomsSession session, NomsSplit nomsSplit, NomsTable table, List<NomsColumnHandle> columns)
+    /*pacakge*/ NgqlRecordCursor(NomsSession session, NomsSplit split, NomsTable table, List<NomsColumnHandle> columns)
     {
-        verifyNotNull(columns, "columns is null");
-
-        this.columns = columns;
-        this.query = NomsQuery.tableQuery(table, columns);
+        this.columns = verifyNotNull(columns, "columns is null");
+        this.query = NomsQuery.tableQuery(table, columns, split.getTupleDomain());
         this.table = table;
         this.session = session;
     }

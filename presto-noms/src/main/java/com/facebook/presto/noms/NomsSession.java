@@ -80,11 +80,10 @@ public class NomsSession
         NomsType rowType;
         switch (tableType.kind()) {
             case List: case Set:
-                rowType = tableType.arguments().get(0).arguments().get(0);
+                rowType = tableType.arguments().get(0);
                 break;
             case Map:
-                // TODO: map should include key as synthetic column
-                rowType = tableType.arguments().get(1).arguments().get(0);
+                rowType = tableType.arguments().get(1);
                 break;
             default:
                 rowType = tableType;
@@ -92,12 +91,12 @@ public class NomsSession
         }
         switch (rowType.kind()) {
             case Blob: case Boolean: case Number: case String:
-                columnHandles.add(new NomsColumnHandle(connectorId, "value", 0, tableType));
+                columnHandles.add(new NomsColumnHandle(connectorId, "value", 0, tableType, false));
                 break;
             case Struct:
                 int pos = 0;
                 for (Map.Entry<String, NomsType> e : rowType.fields().entrySet()) {
-                    columnHandles.add(new NomsColumnHandle(connectorId, e.getKey(), pos++, e.getValue()));
+                    columnHandles.add(new NomsColumnHandle(connectorId, e.getKey(), pos++, e.getValue(), false));
                 }
                 break;
             default:

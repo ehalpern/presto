@@ -17,6 +17,9 @@ import com.facebook.presto.spi.Plugin;
 import com.facebook.presto.spi.connector.ConnectorFactory;
 import com.google.common.collect.ImmutableList;
 
+/**
+ * Connector entry point registered via etc/catalog/noms.properties
+ */
 public class NomsPlugin
         implements Plugin
 {

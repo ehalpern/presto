@@ -20,6 +20,9 @@ import com.facebook.presto.spi.ConnectorTableHandle;
 import com.facebook.presto.spi.ConnectorTableLayoutHandle;
 import com.facebook.presto.spi.connector.ConnectorTransactionHandle;
 
+/**
+ * Noms handle implementations
+ */
 public class NomsHandleResolver
         implements ConnectorHandleResolver
 {

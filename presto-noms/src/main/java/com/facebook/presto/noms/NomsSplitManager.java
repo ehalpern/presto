@@ -52,9 +52,12 @@ public class NomsSplitManager
         // this can happen if table is removed during a query
         checkState(table != null, "Table %s.%s no longer exists", tableHandle.getSchemaName(), tableHandle.getTableName());
 
-        return new FixedSplitSource(ImmutableList.of(
-                new NomsSplit(connectorId, tableHandle.getSchemaName(), tableHandle.getTableName(),
-                        ImmutableList.of(HostAddress.fromParts(table.source().getHost(), table.source().getPort())))));
+        NomsSplit split = new NomsSplit(connectorId,
+                tableHandle.getSchemaName(),
+                tableHandle.getTableName(),
+                ImmutableList.of(HostAddress.fromParts(table.source().getHost(), table.source().getPort())),
+                ((NomsTableLayoutHandle) layout).getTupleDomain());
+        return new FixedSplitSource(ImmutableList.of(split));
     }
 
     @Override

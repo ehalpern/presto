@@ -13,9 +13,11 @@
  */
 package com.facebook.presto.noms;
 
+import com.facebook.presto.spi.ColumnHandle;
 import com.facebook.presto.spi.ConnectorSplit;
 import com.facebook.presto.spi.HostAddress;
 import com.facebook.presto.spi.SchemaTableName;
+import com.facebook.presto.spi.predicate.TupleDomain;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
@@ -32,23 +34,21 @@ public class NomsSplit
     private final List<HostAddress> addresses;
     private final String schema;
     private final String table;
+    private final TupleDomain<ColumnHandle> tupleDomain;
 
     @JsonCreator
     public NomsSplit(
             @JsonProperty("connectorId") String connectorId,
             @JsonProperty("schema") String schema,
             @JsonProperty("table") String table,
-            @JsonProperty("addresses") List<HostAddress> addresses)
+            @JsonProperty("addresses") List<HostAddress> addresses,
+            @JsonProperty("tupleDomain") TupleDomain<ColumnHandle> tupleDomain)
     {
-        requireNonNull(connectorId, "connectorId is null");
-        requireNonNull(schema, "schema is null");
-        requireNonNull(table, "table is null");
-        requireNonNull(addresses, "addresses is null");
-
-        this.connectorId = connectorId;
-        this.schema = schema;
-        this.table = table;
-        this.addresses = addresses;
+        this.connectorId = requireNonNull(connectorId, "connectorId is null");
+        this.schema = requireNonNull(schema, "schema is null");
+        this.table = requireNonNull(table, "table is null");
+        this.addresses = requireNonNull(addresses, "addresses is null");
+        this.tupleDomain = requireNonNull(tupleDomain, "tupleDomain is null");
     }
 
     @JsonProperty
@@ -79,6 +79,12 @@ public class NomsSplit
     public List<HostAddress> getAddresses()
     {
         return addresses;
+    }
+
+    @JsonProperty
+    public TupleDomain<ColumnHandle> getTupleDomain()
+    {
+        return tupleDomain;
     }
 
     @Override

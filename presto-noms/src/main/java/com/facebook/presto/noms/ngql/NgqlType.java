@@ -59,20 +59,21 @@ import static com.facebook.presto.spi.StandardErrorCode.NOT_SUPPORTED;
                 }
                 if (listPattern.matcher(typeName).matches()) {
                     return new NomsType(typeName, NomsType.Kind.List, ImmutableList.of(
-                            nomsType(ngqlType.fieldType("values"), schema)));
+                            nomsType(ngqlType.fieldType("values").ofType(), schema)));
                 }
                 if (mapPattern.matcher(typeName).matches()) {
+                    NgqlType entryType = schema.resolve(ngqlType.fieldType("entries").ofType());
                     return new NomsType(typeName, NomsType.Kind.Map, ImmutableList.of(
-                            nomsType(ngqlType.fieldType("keys"), schema),
-                            nomsType(ngqlType.fieldType("values"), schema)));
+                            nomsType(entryType.fieldType("key"), schema),
+                            nomsType(entryType.fieldType("value"), schema)));
                 }
                 if (refPattern.matcher(typeName).matches()) {
-                    return new NomsType(typeName, NomsType.Kind.Map, ImmutableList.of(
+                    return new NomsType(typeName, NomsType.Kind.Ref, ImmutableList.of(
                             nomsType(ngqlType.fieldType("targetValue"), schema)));
                 }
                 if (setPattern.matcher(typeName).matches()) {
                     return new NomsType(typeName, NomsType.Kind.Set, ImmutableList.of(
-                            nomsType(ngqlType.fieldType("values"), schema)));
+                            nomsType(ngqlType.fieldType("values").ofType(), schema)));
                 }
                 if (structPattern.matcher(typeName).matches()) {
                     return new NomsType(typeName, NomsType.Kind.Struct, Collections.EMPTY_LIST,
