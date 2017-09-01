@@ -27,15 +27,15 @@ public class NomsTableLayoutHandle
         implements ConnectorTableLayoutHandle
 {
     private final NomsTableHandle table;
-    private final TupleDomain<ColumnHandle> tupleDomain;
+    private final TupleDomain<ColumnHandle> effectivePredicate;
 
     @JsonCreator
     public NomsTableLayoutHandle(
             @JsonProperty("table") NomsTableHandle table,
-            @JsonProperty("tupleDomain") TupleDomain<ColumnHandle> domain)
+            @JsonProperty("effectivePredicate") TupleDomain<ColumnHandle> effectivePredicate)
     {
         this.table = requireNonNull(table, "table is null");
-        this.tupleDomain = requireNonNull(domain, "tupleDomain is null");
+        this.effectivePredicate = requireNonNull(effectivePredicate, "effectivePredicate is null");
     }
 
     @JsonProperty
@@ -45,9 +45,9 @@ public class NomsTableLayoutHandle
     }
 
     @JsonProperty
-    public TupleDomain<ColumnHandle> getTupleDomain()
+    public TupleDomain<ColumnHandle> getEffectivePredicate()
     {
-        return tupleDomain;
+        return effectivePredicate;
     }
 
     @Override
@@ -61,13 +61,13 @@ public class NomsTableLayoutHandle
         }
         NomsTableLayoutHandle that = (NomsTableLayoutHandle) o;
         return Objects.equals(table, that.table) &&
-                Objects.equals(tupleDomain, that.tupleDomain);
+                Objects.equals(effectivePredicate, that.effectivePredicate);
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hash(table, tupleDomain);
+        return Objects.hash(table, effectivePredicate);
     }
 
     @Override

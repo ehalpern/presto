@@ -43,6 +43,13 @@ public class NomsSplitManager
         this.nomsSession = requireNonNull(nomsSession, "nomsSession is null");
     }
 
+    /**
+     * TODO: Try splits based on primary key ranges. A naive approach is to estimate
+     * the size of each row and split the key set to achieve M bytes (on average) per
+     * split. A more sophisticated approach could account for prolly tree layout,
+     * mapping each key range to a distinct subtree at some level of the graph to
+     * minimize overlapping reads across splits.
+     */
     @Override
     public ConnectorSplitSource getSplits(ConnectorTransactionHandle handle, ConnectorSession session, ConnectorTableLayoutHandle layout)
     {
@@ -56,7 +63,7 @@ public class NomsSplitManager
                 tableHandle.getSchemaName(),
                 tableHandle.getTableName(),
                 ImmutableList.of(HostAddress.fromParts(table.source().getHost(), table.source().getPort())),
-                ((NomsTableLayoutHandle) layout).getTupleDomain());
+                ((NomsTableLayoutHandle) layout).getEffectivePredicate());
         return new FixedSplitSource(ImmutableList.of(split));
     }
 

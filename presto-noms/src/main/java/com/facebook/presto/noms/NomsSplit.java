@@ -34,7 +34,7 @@ public class NomsSplit
     private final List<HostAddress> addresses;
     private final String schema;
     private final String table;
-    private final TupleDomain<ColumnHandle> tupleDomain;
+    private final TupleDomain<ColumnHandle> effectivePredicate;
 
     @JsonCreator
     public NomsSplit(
@@ -42,13 +42,13 @@ public class NomsSplit
             @JsonProperty("schema") String schema,
             @JsonProperty("table") String table,
             @JsonProperty("addresses") List<HostAddress> addresses,
-            @JsonProperty("tupleDomain") TupleDomain<ColumnHandle> tupleDomain)
+            @JsonProperty("effectivePredicate") TupleDomain<ColumnHandle> effectivePredicate)
     {
         this.connectorId = requireNonNull(connectorId, "connectorId is null");
         this.schema = requireNonNull(schema, "schema is null");
         this.table = requireNonNull(table, "table is null");
         this.addresses = requireNonNull(addresses, "addresses is null");
-        this.tupleDomain = requireNonNull(tupleDomain, "tupleDomain is null");
+        this.effectivePredicate = requireNonNull(effectivePredicate, "effectivePredicate is null");
     }
 
     @JsonProperty
@@ -82,9 +82,9 @@ public class NomsSplit
     }
 
     @JsonProperty
-    public TupleDomain<ColumnHandle> getTupleDomain()
+    public TupleDomain<ColumnHandle> getEffectivePredicate()
     {
-        return tupleDomain;
+        return effectivePredicate;
     }
 
     @Override

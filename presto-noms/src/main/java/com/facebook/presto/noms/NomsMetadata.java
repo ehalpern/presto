@@ -178,7 +178,7 @@ public class NomsMetadata
      * At a high-level, this method examines the query to determine how/if
      * it constrains columns that contribute to a partition or cluster key.
      * If so, it determines the list of partitions and/or buckets that need
-     * to be queried. In returns a description of the query to execute and
+     * to be queried. It returns a description of the query to execute and
      * the partitions to execute it on.
      *
      * Consider the example of HiveMetadata.getTableLayouts:
@@ -189,7 +189,9 @@ public class NomsMetadata
      *   - Return a layout that specifies the new query (minus the partition
      *     key predicates), the list of partitions and the list of buckets
      *
-     * TBD
+     * TBD: For the first cut of noms, we'll forgo the partition and use the
+     * primary key as the cluster key. This means there will one partition but
+     * multiple buckets to split on.
      */
     @Override
     public List<ConnectorTableLayoutResult> getTableLayouts(
@@ -198,6 +200,15 @@ public class NomsMetadata
             Constraint<ColumnHandle> constraint,
             Optional<Set<ColumnHandle>> desiredColumns)
     {
+        // NOTE: On passing effectivePredicate:
+        // Hive does the following:
+        // - HivePartition (created by partitionManager.getPartitions(..., constraint) contains
+        //   - effectivePredicate (= constraint)
+        //   - partitionId
+        //   - buckets
+        // - HiveSplitManager.getSplits
+        //   - Retreives partitions from layout
+        //   - Stores effective predicate in split?
         return ImmutableList.of(new ConnectorTableLayoutResult(
                 new ConnectorTableLayout(new NomsTableLayoutHandle((NomsTableHandle) table, constraint.getSummary())),
                 constraint.getSummary()));

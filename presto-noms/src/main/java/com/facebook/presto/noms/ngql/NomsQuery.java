@@ -153,10 +153,10 @@ public class NomsQuery
         return INTROSPECT_QUERY;
     }
 
-    public static NomsQuery tableQuery(NomsTable table, List<NomsColumnHandle> columns, TupleDomain<ColumnHandle> domain)
+    public static NomsQuery tableQuery(NomsTable table, List<NomsColumnHandle> columns, TupleDomain<ColumnHandle> predicate)
     {
         List<String> path = pathToTable(table.tableType());
-        List<String> params = paramsFromConstraints(table.schema(), columns, domain);
+        List<String> params = paramsFromPrediate(table.schema(), columns, predicate);
         Map<String, NgqlType> fields = columns.stream().collect(Collectors.toMap(
                 c -> c.getName(),
                 c -> ngqlType(table, c)));
@@ -165,7 +165,7 @@ public class NomsQuery
     }
 
     /**
-     * Build parameter list from query constraints (specified in TupleDomain).
+     * Build parameter list from query predicate.
      * Specifically, if there are constraints on the primary key column,
      * - If only exact key values are specified, use (keys: [values]) to select only those rows.
      * - If one or more non-exact key bounds (> or <) are specified, determine the range that spans
@@ -174,15 +174,15 @@ public class NomsQuery
      *   if they are not required in the range. For example, a query for keys in the range 10 < k <= 100
      *   will include row 10 if it exists.
      */
-    private static List<String> paramsFromConstraints(NomsSchema schema, List<NomsColumnHandle> columns, TupleDomain<ColumnHandle> domain)
+    private static List<String> paramsFromPrediate(NomsSchema schema, List<NomsColumnHandle> columns, TupleDomain<ColumnHandle> predicate)
     {
-        if (domain.isAll() || schema.primaryKey() == null) {
+        if (predicate.isAll() || schema.primaryKey() == null) {
             return ImmutableList.of();
         }
         else {
             String pk = schema.primaryKey();
             return columns.stream().filter(c -> c.getName().equals(pk)).map(c -> {
-                Domain constraints = domain.getDomains().get().get(c);
+                Domain constraints = predicate.getDomains().get().get(c);
                 List<String> params = new ArrayList();
                 return exactValues(constraints).map(values -> {
                     params.add("keys: " + values);
