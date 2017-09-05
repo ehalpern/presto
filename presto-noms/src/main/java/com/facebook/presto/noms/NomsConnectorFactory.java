@@ -14,6 +14,7 @@
 package com.facebook.presto.noms;
 
 import com.facebook.presto.spi.ConnectorHandleResolver;
+import com.facebook.presto.spi.NodeManager;
 import com.facebook.presto.spi.connector.Connector;
 import com.facebook.presto.spi.connector.ConnectorContext;
 import com.facebook.presto.spi.connector.ConnectorFactory;
@@ -58,6 +59,7 @@ public class NomsConnectorFactory
 
         try {
             Bootstrap app = new Bootstrap(
+                    binder -> binder.bind(NodeManager.class).toInstance(context.getNodeManager()),
                     new JsonModule(),
                     new NomsClientModule(connectorId));
 
@@ -65,6 +67,7 @@ public class NomsConnectorFactory
                     .setRequiredConfigurationProperties(config)
                     .initialize();
 
+            // Start noms server before returning
             return injector.getInstance(NomsConnector.class);
         }
         catch (Exception e) {

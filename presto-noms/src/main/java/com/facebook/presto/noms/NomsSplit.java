@@ -13,67 +13,69 @@
  */
 package com.facebook.presto.noms;
 
-import com.facebook.presto.spi.ColumnHandle;
 import com.facebook.presto.spi.ConnectorSplit;
 import com.facebook.presto.spi.HostAddress;
 import com.facebook.presto.spi.SchemaTableName;
 import com.facebook.presto.spi.predicate.TupleDomain;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.collect.ImmutableMap;
 
 import java.util.List;
 
 import static com.google.common.base.MoreObjects.toStringHelper;
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
 public class NomsSplit
         implements ConnectorSplit
 {
-    private final String connectorId;
     private final List<HostAddress> addresses;
-    private final String schema;
-    private final String table;
-    private final TupleDomain<ColumnHandle> effectivePredicate;
+    private final SchemaTableName tableName;
+    private final TupleDomain<NomsColumnHandle> effectivePredicate;
+    private final long offset;
+    private final long limit;
 
     @JsonCreator
     public NomsSplit(
-            @JsonProperty("connectorId") String connectorId,
-            @JsonProperty("schema") String schema,
-            @JsonProperty("table") String table,
             @JsonProperty("addresses") List<HostAddress> addresses,
-            @JsonProperty("effectivePredicate") TupleDomain<ColumnHandle> effectivePredicate)
+            @JsonProperty("tableName") SchemaTableName tableName,
+            @JsonProperty("effectivePredicate") TupleDomain<NomsColumnHandle> effectivePredicate,
+            @JsonProperty("offset") long offset,
+            @JsonProperty("limit") long limit)
     {
-        this.connectorId = requireNonNull(connectorId, "connectorId is null");
-        this.schema = requireNonNull(schema, "schema is null");
-        this.table = requireNonNull(table, "table is null");
         this.addresses = requireNonNull(addresses, "addresses is null");
+        this.tableName = requireNonNull(tableName, "tableName is null");
         this.effectivePredicate = requireNonNull(effectivePredicate, "effectivePredicate is null");
+        checkArgument(offset >= 0 && offset < limit, "0 <= offset:%s < limit:%s check failed", offset, limit);
+        this.offset = offset;
+        this.limit = limit;
     }
 
     @JsonProperty
-    public String getConnectorId()
-    {
-        return connectorId;
-    }
-
-    @JsonProperty
-    public String getSchema()
-    {
-        return schema;
-    }
-
-    @JsonProperty
-    public String getTable()
-    {
-        return table;
-    }
-
     public SchemaTableName getTableName()
     {
-        return new SchemaTableName(schema, table);
+        return tableName;
     }
 
+    @JsonProperty
+    public TupleDomain<NomsColumnHandle> getEffectivePredicate()
+    {
+        return effectivePredicate;
+    }
+
+    /**
+     * Returns false to indicate the split is pinned to a worker (running at
+     * one of |addresses|).
+     */
+    @Override
+    public boolean isRemotelyAccessible()
+    {
+        return false;
+    }
+
+    /**
+     * The node addresses where the split may run
+     */
     @JsonProperty
     @Override
     public List<HostAddress> getAddresses()
@@ -81,33 +83,32 @@ public class NomsSplit
         return addresses;
     }
 
-    @JsonProperty
-    public TupleDomain<ColumnHandle> getEffectivePredicate()
-    {
-        return effectivePredicate;
-    }
-
-    @Override
-    public boolean isRemotelyAccessible()
-    {
-        return true;
-    }
-
     @Override
     public Object getInfo()
     {
-        return ImmutableMap.builder()
-                .put("hosts", addresses)
-                .put("schema", schema)
-                .put("table", table)
-                .build();
+        return this;
+    }
+
+    @JsonProperty
+    public long getOffset()
+    {
+        return offset;
+    }
+
+    @JsonProperty
+    public long getLimit()
+    {
+        return limit;
     }
 
     @Override
     public String toString()
     {
         return toStringHelper(this)
-                .addValue(table)
+                .add("addresses", addresses)
+                .add("tableName", tableName)
+                .add("offset", offset)
+                .add("limit", limit)
                 .toString();
     }
 }

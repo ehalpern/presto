@@ -148,6 +148,16 @@ public class NomsType
         return kind.javaType();
     }
 
+    public boolean isCollection()
+    {
+        switch (kind) {
+            case Map: case List: case Set:
+                return true;
+            default:
+                return false;
+        }
+    }
+
     public int hashCode()
     {
         return name.hashCode() ^ kind.hashCode();

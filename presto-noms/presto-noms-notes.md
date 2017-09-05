@@ -53,3 +53,6 @@ See HiveMetadata.getTableLayouts() to see how the hive connector reports partiti
 - Splits the constraints into enforced and unenforced, where enforced are those
   refering to the partioning key comluns, and unenforced are the rest
 
+Useful:
+
+http://prestodb.rocks/internals/the-fundamentals-data-distribution/

@@ -18,11 +18,18 @@ import com.facebook.presto.spi.ConnectorSplitSource;
 import com.facebook.presto.spi.ConnectorTableLayoutHandle;
 import com.facebook.presto.spi.FixedSplitSource;
 import com.facebook.presto.spi.HostAddress;
+import com.facebook.presto.spi.Node;
+import com.facebook.presto.spi.NodeManager;
+import com.facebook.presto.spi.SchemaTableName;
 import com.facebook.presto.spi.connector.ConnectorSplitManager;
 import com.facebook.presto.spi.connector.ConnectorTransactionHandle;
-import com.google.common.collect.ImmutableList;
+import com.facebook.presto.spi.predicate.TupleDomain;
 
 import javax.inject.Inject;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.MoreObjects.toStringHelper;
 import static com.google.common.base.Preconditions.checkState;
@@ -31,16 +38,19 @@ import static java.util.Objects.requireNonNull;
 public class NomsSplitManager
         implements ConnectorSplitManager
 {
-    private final String connectorId;
+    private final NomsConnectorId connectorId;
     private final NomsSession nomsSession;
+    private final NodeManager nodeManager;
 
     @Inject
     public NomsSplitManager(
             NomsConnectorId connectorId,
-            NomsSession nomsSession)
+            NomsSession nomsSession,
+            NodeManager nodeManager)
     {
-        this.connectorId = requireNonNull(connectorId, "connectorId is null").toString();
+        this.connectorId = requireNonNull(connectorId, "connectorId is null");
         this.nomsSession = requireNonNull(nomsSession, "nomsSession is null");
+        this.nodeManager = requireNonNull(nodeManager, "nodeManager is null");
     }
 
     /**
@@ -59,12 +69,35 @@ public class NomsSplitManager
         // this can happen if table is removed during a query
         checkState(table != null, "Table %s.%s no longer exists", tableHandle.getSchemaName(), tableHandle.getTableName());
 
-        NomsSplit split = new NomsSplit(connectorId,
-                tableHandle.getSchemaName(),
-                tableHandle.getTableName(),
-                ImmutableList.of(HostAddress.fromParts(table.source().getHost(), table.source().getPort())),
-                ((NomsTableLayoutHandle) layout).getEffectivePredicate());
-        return new FixedSplitSource(ImmutableList.of(split));
+        TupleDomain<NomsColumnHandle> effectivePredicate = layoutHandle.getEffectivePredicate()
+                .transform(NomsColumnHandle.class::cast);
+
+        List<HostAddress> addresses = nodeManager.getWorkerNodes().stream().map(Node::getHostAndPort).collect(Collectors.toList());
+        long[] lengths = computeSplitSizes();
+        List<NomsSplit> splits = new ArrayList<>();
+        SchemaTableName tableName = tableHandle.getSchemaTableName();
+        long offset = 0;
+        for (int i = 0; i < lengths.length; i++) {
+            splits.add(new NomsSplit(addresses, tableName, effectivePredicate, offset, lengths[i]));
+            offset += lengths[i];
+        }
+        return new FixedSplitSource(splits);
+    }
+
+    /**
+     * Inspect the noms table to determine how to split it into minimally intersecting
+     * sections. Returns an array |splits| where:
+     *
+     *   |splits|.size() is the number of splits
+     *   |splits|[i] is the size for split i
+     */
+    private long[] computeSplitSizes()
+    {
+        //NomsSplitQuery.Result result = nomsSession.execute(NomsQuery.splitQuery());
+        //return result.splitOffsets();
+        // Size of last split is always to Long.MAX_VALUE to ensure no entries are missed
+        // if the table has grown.
+        return new long[]{20, 40, Long.MAX_VALUE};
     }
 
     @Override

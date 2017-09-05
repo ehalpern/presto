@@ -16,13 +16,11 @@ package com.facebook.presto.noms.ngql;
 import com.facebook.presto.noms.NomsColumnHandle;
 import com.facebook.presto.noms.NomsTable;
 import com.facebook.presto.noms.NomsType;
-import com.facebook.presto.spi.ColumnHandle;
 import com.facebook.presto.spi.predicate.Domain;
 import com.facebook.presto.spi.predicate.Marker;
 import com.facebook.presto.spi.predicate.Range;
 import com.facebook.presto.spi.predicate.TupleDomain;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
 import org.apache.http.client.fluent.Content;
 import org.apache.http.client.fluent.Form;
 import org.apache.http.client.fluent.Request;
@@ -153,10 +151,16 @@ public class NomsQuery
         return INTROSPECT_QUERY;
     }
 
-    public static NomsQuery tableQuery(NomsTable table, List<NomsColumnHandle> columns, TupleDomain<ColumnHandle> predicate)
+    public static NomsQuery rowQuery(
+            NomsTable table,
+            List<NomsColumnHandle> columns,
+            TupleDomain<NomsColumnHandle> predicate,
+            long offset,
+            long limit)
     {
+        // TODO: columns.isEmpty() should be interpreted as a count(*) query
         List<String> path = pathToTable(table.tableType());
-        List<String> params = paramsFromPrediate(table.schema(), columns, predicate);
+        List<String> params = paramsFromPrediate(table.schema(), columns, predicate, offset, limit);
         Map<String, NgqlType> fields = columns.stream().collect(Collectors.toMap(
                 c -> c.getName(),
                 c -> ngqlType(table, c)));
@@ -174,16 +178,22 @@ public class NomsQuery
      *   if they are not required in the range. For example, a query for keys in the range 10 < k <= 100
      *   will include row 10 if it exists.
      */
-    private static List<String> paramsFromPrediate(NomsSchema schema, List<NomsColumnHandle> columns, TupleDomain<ColumnHandle> predicate)
+    private static List<String> paramsFromPrediate(NomsSchema schema, List<NomsColumnHandle> columns, TupleDomain<NomsColumnHandle> predicate, long offset, long limit)
     {
+        List<String> params = new ArrayList();
+        if (offset > 0) {
+            params.add("at:" + offset);
+        }
+        if (limit > 0) {
+            params.add("count:" + limit);
+        }
         if (predicate.isAll() || schema.primaryKey() == null) {
-            return ImmutableList.of();
+            return params;
         }
         else {
             String pk = schema.primaryKey();
             return columns.stream().filter(c -> c.getName().equals(pk)).map(c -> {
                 Domain constraints = predicate.getDomains().get().get(c);
-                List<String> params = new ArrayList();
                 return exactValues(constraints).map(values -> {
                     params.add("keys: " + values);
                     return params;
