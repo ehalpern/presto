@@ -95,9 +95,9 @@ public class NomsSplitManager
     {
         //NomsSplitQuery.Result result = nomsSession.execute(NomsQuery.splitQuery());
         //return result.splitOffsets();
-        // Size of last split is always to Long.MAX_VALUE to ensure no entries are missed
+        // Size of last split is always 0 (no limit) to ensure no entries are missed
         // if the table has grown.
-        return new long[]{20, 40, Long.MAX_VALUE};
+        return new long[]{20, 20, 0};
     }
 
     @Override

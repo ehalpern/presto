@@ -133,11 +133,11 @@ public class NomsQuery
                     "      }\n" +
                     "    }\n" +
                     "  }",
-                    Collections.EMPTY_LIST);
+                    Collections.emptyList());
 
     private NomsQuery(String query, List<String> pathToTable)
     {
-        this(query, pathToTable, Collections.EMPTY_LIST);
+        this(query, pathToTable, Collections.emptyList());
     }
 
     private NomsQuery(String query, List<String> pathToTable, List<String> params)
@@ -158,7 +158,7 @@ public class NomsQuery
             long offset,
             long limit)
     {
-        // TODO: columns.isEmpty() should be interpreted as a count(*) query
+        // TODO: columns.isEmpty() should be interpreted as a count(*) query. How to represent this is result?
         List<String> path = pathToTable(table.tableType());
         List<String> params = paramsFromPrediate(table.schema(), columns, predicate, offset, limit);
         Map<String, NgqlType> fields = columns.stream().collect(Collectors.toMap(
@@ -170,7 +170,8 @@ public class NomsQuery
 
     /**
      * Build parameter list from query predicate.
-     * Specifically, if there are constraints on the primary key column,
+     *
+     * Specifically, if there are constraints on the primary key column:
      * - If only exact key values are specified, use (keys: [values]) to select only those rows.
      * - If one or more non-exact key bounds (> or <) are specified, determine the range that spans
      *   the full set and use (key: start, through: end) to query that range. Note that the range
@@ -180,7 +181,7 @@ public class NomsQuery
      */
     private static List<String> paramsFromPrediate(NomsSchema schema, List<NomsColumnHandle> columns, TupleDomain<NomsColumnHandle> predicate, long offset, long limit)
     {
-        List<String> params = new ArrayList();
+        List<String> params = new ArrayList<>();
         if (offset > 0) {
             params.add("at:" + offset);
         }
@@ -213,7 +214,7 @@ public class NomsQuery
 
     private static Optional<List<Object>> exactValues(Domain domain)
     {
-        List<Object> values = new ArrayList<Object>();
+        List<Object> values = new ArrayList<>();
         for (Range r : domain.getValues().getRanges().getOrderedRanges()) {
             if (r.getLow().getBound() != Marker.Bound.EXACTLY) {
                 return Optional.empty();
@@ -246,7 +247,7 @@ public class NomsQuery
         return verifyNotNull(table.schema().types().get(name), "NgqlType " + name + " not found");
     }
 
-    static List<String> pathToTable(NomsType tableType)
+    private static List<String> pathToTable(NomsType tableType)
     {
         List<String> path = new ArrayList<>();
         path.add("root");

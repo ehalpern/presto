@@ -46,7 +46,7 @@ public class NomsSplit
         this.addresses = requireNonNull(addresses, "addresses is null");
         this.tableName = requireNonNull(tableName, "tableName is null");
         this.effectivePredicate = requireNonNull(effectivePredicate, "effectivePredicate is null");
-        checkArgument(offset >= 0 && offset < limit, "0 <= offset:%s < limit:%s check failed", offset, limit);
+        checkArgument(offset >= 0, "offset:%s >= 0");
         this.offset = offset;
         this.limit = limit;
     }

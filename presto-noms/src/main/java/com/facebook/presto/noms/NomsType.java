@@ -95,13 +95,13 @@ public class NomsType
     {
         this.name = name;
         this.kind = kind;
-        this.arguments = (arguments == null) ? Collections.EMPTY_LIST : arguments;
-        this.fields = (fields == null) ? Collections.EMPTY_MAP : fields;
+        this.arguments = (arguments == null) ? Collections.emptyList() : arguments;
+        this.fields = (fields == null) ? Collections.emptyMap() : fields;
     }
 
     public NomsType(String name, Kind kind, List<NomsType> arguments)
     {
-        this(name, kind, arguments, Collections.EMPTY_MAP);
+        this(name, kind, arguments, Collections.emptyMap());
     }
 
     private NomsType(Kind kind)
@@ -111,7 +111,7 @@ public class NomsType
 
     private NomsType(String name, Kind kind)
     {
-        this(name, kind, Collections.EMPTY_LIST, Collections.EMPTY_MAP);
+        this(name, kind, Collections.emptyList(), Collections.emptyMap());
     }
 
     @JsonProperty

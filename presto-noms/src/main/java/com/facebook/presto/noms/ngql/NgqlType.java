@@ -76,7 +76,7 @@ import static com.facebook.presto.spi.StandardErrorCode.NOT_SUPPORTED;
                             nomsType(ngqlType.fieldType("values").ofType(), schema)));
                 }
                 if (structPattern.matcher(typeName).matches()) {
-                    return new NomsType(typeName, NomsType.Kind.Struct, Collections.EMPTY_LIST,
+                    return new NomsType(typeName, NomsType.Kind.Struct, Collections.emptyList(),
                             ngqlType.fields().entrySet().stream().collect(Collectors.toMap(
                                     e -> e.getKey(),
                                     e -> nomsType(e.getValue(), schema))));

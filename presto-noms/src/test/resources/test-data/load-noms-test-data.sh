@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+DB_DIR=/tmp/presto-noms
 
 import() {
     fields=$1
@@ -7,14 +8,17 @@ import() {
     types=$3
     db=$4
     ds=$5
+    dbpath=${DB_DIR}/${db}
+    dsspec=nbs:${dbpath}::${ds}
     echo ${fields} > ${ds}-all.csv
     cat ${ds}-?.csv | sed 's/, /,/g' >> ${ds}-all.csv
-    mkdir -p /tmp/presto-noms/${db}
-    echo csv-import --column-types="${types}" --dest-type="map:$pk" --meta primaryKey="$pk" ${ds}-all.csv nbs:/tmp/presto-noms/${db}::${ds}
-    csv-import --column-types="${types}" --dest-type="map:$pk" --meta primaryKey="$pk" ${ds}-all.csv nbs:/tmp/presto-noms/${db}::${ds}
-    csv-import --column-types="${types}" --dest-type=list ${ds}-all.csv nbs:/tmp/presto-noms/${db}::${ds}-list
-    #noms2 show nbs:/tmp/presto-noms2/${db}::${ds}
+    mkdir -p ${db_path}
+    echo csv-import --column-types="${types}" --dest-type="map:$pk" --meta primaryKey="$pk" ${ds}-all.csv ${dsspec}
+    csv-import --column-types="${types}" --dest-type="map:$pk" --meta primaryKey="$pk" ${ds}-all.csv ${dsspec}
+    csv-import --column-types="${types}" --dest-type=list ${ds}-all.csv ${dsspec}-list
 }
+
+rm -fr ${DB_DIR}/*
 
 test_fields="typestring,typebool,typedouble"
 test_types="String,Bool,Number"

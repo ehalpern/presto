@@ -40,7 +40,7 @@ public class NomsRunner
         ProcessBuilder b = new ProcessBuilder(command);
         try {
             Process p = b.start();
-            String result = IOUtils.toString(p.getInputStream());
+            String result = IOUtils.toString(p.getInputStream(), Charset.defaultCharset());
             if (!p.waitFor(5, TimeUnit.SECONDS)) {
                 throw new RuntimeException("timed out waiting for command to complete");
             }

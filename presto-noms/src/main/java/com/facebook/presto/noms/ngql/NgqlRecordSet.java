@@ -21,6 +21,7 @@ import com.facebook.presto.spi.RecordCursor;
 import com.facebook.presto.spi.RecordSet;
 import com.facebook.presto.spi.type.Type;
 import com.google.common.collect.ImmutableList;
+import io.airlift.log.Logger;
 
 import java.util.List;
 import java.util.function.Function;
@@ -31,6 +32,8 @@ import static java.util.stream.Collectors.toList;
 public class NgqlRecordSet
         implements RecordSet
 {
+    private static final Logger log = Logger.get(NgqlRecordSet.class);
+
     private final NomsSession nomsSession;
     private final NomsTable table;
     private final List<Type> columnTypes;
@@ -44,6 +47,7 @@ public class NgqlRecordSet
         this.columnTypes = transformList(columns, NomsColumnHandle::getType);
         this.table = table;
         this.split = split;
+        log.debug("Creating RecordSet for: %s", split);
     }
 
     @Override

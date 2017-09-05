@@ -59,4 +59,9 @@ public class NomsResult
             return ImmutableList.of(valueAtPath).iterator();
         }
     }
+
+    public String toString()
+    {
+        return valueAtPath.toString();
+    }
 }

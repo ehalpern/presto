@@ -36,7 +36,7 @@ public class TestNomsColumnHandle
                 new NomsColumnHandle("cid", "c2", 2, new NomsType(
                         "NumberList", NomsType.Kind.List, ImmutableList.of(NomsType.STRING)), false),
                 new NomsColumnHandle("cid", "c3", 3, new NomsType(
-                        "TestStruct", NomsType.Kind.Struct, Collections.EMPTY_LIST, ImmutableMap.of("test", NomsType.STRING)), false)
+                        "TestStruct", NomsType.Kind.Struct, Collections.emptyList(), ImmutableMap.of("test", NomsType.STRING)), false)
         };
 
         for (int i = 0; i < columns.length; i++) {

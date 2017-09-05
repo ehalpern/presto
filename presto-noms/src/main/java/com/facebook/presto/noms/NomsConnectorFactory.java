@@ -18,7 +18,6 @@ import com.facebook.presto.spi.NodeManager;
 import com.facebook.presto.spi.connector.Connector;
 import com.facebook.presto.spi.connector.ConnectorContext;
 import com.facebook.presto.spi.connector.ConnectorFactory;
-import com.google.common.base.Throwables;
 import com.google.inject.Injector;
 import io.airlift.bootstrap.Bootstrap;
 import io.airlift.json.JsonModule;
@@ -27,6 +26,7 @@ import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static com.google.common.base.Throwables.throwIfUnchecked;
 import static java.util.Objects.requireNonNull;
 
 public class NomsConnectorFactory
@@ -34,7 +34,7 @@ public class NomsConnectorFactory
 {
     private final String name;
 
-    public NomsConnectorFactory(String name)
+    /*package*/ NomsConnectorFactory(String name)
     {
         checkArgument(!isNullOrEmpty(name), "name is null or empty");
         this.name = name;
@@ -71,7 +71,8 @@ public class NomsConnectorFactory
             return injector.getInstance(NomsConnector.class);
         }
         catch (Exception e) {
-            throw Throwables.propagate(e);
+            throwIfUnchecked(e);
+            throw new RuntimeException(e);
         }
     }
 }
