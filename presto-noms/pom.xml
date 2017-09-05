@@ -7,6 +7,7 @@
         <version>0.183-SNAPSHOT</version>
     </parent>
 
+    <groupId>io.attic.presto</groupId>
     <artifactId>presto-noms</artifactId>
     <description>Presto - Noms Connector</description>
     <packaging>presto-plugin</packaging>
