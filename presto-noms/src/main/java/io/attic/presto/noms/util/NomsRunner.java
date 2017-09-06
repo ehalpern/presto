@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 
 public class NomsRunner
 {
-    private static final String NOMS_BINARY;
+    /*package*/ static final String NOMS_BINARY;
 
     private NomsRunner() {}
 

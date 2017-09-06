@@ -14,8 +14,8 @@ import() {
     cat ${ds}-?.csv | sed 's/, /,/g' >> ${ds}-all.csv
     mkdir -p ${db_path}
     echo csv-import --column-types="${types}" --dest-type="map:$pk" --meta primaryKey="$pk" ${ds}-all.csv ${dsspec}
-    csv-import --column-types="${types}" --dest-type="map:$pk" --meta primaryKey="$pk" ${ds}-all.csv ${dsspec}
-    csv-import --column-types="${types}" --dest-type=list ${ds}-all.csv ${dsspec}-list
+    csv-import --column-types="${types}" --dest-type=list ${ds}-all.csv ${dsspec}
+    csv-import --column-types="${types}" --dest-type="map:$pk" --meta primaryKey="$pk" ${ds}-all.csv ${dsspec}-map
 }
 
 rm -fr ${DB_DIR}/*

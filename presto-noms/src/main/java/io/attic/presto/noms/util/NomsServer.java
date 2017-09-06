@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.attic.presto.noms;
+package io.attic.presto.noms.util;
 
 import org.apache.commons.io.IOUtils;
 
@@ -24,16 +24,6 @@ import java.util.concurrent.TimeUnit;
 public class NomsServer
         implements AutoCloseable
 {
-    private static final String NOMS_BINARY;
-
-    static {
-        String goPath = System.getenv("GOPATH");
-        if (goPath == null) {
-            goPath = System.getProperty("user.home") + "/go";
-        }
-        NOMS_BINARY = goPath + "/bin/noms";
-    }
-
     private Process process;
     private URI uri;
 
@@ -45,7 +35,7 @@ public class NomsServer
     public NomsServer(String dbPath)
     {
         int port = findFreePort();
-        ProcessBuilder b = new ProcessBuilder(NOMS_BINARY, "serve", "--port=" + port, dbPath);
+        ProcessBuilder b = new ProcessBuilder(NomsRunner.NOMS_BINARY, "serve", "--port=" + port, dbPath);
         b.inheritIO();
         try {
             process = b.start();

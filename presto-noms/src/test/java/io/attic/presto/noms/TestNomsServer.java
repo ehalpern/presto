@@ -13,19 +13,22 @@
  */
 package io.attic.presto.noms;
 
+import io.attic.presto.noms.util.NomsRunner;
+import io.attic.presto.noms.util.NomsServer;
 import org.testng.annotations.Test;
 
-import static org.testng.Assert.assertNotEquals;
+import java.util.List;
 
+import static org.testng.Assert.assertNotEquals;
 public class TestNomsServer
 {
     @Test
     public void testServer()
     {
         NomsServer server = new NomsServer("nbs:/tmp/presto-noms/test");
-        String output = server.exec("ds");
-        System.out.println("ds output: " + output);
-        assertNotEquals(output, "");
+        List<String> datasets = NomsRunner.ds(server.uri().toString());
+        System.out.println("ds output: " + datasets);
+        assertNotEquals(datasets.size(), 0);
         server.stop();
     }
 }

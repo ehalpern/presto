@@ -36,6 +36,7 @@ import com.facebook.presto.testing.TestingConnectorContext;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import io.attic.presto.noms.ngql.NgqlRecordSetProvider;
+import io.attic.presto.noms.util.NomsServer;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;

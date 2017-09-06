@@ -56,3 +56,52 @@ See HiveMetadata.getTableLayouts() to see how the hive connector reports partiti
 Useful:
 
 http://prestodb.rocks/internals/the-fundamentals-data-distribution/
+
+Target queries: 
+
+
+Schema:
+```angular2html
+
+``` 
+
+```
+SELECT cab_type, count(*)
+FROM trips_orc
+GROUP BY cab_type;
+```
+
+```
+SELECT passenger_count,
+       avg(total_amount)
+FROM trips_orc
+GROUP BY passenger_count;
+```
+
+```
+SELECT passenger_count,
+       year(pickup_datetime),
+       count(*)
+FROM trips_orc
+GROUP BY passenger_count,
+         year(pickup_datetime);
+```
+
+```
+SELECT passenger_count,
+       year(pickup_datetime) trip_year,
+       round(trip_distance),
+       count(*) trips
+FROM trips_orc
+GROUP BY passenger_count,
+         year(pickup_datetime),
+         round(trip_distance)
+ORDER BY trip_year,
+         trips desc;
+```
+
+```
+```
+
+```
+```
