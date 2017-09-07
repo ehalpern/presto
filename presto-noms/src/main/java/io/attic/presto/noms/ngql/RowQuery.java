@@ -18,20 +18,17 @@ import com.facebook.presto.spi.predicate.Marker;
 import com.facebook.presto.spi.predicate.Range;
 import com.facebook.presto.spi.predicate.TupleDomain;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import io.attic.presto.noms.NomsColumnHandle;
 import io.attic.presto.noms.NomsTable;
 import io.attic.presto.noms.NomsType;
-import org.apache.http.client.fluent.Content;
-import org.apache.http.client.fluent.Form;
-import org.apache.http.client.fluent.Request;
 
-import javax.json.Json;
-import javax.json.JsonReader;
+import javax.json.JsonException;
+import javax.json.JsonObject;
+import javax.json.JsonValue;
 
-import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -40,144 +37,54 @@ import java.util.stream.Collectors;
 import static com.google.common.base.Verify.verify;
 import static com.google.common.base.Verify.verifyNotNull;
 
-public class NomsQuery
+public class RowQuery implements Ngql.Query<RowQuery.Result>
 {
     private final String query;
+    private final List<String> params;
     private final List<String> pathToTable;
 
-    private static final NomsQuery INTROSPECT_QUERY =
-            new NomsQuery("query {\n" +
-                    "    root {\n" +
-                    "      meta {\n" +
-                    "         primaryKey\n" +
-                    "      }\n" +
-                    "    }\n" +
-                    "    __schema {\n" +
-                    "      queryType { name }\n" +
-                    "      mutationType { name }\n" +
-                    "      types {\n" +
-                    "        ...FullType\n" +
-                    "      }\n" +
-                    "    }\n" +
-                    "  }\n" +
-                    "\n" +
-                    "  fragment FullType on __Type {\n" +
-                    "    kind\n" +
-                    "    name\n" +
-                    "    description\n" +
-                    "    fields(includeDeprecated: true) {\n" +
-                    "      name\n" +
-                    "      description\n" +
-                    "      args {\n" +
-                    "        ...InputValue\n" +
-                    "      }\n" +
-                    "      type {\n" +
-                    "        ...TypeRef\n" +
-                    "      }\n" +
-                    "      isDeprecated\n" +
-                    "      deprecationReason\n" +
-                    "    }\n" +
-                    "    inputFields {\n" +
-                    "      ...InputValue\n" +
-                    "    }\n" +
-                    "    interfaces {\n" +
-                    "      ...TypeRef\n" +
-                    "    }\n" +
-                    "    enumValues(includeDeprecated: true) {\n" +
-                    "      name\n" +
-                    "      description\n" +
-                    "      isDeprecated\n" +
-                    "      deprecationReason\n" +
-                    "    }\n" +
-                    "    possibleTypes {\n" +
-                    "      ...TypeRef\n" +
-                    "    }\n" +
-                    "  }\n" +
-                    "\n" +
-                    "  fragment InputValue on __InputValue {\n" +
-                    "    name\n" +
-                    "    description\n" +
-                    "    type { ...TypeRef }\n" +
-                    "    defaultValue\n" +
-                    "  }\n" +
-                    "\n" +
-                    "  fragment TypeRef on __Type {\n" +
-                    "    kind\n" +
-                    "    name\n" +
-                    "    ofType {\n" +
-                    "      kind\n" +
-                    "      name\n" +
-                    "      ofType {\n" +
-                    "        kind\n" +
-                    "        name\n" +
-                    "        ofType {\n" +
-                    "          kind\n" +
-                    "          name\n" +
-                    "          ofType {\n" +
-                    "            kind\n" +
-                    "            name\n" +
-                    "            ofType {\n" +
-                    "              kind\n" +
-                    "              name\n" +
-                    "              ofType {\n" +
-                    "                kind\n" +
-                    "                name\n" +
-                    "                ofType {\n" +
-                    "                  kind\n" +
-                    "                  name\n" +
-                    "                }\n" +
-                    "              }\n" +
-                    "            }\n" +
-                    "          }\n" +
-                    "        }\n" +
-                    "      }\n" +
-                    "    }\n" +
-                    "  }",
-                    Collections.emptyList());
-
-    private NomsQuery(String query, List<String> pathToTable)
-    {
-        this(query, pathToTable, Collections.emptyList());
-    }
-
-    private NomsQuery(String query, List<String> pathToTable, List<String> params)
-    {
-        this.query = query;
-        this.pathToTable = pathToTable;
-    }
-
-    public static NomsQuery introspectQuery()
-    {
-        return INTROSPECT_QUERY;
-    }
-
-    public static NomsQuery rowQuery(
+    public RowQuery(
             NomsTable table,
             List<NomsColumnHandle> columns,
             TupleDomain<NomsColumnHandle> predicate,
             long offset,
             long limit)
     {
-        // TODO: columns.isEmpty() should be interpreted as a count(*) query. How to represent this is result?
         List<String> path = pathToTable(table.tableType());
-        List<String> params = paramsFromPrediate(table.schema(), columns, predicate, offset, limit);
+        this.params = paramsFromPrediate(table.schema(), columns, predicate, offset, limit);
         Map<String, NgqlType> fields = columns.stream().collect(Collectors.toMap(
                 c -> c.getName(),
                 c -> ngqlType(table, c)));
-        String query = "{\n" + buildQuery(path, params, fields, 1) + "}\n";
-        return new NomsQuery(query, path, params);
+        this.query = "{\n" + buildQuery(path, params, fields, 1) + "}\n";
+        this.pathToTable = path;
+    }
+
+
+    public String query()
+    {
+        return query;
+    }
+
+    public Class<RowQuery.Result> resultClass()
+    {
+        return RowQuery.Result.class;
+    }
+
+    public RowQuery.Result newResult(JsonObject json)
+    {
+        return new Result(json, pathToTable);
     }
 
     /**
      * Build parameter list from query predicate.
-     *
+     * <p>
      * Specifically, if there are constraints on the primary key column:
      * - If only exact key values are specified, use (keys: [values]) to select only those rows.
      * - If one or more non-exact key bounds (> or <) are specified, determine the range that spans
-     *   the full set and use (key: start, through: end) to query that range. Note that the range
-     *   query result will include rows corresponding to the low and high bounds if they exist, even
-     *   if they are not required in the range. For example, a query for keys in the range 10 < k <= 100
-     *   will include row 10 if it exists.
+     * the full set and use (key: start, through: end) to query that range. Note that the range
+     * query result will include rows corresponding to the low and high bounds if they exist, even
+     * if they are not required in the range. For example, a query for keys in the range 10 < k <= 100
+     * will include row 10 if it exists.
      */
     private static List<String> paramsFromPrediate(NomsSchema schema, List<NomsColumnHandle> columns, TupleDomain<NomsColumnHandle> predicate, long offset, long limit)
     {
@@ -269,20 +176,6 @@ public class NomsQuery
         return path;
     }
 
-    public static NomsResult execute(URI nomsURI, String dataset, NomsQuery query)
-            throws IOException
-    {
-        Content resp = Request.Post(nomsURI.toString() + "/graphql/").bodyForm(Form.form()
-                .add("ds", dataset)
-                .add("query", query.query)
-                .build())
-                .execute().returnContent();
-
-        try (JsonReader reader = Json.createReader(resp.asStream())) {
-            return new NomsResult(reader.readObject(), query.pathToTable);
-        }
-    }
-
     private static String buildQuery(List<String> path, List<String> params, Map<String, NgqlType> fields, int indent)
     {
         verify(path.size() > 0);
@@ -336,4 +229,50 @@ public class NomsQuery
     {
         return query;
     }
+
+    public static class Result
+            implements Ngql.Result<RowQuery.Result>
+    {
+        private final JsonValue valueAtPath;
+
+        private Result(JsonObject json, List<String> path)
+        {
+            String fullPath = "/data/" + String.join("/", path);
+            JsonValue value;
+            try {
+                value = json.getValue(fullPath);
+            }
+            catch (JsonException e) {
+                value = JsonValue.EMPTY_JSON_ARRAY;
+            }
+            this.valueAtPath = value;
+        }
+
+        public int size()
+        {
+            return valueAtPath.getValueType() == JsonValue.ValueType.ARRAY ?
+                    valueAtPath.asJsonArray().size() : 1;
+        }
+
+        /*package*/ JsonValue value()
+        {
+            return valueAtPath;
+        }
+
+        /*package*/ Iterator<JsonValue> rows()
+        {
+            if (valueAtPath.getValueType() == JsonValue.ValueType.ARRAY) {
+                return valueAtPath.asJsonArray().iterator();
+            }
+            else {
+                return ImmutableList.of(valueAtPath).iterator();
+            }
+        }
+
+        public String toString()
+        {
+            return valueAtPath.toString();
+        }
+    }
 }
+

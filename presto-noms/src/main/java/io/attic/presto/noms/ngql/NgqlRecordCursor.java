@@ -44,7 +44,7 @@ public class NgqlRecordCursor
     private final NomsSession session;
     private final NomsTable table;
     private final List<NomsColumnHandle> columns;
-    private final NomsQuery query;
+    private final RowQuery query;
 
     private Iterator<JsonValue> results = JsonValue.EMPTY_JSON_ARRAY.iterator();
     private JsonObject row = JsonValue.EMPTY_JSON_OBJECT;
@@ -56,7 +56,7 @@ public class NgqlRecordCursor
     /*pacakge*/ NgqlRecordCursor(NomsSession session, NomsSplit split, NomsTable table, List<NomsColumnHandle> columns)
     {
         this.columns = verifyNotNull(columns, "columns is null");
-        this.query = NomsQuery.rowQuery(
+        this.query = Ngql.rowQuery(
                 table, columns,
                 split.getEffectivePredicate(),
                 split.getOffset(),
@@ -68,12 +68,12 @@ public class NgqlRecordCursor
     private Iterator<JsonValue> nextBatch()
     {
         // TODO: Implement batching. For now, read all rows on
-        // the first bactch and terminate the cursor on the second
+        // the first batch and terminate the cursor on the second
         if (totalCount > 0) {
             return JsonValue.EMPTY_JSON_ARRAY.iterator();
         }
         else {
-            NomsResult result = session.execute(table.tableHandle().getTableName(), query);
+            RowQuery.Result result = session.execute(table.tableHandle().getTableName(), query);
             totalCount = result.size();
             return result.rows();
         }

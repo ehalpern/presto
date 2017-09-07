@@ -28,7 +28,7 @@ import static com.facebook.presto.spi.StandardErrorCode.NOT_SUPPORTED;
 
 /*package*/ class NgqlType
 {
-    static NomsType nomsType(NgqlType ngqlType, NomsSchema schema)
+    static NomsType nomsType(NgqlType ngqlType, SchemaQuery.Result schema)
     {
         final Pattern emptyPattern = Pattern.compile("Empty(List|Map|Set)");
         final Pattern listPattern = Pattern.compile("(.+)List");
