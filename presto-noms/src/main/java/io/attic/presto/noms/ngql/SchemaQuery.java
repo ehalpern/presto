@@ -22,7 +22,7 @@ import javax.json.JsonValue;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SchemaQuery implements Ngql.Query<SchemaQuery.Result>
+public class SchemaQuery implements NgqlQuery<SchemaQuery.Result>
 {
     public String query()
     {
@@ -131,7 +131,7 @@ public class SchemaQuery implements Ngql.Query<SchemaQuery.Result>
         return query();
     }
 
-    public static class Result implements Ngql.Result<SchemaQuery.Result>, NomsSchema
+    public static class Result implements NgqlQuery.Result, NomsSchema
     {
         private final JsonObject object;
         private final NgqlType rootType;

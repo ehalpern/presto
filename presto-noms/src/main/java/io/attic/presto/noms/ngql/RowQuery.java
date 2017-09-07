@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 import static com.google.common.base.Verify.verify;
 import static com.google.common.base.Verify.verifyNotNull;
 
-public class RowQuery implements Ngql.Query<RowQuery.Result>
+public class RowQuery implements NgqlQuery<RowQuery.Result>
 {
     private final String query;
     private final List<String> params;
@@ -231,7 +231,7 @@ public class RowQuery implements Ngql.Query<RowQuery.Result>
     }
 
     public static class Result
-            implements Ngql.Result<RowQuery.Result>
+            implements NgqlQuery.Result
     {
         private final JsonValue valueAtPath;
 

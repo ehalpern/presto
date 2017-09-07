@@ -28,16 +28,12 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 
-public class Ngql
+public interface NgqlQuery<R extends NgqlQuery.Result>
 {
-    public interface Query<R extends Ngql.Result>
-    {
-        String query();
-        R newResult(JsonObject json);
-    }
+    String query();
+    R newResult(JsonObject json);
 
-    public interface Result<T extends Ngql.Result> {
-
+    public interface Result {
     }
 
     public static SchemaQuery schemaQuery()
@@ -65,23 +61,17 @@ public class Ngql
     }
     */
 
-    public static <Q extends Ngql.Query<R>, R extends Ngql.Result> R execute(
-            URI nomsURI,
-            String dataset,
-            Q query)
+    default R execute(URI nomsURI, String dataset)
             throws IOException
     {
         Content resp = Request.Post(nomsURI.toString() + "/graphql/").bodyForm(Form.form()
                 .add("ds", dataset)
-                .add("query", query.query())
+                .add("query", query())
                 .build())
                 .execute().returnContent();
 
         try (JsonReader reader = Json.createReader(resp.asStream())) {
-            return (R)query.newResult(reader.readObject());
+            return (R)newResult(reader.readObject());
         }
     }
-
-
-
 }

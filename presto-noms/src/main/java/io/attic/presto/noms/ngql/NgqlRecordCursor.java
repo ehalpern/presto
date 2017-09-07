@@ -56,7 +56,7 @@ public class NgqlRecordCursor
     /*pacakge*/ NgqlRecordCursor(NomsSession session, NomsSplit split, NomsTable table, List<NomsColumnHandle> columns)
     {
         this.columns = verifyNotNull(columns, "columns is null");
-        this.query = Ngql.rowQuery(
+        this.query = NgqlQuery.rowQuery(
                 table, columns,
                 split.getEffectivePredicate(),
                 split.getOffset(),

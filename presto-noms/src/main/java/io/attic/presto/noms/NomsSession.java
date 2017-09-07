@@ -24,7 +24,7 @@ import com.facebook.presto.spi.SchemaTableName;
 import com.facebook.presto.spi.TableNotFoundException;
 import com.google.common.collect.ImmutableList;
 import io.airlift.log.Logger;
-import io.attic.presto.noms.ngql.Ngql;
+import io.attic.presto.noms.ngql.NgqlQuery;
 import io.attic.presto.noms.ngql.NomsSchema;
 import io.attic.presto.noms.ngql.SchemaQuery;
 import io.attic.presto.noms.util.NomsRunner;
@@ -112,15 +112,15 @@ public class NomsSession
 
     private NomsSchema getSchema(String table)
     {
-        SchemaQuery query = Ngql.schemaQuery();
+        SchemaQuery query = NgqlQuery.schemaQuery();
         return execute(table, query);
     }
 
-    public <Q extends Ngql.Query<R>, R extends Ngql.Result> R execute(String table, Q query)
+    public <Q extends NgqlQuery<R>, R extends NgqlQuery.Result> R execute(String table, Q query)
     {
         try {
             // TODO: retry
-            return Ngql.execute(nomsURI, table, query);
+            return query.execute(nomsURI, table);
         }
         catch (IOException e) {
             // TODO: better error handling
