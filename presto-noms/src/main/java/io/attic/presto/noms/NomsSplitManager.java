@@ -24,10 +24,12 @@ import com.facebook.presto.spi.SchemaTableName;
 import com.facebook.presto.spi.connector.ConnectorSplitManager;
 import com.facebook.presto.spi.connector.ConnectorTransactionHandle;
 import com.facebook.presto.spi.predicate.TupleDomain;
+import io.attic.presto.noms.ngql.SizeQuery;
 
 import javax.inject.Inject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,17 +41,17 @@ public class NomsSplitManager
         implements ConnectorSplitManager
 {
     private final NomsConnectorId connectorId;
-    private final NomsSession nomsSession;
+    private final NomsSession session;
     private final NodeManager nodeManager;
 
     @Inject
     public NomsSplitManager(
             NomsConnectorId connectorId,
-            NomsSession nomsSession,
+            NomsSession session,
             NodeManager nodeManager)
     {
         this.connectorId = requireNonNull(connectorId, "connectorId is null");
-        this.nomsSession = requireNonNull(nomsSession, "nomsSession is null");
+        this.session = requireNonNull(session, "session is null");
         this.nodeManager = requireNonNull(nodeManager, "nodeManager is null");
     }
 
@@ -65,7 +67,7 @@ public class NomsSplitManager
     {
         NomsTableLayoutHandle layoutHandle = (NomsTableLayoutHandle) layout;
         NomsTableHandle tableHandle = layoutHandle.getTable();
-        NomsTable table = nomsSession.getTable(tableHandle.getSchemaTableName());
+        NomsTable table = this.session.getTable(tableHandle.getSchemaTableName());
         // this can happen if table is removed during a query
         checkState(table != null, "Table %s.%s no longer exists", tableHandle.getSchemaName(), tableHandle.getTableName());
 
@@ -73,7 +75,7 @@ public class NomsSplitManager
                 .transform(NomsColumnHandle.class::cast);
 
         List<HostAddress> addresses = nodeManager.getWorkerNodes().stream().map(Node::getHostAndPort).collect(Collectors.toList());
-        long[] lengths = computeSplitSizes();
+        long[] lengths = computeSplitSizes(table);
         List<NomsSplit> splits = new ArrayList<>();
         SchemaTableName tableName = tableHandle.getSchemaTableName();
         long offset = 0;
@@ -87,17 +89,26 @@ public class NomsSplitManager
     /**
      * Inspect the noms table to determine how to split it into minimally intersecting
      * sections. Returns an array |splits| where:
-     *
-     *   |splits|.size() is the number of splits
-     *   |splits|[i] is the size for split i
+     * <p>
+     * |splits|.size() is the number of splits
+     * |splits|[i] is the size for split i
      */
-    private long[] computeSplitSizes()
+    private long[] computeSplitSizes(NomsTable table)
     {
-        //NomsSplitQuery.Result result = nomsSession.execute(NomsQuery.splitQuery());
-        //return result.splitOffsets();
+        int maxSplitsPerNode = 10;   // How to get this?
+        int minRowsPerSplit = 10000;
+        int maxSplits = Math.max(1, nodeManager.getWorkerNodes().size()) * maxSplitsPerNode;
+        SizeQuery.Result result = session.execute(table.tableHandle().getTableName(), SizeQuery.create(table));
+        long tableSize = result.size();
+        int idealSplitCount = Math.max(1, (int) (tableSize / minRowsPerSplit));
+        int splitCount = Math.min(idealSplitCount, maxSplits);
+        int rowsPerSplit = (int) tableSize / splitCount;
+        long[] splitLengths = new long[splitCount];
+        Arrays.fill(splitLengths, rowsPerSplit);
         // Size of last split is always 0 (no limit) to ensure no entries are missed
         // if the table has grown.
-        return new long[]{20, 20, 0};
+        splitLengths[splitLengths.length - 1] = 0;
+        return splitLengths;
     }
 
     @Override

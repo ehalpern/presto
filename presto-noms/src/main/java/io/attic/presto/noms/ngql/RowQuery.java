@@ -37,13 +37,24 @@ import java.util.stream.Collectors;
 import static com.google.common.base.Verify.verify;
 import static com.google.common.base.Verify.verifyNotNull;
 
-public class RowQuery implements NgqlQuery<RowQuery.Result>
+public class RowQuery
+        extends NomsQuery<RowQuery.Result>
 {
+    public static RowQuery create(
+            NomsTable table,
+            List<NomsColumnHandle> columns,
+            TupleDomain<NomsColumnHandle> predicate,
+            long offset,
+            long limit)
+    {
+        return new RowQuery(table, columns, predicate, offset, limit);
+    }
+
     private final String query;
     private final List<String> params;
     private final List<String> pathToTable;
 
-    public RowQuery(
+    private RowQuery(
             NomsTable table,
             List<NomsColumnHandle> columns,
             TupleDomain<NomsColumnHandle> predicate,
@@ -51,7 +62,7 @@ public class RowQuery implements NgqlQuery<RowQuery.Result>
             long limit)
     {
         List<String> path = pathToTable(table.tableType());
-        this.params = paramsFromPrediate(table.schema(), columns, predicate, offset, limit);
+        this.params = paramsFromPredicate(table.schema(), columns, predicate, offset, limit);
         Map<String, NgqlType> fields = columns.stream().collect(Collectors.toMap(
                 c -> c.getName(),
                 c -> ngqlType(table, c)));
@@ -59,18 +70,12 @@ public class RowQuery implements NgqlQuery<RowQuery.Result>
         this.pathToTable = path;
     }
 
-
-    public String query()
+    protected String query()
     {
         return query;
     }
 
-    public Class<RowQuery.Result> resultClass()
-    {
-        return RowQuery.Result.class;
-    }
-
-    public RowQuery.Result newResult(JsonObject json)
+    protected RowQuery.Result parseResult(JsonObject json)
     {
         return new Result(json, pathToTable);
     }
@@ -86,7 +91,7 @@ public class RowQuery implements NgqlQuery<RowQuery.Result>
      * if they are not required in the range. For example, a query for keys in the range 10 < k <= 100
      * will include row 10 if it exists.
      */
-    private static List<String> paramsFromPrediate(NomsSchema schema, List<NomsColumnHandle> columns, TupleDomain<NomsColumnHandle> predicate, long offset, long limit)
+    private static List<String> paramsFromPredicate(NomsSchema schema, List<NomsColumnHandle> columns, TupleDomain<NomsColumnHandle> predicate, long offset, long limit)
     {
         List<String> params = new ArrayList<>();
         if (offset > 0) {
@@ -231,7 +236,7 @@ public class RowQuery implements NgqlQuery<RowQuery.Result>
     }
 
     public static class Result
-            implements NgqlQuery.Result
+            implements NomsQuery.Result
     {
         private final JsonValue valueAtPath;
 
@@ -254,11 +259,6 @@ public class RowQuery implements NgqlQuery<RowQuery.Result>
                     valueAtPath.asJsonArray().size() : 1;
         }
 
-        /*package*/ JsonValue value()
-        {
-            return valueAtPath;
-        }
-
         /*package*/ Iterator<JsonValue> rows()
         {
             if (valueAtPath.getValueType() == JsonValue.ValueType.ARRAY) {
@@ -275,4 +275,3 @@ public class RowQuery implements NgqlQuery<RowQuery.Result>
         }
     }
 }
-

@@ -35,7 +35,7 @@ import com.facebook.presto.spi.type.Type;
 import com.facebook.presto.testing.TestingConnectorContext;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import io.attic.presto.noms.ngql.NgqlRecordSetProvider;
+import io.attic.presto.noms.ngql.NomsRecordSetProvider;
 import io.attic.presto.noms.util.NomsServer;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -101,7 +101,7 @@ public class TestNomsConnector
         assertInstanceOf(splitManager, NomsSplitManager.class);
 
         recordSetProvider = connector.getRecordSetProvider();
-        assertInstanceOf(recordSetProvider, NgqlRecordSetProvider.class);
+        assertInstanceOf(recordSetProvider, NomsRecordSetProvider.class);
 
         table = new SchemaTableName(database, "types");
         tableUnpartitioned = new SchemaTableName(database, "presto_test_unpartitioned");

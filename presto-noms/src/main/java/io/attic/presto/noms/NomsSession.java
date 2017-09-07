@@ -13,18 +13,13 @@
  */
 package io.attic.presto.noms;
 
-import com.datastax.driver.core.PreparedStatement;
-import com.datastax.driver.core.RegularStatement;
-import com.datastax.driver.core.ResultSet;
-import com.datastax.driver.core.Session;
-import com.datastax.driver.core.Statement;
 import com.facebook.presto.spi.PrestoException;
 import com.facebook.presto.spi.SchemaNotFoundException;
 import com.facebook.presto.spi.SchemaTableName;
 import com.facebook.presto.spi.TableNotFoundException;
 import com.google.common.collect.ImmutableList;
 import io.airlift.log.Logger;
-import io.attic.presto.noms.ngql.NgqlQuery;
+import io.attic.presto.noms.ngql.NomsQuery;
 import io.attic.presto.noms.ngql.NomsSchema;
 import io.attic.presto.noms.ngql.SchemaQuery;
 import io.attic.presto.noms.util.NomsRunner;
@@ -112,11 +107,10 @@ public class NomsSession
 
     private NomsSchema getSchema(String table)
     {
-        SchemaQuery query = NgqlQuery.schemaQuery();
-        return execute(table, query);
+        return execute(table, SchemaQuery.create());
     }
 
-    public <Q extends NgqlQuery<R>, R extends NgqlQuery.Result> R execute(String table, Q query)
+    public <Q extends NomsQuery<R>, R extends NomsQuery.Result> R execute(String table, Q query)
     {
         try {
             // TODO: retry
@@ -126,25 +120,5 @@ public class NomsSession
             // TODO: better error handling
             throw new RuntimeException(e);
         }
-    }
-
-    public PreparedStatement prepare(RegularStatement statement)
-    {
-        return executeWithSession(session -> session.prepare(statement));
-    }
-
-    public ResultSet execute(Statement statement)
-    {
-        return executeWithSession(session -> session.execute(statement));
-    }
-
-    private <T> T executeWithSession(SessionCallable<T> sessionCallable)
-    {
-        throw new AssertionError("out of order");
-    }
-
-    private interface SessionCallable<T>
-    {
-        T executeWithSession(Session session);
     }
 }

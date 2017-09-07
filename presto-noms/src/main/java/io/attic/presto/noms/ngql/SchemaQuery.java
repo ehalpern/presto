@@ -22,9 +22,15 @@ import javax.json.JsonValue;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SchemaQuery implements NgqlQuery<SchemaQuery.Result>
+public class SchemaQuery
+        extends NomsQuery<SchemaQuery.Result>
 {
-    public String query()
+    public static SchemaQuery create()
+    {
+        return new SchemaQuery();
+    }
+
+    protected String query()
     {
         return "query {\n" +
                 "    root {\n" +
@@ -115,12 +121,7 @@ public class SchemaQuery implements NgqlQuery<SchemaQuery.Result>
                 "  }";
     }
 
-    public Class<SchemaQuery.Result> resultClass()
-    {
-        return SchemaQuery.Result.class;
-    }
-
-    public SchemaQuery.Result newResult(JsonObject json)
+    protected SchemaQuery.Result parseResult(JsonObject json)
     {
         return new SchemaQuery.Result(json);
     }
@@ -131,10 +132,11 @@ public class SchemaQuery implements NgqlQuery<SchemaQuery.Result>
         return query();
     }
 
-    public static class Result implements NgqlQuery.Result, NomsSchema
+    public static class Result
+            implements NomsQuery.Result, NomsSchema
     {
         private final JsonObject object;
-        private final NgqlType rootType;
+        private final NgqlType lastCommitValueType;
         private final Map<String, NgqlType> types = new HashMap<>();
         private final String primaryKey;
 
@@ -155,14 +157,16 @@ public class SchemaQuery implements NgqlQuery<SchemaQuery.Result>
                 types.put(type.name(), type);
             }
             String rootTypeName = schema.getJsonObject("queryType").getString("name");
-            rootType = types.get(rootTypeName);
+            NgqlType rootType = types.get(rootTypeName);
+            NgqlType rootValueType = resolve(rootType.fieldType("root"));
+            lastCommitValueType = resolve(rootValueType.fieldType("value"));
             JsonObject meta = object.getValue("/root/meta").asJsonObject();
             primaryKey = meta.getString("primaryKey", null);
         }
 
         public NomsType tableType()
         {
-            return NgqlType.nomsType(lastCommitValueType(), this);
+            return NgqlType.nomsType(lastCommitValueType, this);
         }
 
         public String primaryKey()
@@ -178,16 +182,6 @@ public class SchemaQuery implements NgqlQuery<SchemaQuery.Result>
         public Map<String, NgqlType> types()
         {
             return types;
-        }
-
-        private NgqlType rootValueType()
-        {
-            return resolve(rootType.fieldType("root"));
-        }
-
-        private NgqlType lastCommitValueType()
-        {
-            return resolve(rootValueType().fieldType("value"));
         }
     }
 }

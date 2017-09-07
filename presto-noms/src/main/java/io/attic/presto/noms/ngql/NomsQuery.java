@@ -13,9 +13,6 @@
  */
 package io.attic.presto.noms.ngql;
 
-import com.facebook.presto.spi.predicate.TupleDomain;
-import io.attic.presto.noms.NomsColumnHandle;
-import io.attic.presto.noms.NomsTable;
 import org.apache.http.client.fluent.Content;
 import org.apache.http.client.fluent.Form;
 import org.apache.http.client.fluent.Request;
@@ -26,42 +23,17 @@ import javax.json.JsonReader;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.List;
 
-public interface NgqlQuery<R extends NgqlQuery.Result>
+public abstract class NomsQuery<R extends NomsQuery.Result>
 {
-    String query();
-    R newResult(JsonObject json);
-
-    public interface Result {
-    }
-
-    public static SchemaQuery schemaQuery()
+    public interface Result
     {
-        return new SchemaQuery();
     }
 
-    public static RowQuery rowQuery(
-            NomsTable table,
-            List<NomsColumnHandle> columns,
-            TupleDomain<NomsColumnHandle> predicate,
-            long offset,
-            long limit)
-    {
-        return new RowQuery(table, columns, predicate, offset, limit);
-    }
+    protected abstract String query();
+    protected abstract R parseResult(JsonObject json);
 
-    /*
-    public static SplitQuery rowQuery(
-            NomsTable table,
-            List<NomsColumnHandle> columns,
-            TupleDomain<NomsColumnHandle> predicate,
-    {
-
-    }
-    */
-
-    default R execute(URI nomsURI, String dataset)
+    public R execute(URI nomsURI, String dataset)
             throws IOException
     {
         Content resp = Request.Post(nomsURI.toString() + "/graphql/").bodyForm(Form.form()
@@ -71,7 +43,7 @@ public interface NgqlQuery<R extends NgqlQuery.Result>
                 .execute().returnContent();
 
         try (JsonReader reader = Json.createReader(resp.asStream())) {
-            return (R)newResult(reader.readObject());
+            return (R) parseResult(reader.readObject());
         }
     }
 }

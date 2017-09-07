@@ -38,7 +38,7 @@ import static com.google.common.base.Verify.verify;
 import static com.google.common.base.Verify.verifyNotNull;
 import static io.airlift.slice.Slices.utf8Slice;
 
-public class NgqlRecordCursor
+public class NomsRecordCursor
         implements RecordCursor
 {
     private final NomsSession session;
@@ -53,10 +53,10 @@ public class NgqlRecordCursor
     private long completedCount = 0;
     private int batchSize = 100;
 
-    /*pacakge*/ NgqlRecordCursor(NomsSession session, NomsSplit split, NomsTable table, List<NomsColumnHandle> columns)
+    /*pacakge*/ NomsRecordCursor(NomsSession session, NomsSplit split, NomsTable table, List<NomsColumnHandle> columns)
     {
         this.columns = verifyNotNull(columns, "columns is null");
-        this.query = NgqlQuery.rowQuery(
+        this.query = RowQuery.create(
                 table, columns,
                 split.getEffectivePredicate(),
                 split.getOffset(),

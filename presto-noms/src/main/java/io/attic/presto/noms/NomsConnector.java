@@ -21,7 +21,7 @@ import com.facebook.presto.spi.connector.ConnectorTransactionHandle;
 import com.facebook.presto.spi.transaction.IsolationLevel;
 import io.airlift.bootstrap.LifeCycleManager;
 import io.airlift.log.Logger;
-import io.attic.presto.noms.ngql.NgqlRecordSetProvider;
+import io.attic.presto.noms.ngql.NomsRecordSetProvider;
 
 import javax.inject.Inject;
 
@@ -44,7 +44,7 @@ public class NomsConnector
             LifeCycleManager lifeCycleManager,
             NomsMetadata metadata,
             NomsSplitManager splitManager,
-            NgqlRecordSetProvider recordSetProvider)
+            NomsRecordSetProvider recordSetProvider)
     {
         this.lifeCycleManager = requireNonNull(lifeCycleManager, "lifeCycleManager is null");
         this.metadata = requireNonNull(metadata, "metadata is null");

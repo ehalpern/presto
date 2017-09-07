@@ -29,20 +29,20 @@ import java.util.function.Function;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
 
-public class NgqlRecordSet
+public class NomsRecordSet
         implements RecordSet
 {
-    private static final Logger log = Logger.get(NgqlRecordSet.class);
+    private static final Logger log = Logger.get(NomsRecordSet.class);
 
-    private final NomsSession nomsSession;
+    private final NomsSession session;
     private final NomsTable table;
     private final List<Type> columnTypes;
     private final List<NomsColumnHandle> columns;
     private final NomsSplit split;
 
-    /*package*/ NgqlRecordSet(NomsSession session, NomsSplit split, NomsTable table, List<NomsColumnHandle> columns)
+    /*package*/ NomsRecordSet(NomsSession session, NomsSplit split, NomsTable table, List<NomsColumnHandle> columns)
     {
-        this.nomsSession = requireNonNull(session, "nomsSession is null");
+        this.session = requireNonNull(session, "session is null");
         this.columns = requireNonNull(columns, "columns is null");
         this.columnTypes = transformList(columns, NomsColumnHandle::getType);
         this.table = table;
@@ -59,7 +59,7 @@ public class NgqlRecordSet
     @Override
     public RecordCursor cursor()
     {
-        return new NgqlRecordCursor(nomsSession, split, table, columns);
+        return new NomsRecordCursor(session, split, table, columns);
     }
 
     private static <T, R> List<R> transformList(List<T> list, Function<T, R> function)

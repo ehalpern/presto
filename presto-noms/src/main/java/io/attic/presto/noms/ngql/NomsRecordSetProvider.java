@@ -34,19 +34,19 @@ import static com.google.common.base.MoreObjects.toStringHelper;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
 
-public class NgqlRecordSetProvider
+public class NomsRecordSetProvider
         implements ConnectorRecordSetProvider
 {
-    private static final Logger log = Logger.get(NgqlRecordSetProvider.class);
+    private static final Logger log = Logger.get(NomsRecordSetProvider.class);
 
     private final String connectorId;
-    private final NomsSession nomsSession;
+    private final NomsSession session;
 
     @Inject
-    public NgqlRecordSetProvider(NomsConnectorId connectorId, NomsSession nomsSession)
+    public NomsRecordSetProvider(NomsConnectorId connectorId, NomsSession session)
     {
         this.connectorId = requireNonNull(connectorId, "connectorId is null").toString();
-        this.nomsSession = requireNonNull(nomsSession, "nomsSession is null");
+        this.session = requireNonNull(session, "session is null");
     }
 
     @Override
@@ -58,8 +58,8 @@ public class NgqlRecordSetProvider
                 .map(column -> (NomsColumnHandle) column)
                 .collect(toList());
 
-        NomsTable table = nomsSession.getTable(nomsSplit.getTableName());
-        return new NgqlRecordSet(nomsSession, nomsSplit, table, nomsColumns);
+        NomsTable table = this.session.getTable(nomsSplit.getTableName());
+        return new NomsRecordSet(this.session, nomsSplit, table, nomsColumns);
     }
 
     @Override
