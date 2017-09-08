@@ -22,9 +22,28 @@ import java.net.URI;
 
 public class NomsClientConfig
 {
-    private URI uri = URI.create("http://localhost:8000");
-    private String database = "noms";
-    private int fetchSize = 5_000;
+    public static final URI DEFAULT_URI = URI.create("http://localhost:8000");
+    public static final String DEFAULT_DATABASE = "noms";
+    public static final int DEFAULT_BATCH_SIZE = 1_000;
+    public static final int DEFAULT_MIN_ROWS_PER_SPLIT = 5_000;
+    public static final int DEFAULT_MAX_SPLITS_PER_NODE = 0;
+
+    private URI uri = DEFAULT_URI;
+    private String database = DEFAULT_DATABASE;
+
+    // Number of rows to request per batch.
+    // Ideally this would be computed by bytesPerBatch/estimatedBytesPerRow
+    private int batchSize = DEFAULT_BATCH_SIZE;
+
+    // Minimum number of rows per split.
+    // Ideally, this would be computed by bytesPerSplit/estimatedBytesPerRow
+    private int minRowsPerSplit = DEFAULT_MIN_ROWS_PER_SPLIT;
+
+    // Maximum number of splits per node. Defaults to Runtime.availablePrcessors
+    // by default.
+    // Ideally, this would be a function of cpusPerNode, bandwidthPerNode and
+    // noms throughput
+    private int maxSplitsPerNode = DEFAULT_MAX_SPLITS_PER_NODE;
 
     @NotNull
     public URI getURI()
@@ -53,15 +72,41 @@ public class NomsClientConfig
     }
 
     @Min(1)
-    public int getFetchSize()
+    public int getBatchSize()
     {
-        return fetchSize;
+        return batchSize;
     }
 
-    @Config("noms.fetch-size")
-    public NomsClientConfig setFetchSize(int fetchSize)
+    @Config("noms.batch-size")
+    public NomsClientConfig setBatchSize(int batchSize)
     {
-        this.fetchSize = fetchSize;
+        this.batchSize = batchSize;
+        return this;
+    }
+
+    @Min(1)
+    public int getMinRowsPerSplit()
+    {
+        return minRowsPerSplit;
+    }
+
+    @Config("noms.min-rows-per-split")
+    public NomsClientConfig setMinRowsPerSplit(int minRows)
+    {
+        this.minRowsPerSplit = minRows;
+        return this;
+    }
+
+    @Min(0)
+    public int getMaxSplitsPerNode()
+    {
+        return maxSplitsPerNode;
+    }
+
+    @Config("noms.max-splits-per-node")
+    public NomsClientConfig setMaxSplitsPerNode(int maxSplits)
+    {
+        this.maxSplitsPerNode = maxSplits;
         return this;
     }
 }

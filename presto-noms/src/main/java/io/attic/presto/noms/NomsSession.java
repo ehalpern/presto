@@ -47,6 +47,11 @@ public class NomsSession
         this.config = requireNonNull(config, "config is null");
     }
 
+    public NomsClientConfig config()
+    {
+        return config;
+    }
+
     public List<String> getSchemaNames()
     {
         return ImmutableList.of(config.getDatabase());
@@ -70,7 +75,7 @@ public class NomsSession
         }
         ImmutableList.Builder<NomsColumnHandle> columnHandles = ImmutableList.builder();
 
-        NomsSchema schema = getSchema(schemaTableName.getTableName());
+        NomsSchema schema = querySchema(schemaTableName.getTableName());
         NomsType tableType = schema.tableType();
         NomsType rowType;
         switch (tableType.kind()) {
@@ -105,7 +110,7 @@ public class NomsSession
                 nomsURI);
     }
 
-    private NomsSchema getSchema(String table)
+    private NomsSchema querySchema(String table)
     {
         return execute(table, SchemaQuery.create());
     }

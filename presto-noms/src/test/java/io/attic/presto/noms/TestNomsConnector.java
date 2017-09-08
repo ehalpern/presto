@@ -91,7 +91,8 @@ public class TestNomsConnector
 
         Connector connector = connectorFactory.create(connectorId, ImmutableMap.of(
                 "noms.uri", server.uri().toString(),
-                "noms.database", database),
+                "noms.database", database,
+                "noms.batch-size", "3"),
                 new TestingConnectorContext());
 
         metadata = connector.getMetadata(NomsTransactionHandle.INSTANCE);

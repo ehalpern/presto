@@ -15,6 +15,7 @@ package io.attic.presto.noms.ngql;
 
 import com.facebook.presto.spi.RecordCursor;
 import com.facebook.presto.spi.predicate.NullableValue;
+import com.facebook.presto.spi.predicate.TupleDomain;
 import com.facebook.presto.spi.type.Type;
 import io.airlift.slice.Slice;
 import io.attic.presto.noms.NomsColumnHandle;
@@ -42,39 +43,42 @@ public class NomsRecordCursor
         implements RecordCursor
 {
     private final NomsSession session;
+    private final int batchSize;
     private final NomsTable table;
     private final List<NomsColumnHandle> columns;
-    private final RowQuery query;
+    private TupleDomain<NomsColumnHandle> predicate;
+    private final long totalLimit;
+
+    private long offset;
+    private long totalCount = 0;
+    private long completedCount = 0;
 
     private Iterator<JsonValue> results = JsonValue.EMPTY_JSON_ARRAY.iterator();
     private JsonObject row = JsonValue.EMPTY_JSON_OBJECT;
 
-    private long totalCount = 0;
-    private long completedCount = 0;
-    private int batchSize = 100;
-
     /*pacakge*/ NomsRecordCursor(NomsSession session, NomsSplit split, NomsTable table, List<NomsColumnHandle> columns)
     {
         this.columns = verifyNotNull(columns, "columns is null");
-        this.query = RowQuery.create(
-                table, columns,
-                split.getEffectivePredicate(),
-                split.getOffset(),
-                split.getLimit());
         this.table = table;
+        this.predicate = split.getEffectivePredicate();
+        this.offset = split.getOffset();
+        this.totalLimit = split.getLimit() <= 0 ? Long.MAX_VALUE : split.getLimit();
+        this.batchSize = session.config().getBatchSize();
         this.session = session;
     }
 
     private Iterator<JsonValue> nextBatch()
     {
-        // TODO: Implement batching. For now, read all rows on
-        // the first batch and terminate the cursor on the second
-        if (totalCount > 0) {
+        if (totalCount % batchSize != 0 || totalCount == totalLimit) {
+            // last batch request exhausted rows
             return JsonValue.EMPTY_JSON_ARRAY.iterator();
         }
         else {
+            long limit = Math.min(batchSize, totalLimit - totalCount);
+            RowQuery query = RowQuery.create(table, columns, predicate, offset, limit);
             RowQuery.Result result = session.execute(table.tableHandle().getTableName(), query);
-            totalCount = result.size();
+            totalCount += result.size();
+            offset += batchSize;
             return result.rows();
         }
     }
@@ -112,6 +116,7 @@ public class NomsRecordCursor
         }
     }
 
+    // NOTE: Returns row count rather than bytes
     @Override
     public long getCompletedBytes()
     {
@@ -177,12 +182,6 @@ public class NomsRecordCursor
                     String s = ((JsonString) valueOf(i)).getString();
                     value = NullableValue.of(nativeType, utf8Slice(s));
                     break;
-                case Boolean:
-                    value = NullableValue.of(nativeType, getBoolean(i));
-                    break;
-                case Number:
-                    value = NullableValue.of(nativeType, getDouble(i));
-                    break;
                 case Blob:
                 case Set:
                     value = NullableValue.of(nativeType, utf8Slice(buildSetValue(i, nomsType.arguments().get(0))));
@@ -224,6 +223,7 @@ public class NomsRecordCursor
         throw new UnsupportedOperationException();
     }
 
+    // NOTE: Returns row count rather than bytes
     @Override
     public long getTotalBytes()
     {

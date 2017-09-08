@@ -95,8 +95,10 @@ public class NomsSplitManager
      */
     private long[] computeSplitSizes(NomsTable table)
     {
-        int maxSplitsPerNode = 10;   // How to get this?
-        int minRowsPerSplit = 10000;
+        NomsClientConfig c = session.config();
+        int maxSplitsPerNode = c.getMaxSplitsPerNode() > 0 ?
+                c.getMaxSplitsPerNode() : Runtime.getRuntime().availableProcessors();
+        int minRowsPerSplit = c.getMinRowsPerSplit();
         int maxSplits = Math.max(1, nodeManager.getWorkerNodes().size()) * maxSplitsPerNode;
         SizeQuery.Result result = session.execute(table.tableHandle().getTableName(), SizeQuery.create(table));
         long tableSize = result.size();

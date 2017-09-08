@@ -26,9 +26,11 @@ public class TestNomsClientConfig
     public void testDefaults()
     {
         ConfigAssertions.assertRecordedDefaults(ConfigAssertions.recordDefaults(NomsClientConfig.class)
-                .setURI(URI.create("http://localhost:8000"))
-                .setDatabase("noms")
-                .setFetchSize(5_000));
+                .setURI(NomsClientConfig.DEFAULT_URI)
+                .setDatabase(NomsClientConfig.DEFAULT_DATABASE)
+                .setBatchSize(NomsClientConfig.DEFAULT_BATCH_SIZE)
+                .setMinRowsPerSplit(NomsClientConfig.DEFAULT_MIN_ROWS_PER_SPLIT)
+                .setMaxSplitsPerNode(NomsClientConfig.DEFAULT_MAX_SPLITS_PER_NODE));
     }
 
     @Test
@@ -37,13 +39,17 @@ public class TestNomsClientConfig
         Map<String, String> properties = new ImmutableMap.Builder<String, String>()
                 .put("noms.uri", "http://test.com:8000")
                 .put("noms.database", "testdb")
-                .put("noms.fetch-size", "10000")
+                .put("noms.batch-size", "10000")
+                .put("noms.min-rows-per-split", "10000")
+                .put("noms.max-splits-per-node", "5")
                 .build();
 
         NomsClientConfig expected = new NomsClientConfig()
                 .setURI(URI.create("http://test.com:8000"))
                 .setDatabase("testdb")
-                .setFetchSize(10_000);
+                .setBatchSize(10_000)
+                .setMinRowsPerSplit(10_000)
+                .setMaxSplitsPerNode(5);
 
         ConfigAssertions.assertFullMapping(properties, expected);
     }

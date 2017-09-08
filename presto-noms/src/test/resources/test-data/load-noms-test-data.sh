@@ -12,10 +12,10 @@ import() {
     dsspec=nbs:${dbpath}::${ds}
     echo ${fields} > ${ds}-all.csv
     cat ${ds}-?.csv | sed 's/, /,/g' >> ${ds}-all.csv
-    mkdir -p ${db_path}
-    echo csv-import --column-types="${types}" --dest-type="map:$pk" --meta primaryKey="$pk" ${ds}-all.csv ${dsspec}
-    csv-import --column-types="${types}" --dest-type=list ${ds}-all.csv ${dsspec}
-    csv-import --column-types="${types}" --dest-type="map:$pk" --meta primaryKey="$pk" ${ds}-all.csv ${dsspec}-map
+    mkdir -p ${dbpath}
+    echo csv-import --lowercase --column-types="${types}" --dest-type="map:$pk" --meta primaryKey="$pk" ${ds}-all.csv ${dsspec}
+    csv-import --lowercase --column-types="${types}" --dest-type=list ${ds}-all.csv ${dsspec}
+    csv-import --lowercase --column-types="${types}" --dest-type="map:$pk" --meta primaryKey="$pk" ${ds}-all.csv ${dsspec}-map
 }
 
 rm -fr ${DB_DIR}/*
@@ -32,6 +32,6 @@ lineitem_fields="orderkey,partkey,suppkey,linenumber,quantity,discount,tax,retur
 lineitem_types="Number,Number,Number,Number,Number,Number,Number,String,String,String,String,String,String,String,String"
 import $lineitem_fields partkey $lineitem_types example lineitem
 
-orders_fields="orderkey,custkey,orderstatus,totalprice,orderdate,orderpriority,clerk,shippriority,comment"
+orders_fields="orderkey,CustKey,orderstatus,totalPrice,OrderDate,orderpriority,clerk,shippriority,comment"
 orders_types="Number,Number,String,Number,String,String,String,Number,String"
 import $orders_fields orderkey $orders_types example orders
