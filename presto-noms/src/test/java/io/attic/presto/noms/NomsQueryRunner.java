@@ -21,31 +21,39 @@ import io.attic.presto.noms.util.NomsServer;
 import static com.facebook.presto.testing.TestingSession.testSessionBuilder;
 
 public final class NomsQueryRunner
+        extends DistributedQueryRunner
 {
-    private NomsQueryRunner()
-    {
-    }
-
-    public static synchronized DistributedQueryRunner create()
+    public static synchronized NomsQueryRunner create(String dbName, int workerCount)
             throws Exception
     {
-        NomsServer noms = NomsServer.start("nbs:/tmp/presto-noms/tpch");
+        NomsQueryRunner runner = new NomsQueryRunner(dbName, workerCount);
 
-        DistributedQueryRunner queryRunner = new DistributedQueryRunner(createNomsSession("tpch"), 4);
+        runner.installPlugin(new NomsPlugin());
+        runner.createCatalog("noms", "noms", ImmutableMap.of(
+                "noms.uri", runner.noms.uri().toString(),
+                "noms.database", dbName,
+                "noms.min-rows-per-split", "2",
+                "noms.batch-size", "1"));
 
-        queryRunner.installPlugin(new NomsPlugin());
-        queryRunner.createCatalog("noms", "noms", ImmutableMap.of(
-                "noms.uri", noms.uri().toString(),
-                "noms.database", "tpch"));
-
-        return queryRunner;
+        return runner;
     }
 
-    public static Session createNomsSession(String schema)
+    private final NomsServer noms;
+
+    private NomsQueryRunner(String dbName, int workerCount)
+            throws Exception
     {
-        return testSessionBuilder()
-                .setCatalog("noms")
-                .setSchema(schema)
-                .build();
+        super(createSession(dbName), workerCount);
+        noms = NomsServer.start("nbs:/tmp/presto-noms/" + dbName);
+    }
+
+    private static Session createSession(String schema)
+    {
+        return testSessionBuilder().setCatalog("noms").setSchema(schema).build();
+    }
+
+    public void closeServer()
+    {
+        noms.close();
     }
 }

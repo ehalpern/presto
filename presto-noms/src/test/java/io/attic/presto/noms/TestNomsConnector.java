@@ -83,6 +83,7 @@ public class TestNomsConnector
     public void setup()
             throws Exception
     {
+        DatasetLoader.loadDataset("types");
         database = "test";
         server = NomsServer.start("nbs:/tmp/presto-noms/" + database);
 

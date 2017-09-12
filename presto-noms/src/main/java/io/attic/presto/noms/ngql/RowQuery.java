@@ -18,7 +18,6 @@ import com.facebook.presto.spi.predicate.Marker;
 import com.facebook.presto.spi.predicate.Range;
 import com.facebook.presto.spi.predicate.TupleDomain;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
 import io.attic.presto.noms.NomsColumnHandle;
 import io.attic.presto.noms.NomsTable;
 import io.attic.presto.noms.NomsType;
@@ -165,18 +164,13 @@ public class RowQuery
         path.add("root");
         path.add("value");
         switch (tableType.kind()) {
-            case String:
-            case Boolean:
-            case Number:
-            case Blob:
-                break;
             case Set:
             case List:
             case Map:
                 path.add("values");
                 break;
             default:
-                throw new IllegalStateException("Handling of type " + tableType.kind() + " is not implemented");
+                throw new IllegalStateException("Table type " + tableType.kind() + " not implemented");
         }
         return path;
     }
@@ -250,23 +244,19 @@ public class RowQuery
             catch (JsonException e) {
                 value = JsonValue.EMPTY_JSON_ARRAY;
             }
+            verify(value.getValueType() == JsonValue.ValueType.ARRAY,
+                    "value at %s in not an array");
             this.valueAtPath = value;
         }
 
         public int size()
         {
-            return valueAtPath.getValueType() == JsonValue.ValueType.ARRAY ?
-                    valueAtPath.asJsonArray().size() : 1;
+            return valueAtPath.asJsonArray().size();
         }
 
         /*package*/ Iterator<JsonValue> rows()
         {
-            if (valueAtPath.getValueType() == JsonValue.ValueType.ARRAY) {
-                return valueAtPath.asJsonArray().iterator();
-            }
-            else {
-                return ImmutableList.of(valueAtPath).iterator();
-            }
+            return valueAtPath.asJsonArray().iterator();
         }
 
         public String toString()

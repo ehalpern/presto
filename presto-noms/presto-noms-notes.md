@@ -100,8 +100,13 @@ ORDER BY trip_year,
          trips desc;
 ```
 
-```
-```
 
-```
-```
+Analyzing 1.1 Billion NYC Taxi and Uber Trips, with a Vengeance
+
+Article: http://toddwschneider.com/posts/analyzing-1-1-billion-nyc-taxi-and-uber-trips-with-a-vengeance/
+Github: https://github.com/toddwschneider/nyc-taxi-data
+
+BigQuery and Dataproc shine in independent big data platform comparison
+
+Article: https://cloud.google.com/blog/big-data/2016/05/bigquery-and-dataproc-shine-in-independent-big-data-platform-comparison
+

@@ -36,12 +36,6 @@ public class SizeQuery
     private SizeQuery(NomsTable table)
     {
         switch (table.tableType().kind()) {
-            case String:
-            case Boolean:
-            case Number:
-            case Blob:
-                query = "";
-                break;
             case Set:
             case List:
             case Map:
@@ -54,7 +48,7 @@ public class SizeQuery
                         "}";
                 break;
             default:
-                throw new IllegalStateException("Handling of type " + table.tableType().kind() + " is not implemented");
+                throw new IllegalStateException("Type " + table.tableType().kind() + " not implemented");
         }
     }
 
@@ -71,12 +65,7 @@ public class SizeQuery
     public Result execute(URI nomsURI, String dataset)
             throws IOException
     {
-        if (query.length() == 0) {
-            return new Result(1);
-        }
-        else {
-            return super.execute(nomsURI, dataset);
-        }
+        return super.execute(nomsURI, dataset);
     }
 
     @Override
@@ -89,11 +78,6 @@ public class SizeQuery
             implements NomsQuery.Result
     {
         private long size;
-
-        private Result(long size)
-        {
-            this.size = size;
-        }
 
         private Result(JsonObject json)
         {

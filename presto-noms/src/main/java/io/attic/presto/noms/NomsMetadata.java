@@ -48,21 +48,21 @@ public class NomsMetadata
         implements ConnectorMetadata
 {
     private final String connectorId;
-    private final NomsSession nomsSession;
+    private final NomsSession session;
 
     @Inject
     public NomsMetadata(
             NomsConnectorId connectorId,
-            NomsSession nomsSession)
+            NomsSession session)
     {
         this.connectorId = requireNonNull(connectorId, "connectorId is null").toString();
-        this.nomsSession = requireNonNull(nomsSession, "nomsSession is null");
+        this.session = requireNonNull(session, "session is null");
     }
 
     @Override
     public List<String> listSchemaNames(ConnectorSession session)
     {
-        return nomsSession.getSchemaNames().stream()
+        return this.session.getSchemaNames().stream()
                 .map(name -> name.toLowerCase(ENGLISH))
                 .collect(toImmutableList());
     }
@@ -70,10 +70,9 @@ public class NomsMetadata
     @Override
     public NomsTableHandle getTableHandle(ConnectorSession session, SchemaTableName tableName)
     {
-        // TODO: Sould nomsSession be associated with session?
         requireNonNull(tableName, "tableName is null");
         try {
-            return nomsSession.getTable(tableName).tableHandle();
+            return this.session.getTable(tableName).tableHandle();
         }
         catch (TableNotFoundException | SchemaNotFoundException e) {
             // rows was not found
@@ -95,7 +94,7 @@ public class NomsMetadata
 
     private ConnectorTableMetadata getTableMetadata(SchemaTableName tableName)
     {
-        NomsTable table = nomsSession.getTable(tableName);
+        NomsTable table = session.getTable(tableName);
         List<ColumnMetadata> columns = table.columns().stream()
                 .map(NomsColumnHandle::getColumnMetadata)
                 .collect(toList());
@@ -108,7 +107,7 @@ public class NomsMetadata
         ImmutableList.Builder<SchemaTableName> tableNames = ImmutableList.builder();
         for (String schemaName : listSchemas(session, schemaNameOrNull)) {
             try {
-                for (String tableName : nomsSession.getTableNames(schemaName)) {
+                for (String tableName : this.session.getTableNames(schemaName)) {
                     tableNames.add(new SchemaTableName(schemaName, tableName.toLowerCase(ENGLISH)));
                 }
             }
@@ -132,7 +131,7 @@ public class NomsMetadata
     {
         requireNonNull(session, "session is null");
         requireNonNull(tableHandle, "tableHandle is null");
-        NomsTable table = nomsSession.getTable(getTableName(tableHandle));
+        NomsTable table = this.session.getTable(getTableName(tableHandle));
         ImmutableMap.Builder<String, ColumnHandle> columnHandles = ImmutableMap.builder();
         for (NomsColumnHandle columnHandle : table.columns()) {
             columnHandles.put(columnHandle.getName().toLowerCase(ENGLISH), columnHandle);
@@ -183,7 +182,7 @@ public class NomsMetadata
      *
      * Consider the example of HiveMetadata.getTableLayouts:
      *   - If the query constrains the partition key, issue a query to
-     *     determine the distinct partition key matching the predicate.
+     *     determine the distinct partition keys matching the predicate.
      *   - If the query constrains the cluster key (by specifying exact
      *     values), determine the buckets for these values
      *   - Return a layout that specifies the new query (minus the partition

@@ -59,6 +59,13 @@ public class NomsRecordCursor
     /*pacakge*/ NomsRecordCursor(NomsSession session, NomsSplit split, NomsTable table, List<NomsColumnHandle> columns)
     {
         this.columns = verifyNotNull(columns, "columns is null");
+        // An empty columns list implies a count(*) query. Ultimately, we should optimize
+        // this case by doing a size query and allow |size| iterations over the result.
+        // Fow now, we just pick a column to add to the query;
+        if (columns.isEmpty()) {
+            verify(!table.columns().isEmpty(), "table has no columns");
+            this.columns.add(table.columns().get(0));
+        }
         this.table = table;
         this.predicate = split.getEffectivePredicate();
         this.offset = split.getOffset();
