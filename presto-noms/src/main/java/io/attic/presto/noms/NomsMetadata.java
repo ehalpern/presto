@@ -227,5 +227,11 @@ public class NomsMetadata
                 .toString();
     }
 
+    // exposed for testing
+    /*package*/ NomsSession session()
+    {
+        return session;
+    }
+
     // See ConnectorMetadata super class for available row management and insert hooks
 }

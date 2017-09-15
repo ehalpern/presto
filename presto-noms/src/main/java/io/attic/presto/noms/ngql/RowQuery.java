@@ -69,15 +69,19 @@ public class RowQuery
         String paramList = params.isEmpty() ?
                 "" : String.format("(%s)", String.join(",", params));
         List<String> fields = columns.stream().map(c -> c.getName()).collect(Collectors.toList());
-
-        String query =
+        StringBuilder b = new StringBuilder();
+        b.append(
                 "{ root { value {\n" +
-                "  size\n" +
+                "  size\n");
+        if (fields.size() > 0) {
+            b.append(
                 "  values" + paramList + "{\n" +
                 "    " + String.join("\n    ", fields) + "\n" +
-                "  }\n" +
-                "}}}";
-        return query;
+                "  }\n");
+        }
+        b.append(
+                "}}}");
+        return b.toString();
     }
 
     @Override
@@ -90,7 +94,7 @@ public class RowQuery
             implements NomsQuery.Result
     {
         private final JsonArray rows;
-        private final int totalSize;
+        private final int size;
 
         private Result(JsonObject json)
         {
@@ -102,13 +106,19 @@ public class RowQuery
             catch (JsonException e) {
                 value = JsonObject.EMPTY_JSON_OBJECT;
             }
-            this.totalSize = value.getJsonNumber("size").intValue();
-            this.rows = value.getJsonArray("values");
+            if (value.containsKey("values")) {
+                rows = value.getJsonArray("values");
+                size = rows.size();
+            }
+            else {
+                rows = JsonObject.EMPTY_JSON_ARRAY;
+                size = value.getJsonNumber("size").intValue();
+            }
         }
 
         public int size()
         {
-            return rows.size();
+            return size;
         }
 
         public Iterator<JsonValue> rows()

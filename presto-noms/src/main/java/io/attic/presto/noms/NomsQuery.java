@@ -20,6 +20,10 @@ public interface NomsQuery<R extends NomsQuery.Result>
 {
     public interface Result
     {
+        default int size()
+        {
+            return 0;
+        }
     }
 
     public R execute(URI nomsURI, String dataset)

@@ -25,7 +25,8 @@ import java.nio.file.Paths;
 
 public class DatasetLoader
 {
-    private static final Path TEST_DB_PATH = Paths.get("/tmp", "presto-noms", "test");
+    private static final String TEST_DB_NAME = "test";
+    private static final Path TEST_DB_PATH = Paths.get("/tmp", "presto-noms", TEST_DB_NAME);
     private static final String TEST_DATA = "test-data";
 
     public static String loadDataset(String dsName)
@@ -44,6 +45,16 @@ public class DatasetLoader
         catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static String dbSpec()
+    {
+        return "nbs:" + TEST_DB_PATH.toString();
+    }
+
+    public static String dbName()
+    {
+        return TEST_DB_NAME;
     }
 
     private static String columnTypesOption(String dsName)
@@ -77,7 +88,7 @@ public class DatasetLoader
     {
         try {
             Files.createDirectories(TEST_DB_PATH);
-            return "nbs:" + TEST_DB_PATH.toString();
+            return dbSpec();
         }
         catch (IOException e) {
             throw new RuntimeException(e);

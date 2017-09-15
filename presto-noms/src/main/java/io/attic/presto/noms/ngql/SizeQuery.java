@@ -13,18 +13,16 @@
  */
 package io.attic.presto.noms.ngql;
 
+import com.facebook.presto.spi.predicate.TupleDomain;
+import io.attic.presto.noms.NomsColumnHandle;
 import io.attic.presto.noms.NomsQuery;
 import io.attic.presto.noms.NomsSchema;
 import io.attic.presto.noms.NomsTable;
-import io.attic.presto.noms.NomsType;
 
-import javax.json.JsonException;
-import javax.json.JsonNumber;
 import javax.json.JsonObject;
-import javax.json.JsonValue;
 
-import java.io.IOException;
-import java.net.URI;
+import java.util.Collections;
+import java.util.List;
 
 public class SizeQuery
         extends NgqlQuery<SizeQuery.Result>
@@ -34,85 +32,59 @@ public class SizeQuery
         return new SizeQuery(table);
     }
 
-    private final String query;
-    private final String sizePath;
+    private final NgqlQuery query;
 
     private SizeQuery(NomsTable table)
     {
+        List<NomsColumnHandle> noColumns = Collections.emptyList();
+        TupleDomain<NomsColumnHandle> noPredicates = TupleDomain.none();
         NomsSchema schema = table.schema();
-        NomsType.Kind kind = schema.tableType().kind();
-        switch (kind) {
-            case Set:
-            case List:
-            case Map:
-                query = "{ root {\n" +
-                        "    value { size }\n" +
-                        "}}";
-                sizePath = "root/value/size";
+        switch (schema.tableStructure()) {
+            case ColumnMajor:
+                query = ColumnQuery.create(schema, noColumns, noPredicates, 0, 0);
                 break;
-            case Struct:
-                String col = schema.columns().get(0).getKey();
-                query = "{ root { value {\n" +
-                        "  " + col + "{ size } }\n" +
-                        "}}}";
-                sizePath = "root/value/" + col + "/size";
+            case RowMajor:
+                query = RowQuery.create(schema, noColumns, noPredicates, 0, 0);
                 break;
-
             default:
-                throw new IllegalStateException("Type " + kind + " not implemented");
+                throw new AssertionError("Unsupported table structure " + schema.tableStructure());
         }
     }
 
     protected String query()
     {
-        return query;
+        return query.query();
     }
 
     protected SizeQuery.Result parseResult(JsonObject json)
     {
-        return new Result(json, sizePath);
-    }
-
-    public Result execute(URI nomsURI, String dataset)
-            throws IOException
-    {
-        return super.execute(nomsURI, dataset);
+        return new Result(query.parseResult(json).size());
     }
 
     @Override
     public String toString()
     {
-        return query;
+        return query.query();
     }
 
     public static class Result
             implements NomsQuery.Result
     {
-        private long size;
+        private int size;
 
-        private Result(JsonObject json, String sizePath)
+        private Result(int size)
         {
-            String fullPath = "/data/" + sizePath;
-            JsonValue value;
-            try {
-                value = json.getValue(fullPath);
-                if (value.getValueType() == JsonValue.ValueType.NUMBER) {
-                    size = ((JsonNumber) value).longValue();
-                }
-            }
-            catch (JsonException e) {
-                size = 0;
-            }
+            this.size = size;
         }
 
-        public long size()
+        public int size()
         {
             return size;
         }
 
         public String toString()
         {
-            return Long.toString(size);
+            return Integer.toString(size);
         }
     }
 }

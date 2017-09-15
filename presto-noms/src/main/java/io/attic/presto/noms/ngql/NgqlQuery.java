@@ -44,6 +44,7 @@ public abstract class NgqlQuery<R extends NomsQuery.Result> implements NomsQuery
     public R execute(URI nomsURI, String dataset)
             throws IOException
     {
+        // TODO: replace with async IO
         Content resp = Request.Post(nomsURI.toString() + "/graphql/").bodyForm(Form.form()
                 .add("ds", dataset)
                 .add("query", query())

@@ -14,6 +14,7 @@
 package io.attic.presto.noms.ngql;
 
 import com.facebook.presto.spi.predicate.TupleDomain;
+import com.google.common.collect.ImmutableList;
 import io.attic.presto.noms.NomsColumnHandle;
 import io.attic.presto.noms.NomsQuery;
 import io.attic.presto.noms.NomsSchema;
@@ -55,7 +56,7 @@ public class ColumnQuery
             long limit)
     {
         this.params = paramsFromPredicate(schema, columns, predicate, offset, limit);
-        this.query = buildQuery(params, columns);
+        this.query = buildQuery(params, schema, columns);
     }
 
     protected String query()
@@ -78,14 +79,22 @@ public class ColumnQuery
     //     }
     // }
     //
-    private static String buildQuery(List<String> params, List<NomsColumnHandle> columns)
+    private static String buildQuery(List<String> params, NomsSchema schema, List<NomsColumnHandle> columns)
     {
-        String paramList = params.isEmpty() ?
-                "" : String.format("(%s)", String.join(",", params));
-        List<String> fieldList = columns.stream().map(
-                c -> String.format("%s { size, values%s }", c.getName(), paramList)
-        ).collect(Collectors.toList());
+        List<String> fieldList;
 
+        if (columns.isEmpty()) {
+            verify(schema.columns().size() > 0, "schema must have at least one column");
+            String dummyField = schema.columns().get(0).getKey();
+            fieldList = ImmutableList.of(String.format("%s { size }", dummyField));
+        }
+        else {
+            String paramList = params.isEmpty() ?
+                    "" : String.format("(%s)", String.join(",", params));
+            fieldList = columns.stream().map(
+                    c -> String.format("%s { size, values%s }", c.getName(), paramList)
+            ).collect(Collectors.toList());
+        }
         String query =
                 "{ root { value {\n" +
                 "  " + String.join("\n  ", fieldList) + "\n" +
@@ -103,8 +112,7 @@ public class ColumnQuery
             implements NomsQuery.Result
     {
         private final JsonObject columns;
-        private final long totalSize;
-        private int size;
+        private final int size;
 
         private Result(JsonObject json)
         {
@@ -118,20 +126,20 @@ public class ColumnQuery
             }
             verify(value.getValueType() == JsonValue.ValueType.OBJECT,
                     "commit value at %s in not an object");
-            this.columns = value.asJsonObject();
-            JsonObject firstColumn = this.columns.values().stream().findFirst().orElse(JsonValue.EMPTY_JSON_OBJECT).asJsonObject();
-            totalSize = firstColumn.getInt("size", 0);
-            size = firstColumn.getJsonArray("values").size();
+            columns = value.asJsonObject();
+            verify(columns.size() > 0, "response must contain at least 1 column");
+            JsonObject firstColumn = columns.values().stream().findFirst().get().asJsonObject();
+            if (firstColumn.containsKey("values")) {
+                size = firstColumn.getJsonArray("values").size();
+            }
+            else {
+                size = firstColumn.getInt("size", 0);
+            }
         }
 
         public int size()
         {
             return size;
-        }
-
-        public long totalSize()
-        {
-            return totalSize;
         }
 
         public String[] columnOfStrings(String column)
@@ -165,11 +173,7 @@ public class ColumnQuery
         private JsonArray columnArray(String name)
         {
             JsonObject o = verifyNotNull(columns.getJsonObject(name), "column %s no present", name);
-            JsonArray array = o.getJsonArray("values");
-            // lazily initialize size;
-            verify(size == 0 || size == array.size());
-            size = array.size();
-            return array;
+            return o.getJsonArray("values");
         }
     }
 }
