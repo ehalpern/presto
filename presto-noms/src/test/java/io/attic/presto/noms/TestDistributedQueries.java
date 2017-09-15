@@ -42,6 +42,7 @@ public class TestDistributedQueries
         ((NomsQueryRunner) getQueryRunner()).closeServer();
     }
 
+    @Test
     public void testSimpleSelect()
     {
         assertQuery(
@@ -56,7 +57,7 @@ public class TestDistributedQueries
                 });
     }
 
-    @Test(enabled = false)
+    @Test
     public void testSimpleSelectRowMajor()
     {
         assertQuery(

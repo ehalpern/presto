@@ -13,6 +13,8 @@
  */
 package io.attic.presto.noms.ngql;
 
+import io.attic.presto.noms.NomsQuery;
+import io.attic.presto.noms.NomsSchema;
 import io.attic.presto.noms.NomsTable;
 import io.attic.presto.noms.NomsType;
 
@@ -25,7 +27,7 @@ import java.io.IOException;
 import java.net.URI;
 
 public class SizeQuery
-        extends NomsQuery<SizeQuery.Result>
+        extends NgqlQuery<SizeQuery.Result>
 {
     public static SizeQuery create(NomsTable table)
     {

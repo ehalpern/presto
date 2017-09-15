@@ -14,6 +14,8 @@
 package io.attic.presto.noms.ngql;
 
 import com.facebook.presto.spi.PrestoException;
+import io.attic.presto.noms.NomsQuery;
+import io.attic.presto.noms.NomsSchema;
 import io.attic.presto.noms.NomsType;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -29,7 +31,7 @@ import java.util.stream.Collectors;
 import static com.facebook.presto.spi.StandardErrorCode.NOT_SUPPORTED;
 
 public class SchemaQuery
-        extends NomsQuery<SchemaQuery.Result>
+        extends NgqlQuery<SchemaQuery.Result>
 {
     public static SchemaQuery create()
     {
@@ -170,9 +172,16 @@ public class SchemaQuery
             primaryKey = meta.getString("primaryKey", null);
         }
 
-        public boolean isColumnMajor()
+        public TableStructure tableStructure()
         {
-            return tableType().kind() == NomsType.Kind.Struct;
+            switch (tableType().kind()) {
+                case Struct:
+                    return TableStructure.ColumnMajor;
+                case List: case Set: case Map:
+                    return TableStructure.RowMajor;
+                default:
+                    throw new PrestoException(NOT_SUPPORTED, "Unsupported table type: " + tableType());
+            }
         }
 
         public NomsType tableType()
@@ -191,18 +200,18 @@ public class SchemaQuery
             NomsType rowType;
             Map<String, NomsType> fields;
 
-            switch (tableType.kind()) {
-                case List: case Map:
+            switch (tableStructure()) {
+                case RowMajor:
                     fields = rowMajorFields(tableType);
                     break;
-                case Struct:
+                case ColumnMajor:
                     // Column major. Columns are lists. Ignore other fields.
                     fields = tableType.fields().entrySet().stream().filter(
                             e -> e.getValue().kind() == NomsType.Kind.List
                     ).collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue()));
                     break;
                 default:
-                    throw new PrestoException(NOT_SUPPORTED, "unsupported table structure " + tableType);
+                    throw new AssertionError("unexpected table structure " + tableStructure());
             }
 
             return fields.entrySet().stream().map(e -> {
@@ -221,7 +230,7 @@ public class SchemaQuery
                 case List:
                     return type.arguments().get(0).fields();
                 case Map:
-                    return type.arguments().get(2).fields();
+                    return type.arguments().get(1).fields();
                 default:
                     throw new PrestoException(NOT_SUPPORTED,
                             "Unsupported table structure: " + type + ", must be List<Struct> | Map<Value, Struct>");
@@ -231,11 +240,6 @@ public class SchemaQuery
         public NgqlType resolve(NgqlType type)
         {
             return type.reference() ? types.get(type.name()) : type;
-        }
-
-        public Map<String, NgqlType> types()
-        {
-            return types;
         }
     }
 }

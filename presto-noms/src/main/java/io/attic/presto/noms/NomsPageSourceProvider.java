@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.attic.presto.noms.ngql;
+package io.attic.presto.noms;
 
 import com.facebook.presto.spi.ColumnHandle;
 import com.facebook.presto.spi.ConnectorPageSource;
@@ -19,9 +19,6 @@ import com.facebook.presto.spi.ConnectorSession;
 import com.facebook.presto.spi.ConnectorSplit;
 import com.facebook.presto.spi.connector.ConnectorPageSourceProvider;
 import com.facebook.presto.spi.connector.ConnectorTransactionHandle;
-import io.attic.presto.noms.NomsColumnHandle;
-import io.attic.presto.noms.NomsSession;
-import io.attic.presto.noms.NomsSplit;
 
 import javax.inject.Inject;
 

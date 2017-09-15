@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.attic.presto.noms.ngql;
+package io.attic.presto.noms;
 
 import com.facebook.presto.spi.ConnectorPageSource;
 import com.facebook.presto.spi.Page;
@@ -23,11 +23,14 @@ import com.facebook.presto.spi.type.BooleanType;
 import com.facebook.presto.spi.type.DoubleType;
 import com.facebook.presto.spi.type.Type;
 import com.facebook.presto.spi.type.VarcharType;
-import io.attic.presto.noms.NomsColumnHandle;
-import io.attic.presto.noms.NomsSession;
-import io.attic.presto.noms.NomsSplit;
+import io.attic.presto.noms.ngql.ColumnQuery;
+import io.attic.presto.noms.ngql.RowQuery;
+
+import javax.json.JsonObject;
+import javax.json.JsonValue;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 
 import static com.facebook.presto.spi.StandardErrorCode.NOT_SUPPORTED;
@@ -98,6 +101,18 @@ public class NomsPageSource
     @Override
     public Page getNextPage()
     {
+        switch (schema.tableStructure()) {
+            case ColumnMajor:
+                return getNextPageColumnMajor();
+            case RowMajor:
+                return getNextPageRowMajor();
+            default:
+                throw new AssertionError("Unexpected table structure: " + schema.tableStructure());
+        }
+    }
+
+    private Page getNextPageColumnMajor()
+    {
         PageBuilder pageBuilder = new PageBuilder(columnTypes);
         if (totalCount % batchSize != 0 || totalCount == totalLimit) {
             // last batch request exhausted rows
@@ -130,6 +145,48 @@ public class NomsPageSource
                         for (String s : result.columnOfStrings(col.getName())) {
                             type.writeSlice(builder, utf8Slice(s));
                         }
+                    }
+                    else {
+                        throw new PrestoException(NOT_SUPPORTED, "type:" + javaType);
+                    }
+                }
+                offset += batchSize;
+                totalCount += result.size();
+            }
+        }
+        return pageBuilder.build();
+    }
+
+    private Page getNextPageRowMajor()
+    {
+        PageBuilder pageBuilder = new PageBuilder(columnTypes);
+        if (totalCount % batchSize != 0 || totalCount == totalLimit) {
+            // last batch request exhausted rows
+            finished = true;
+        }
+        else {
+            long limit = Math.min(batchSize, totalLimit - totalCount);
+            RowQuery query = RowQuery.create(schema, columns, predicate, offset, limit);
+            RowQuery.Result result = session.execute(tableName, query);
+            finished = result.size() == 0;
+
+            Iterator<JsonValue> rows = result.rows();
+            while (rows.hasNext()) {
+                pageBuilder.declarePosition();
+                JsonObject row = rows.next().asJsonObject();
+                for (int i = 0; i < columns.size(); i++) {
+                    NomsColumnHandle col = columns.get(i);
+                    BlockBuilder builder = pageBuilder.getBlockBuilder(i);
+                    Type type = col.getType();
+                    Class<?> javaType = col.getType().getJavaType();
+                    if (type == BooleanType.BOOLEAN) {
+                        type.writeBoolean(builder, row.get(col.getName()) == JsonValue.TRUE);
+                    }
+                    else if (type == DoubleType.DOUBLE) {
+                        type.writeDouble(builder, row.getJsonNumber(col.getName()).doubleValue());
+                    }
+                    else if (type == VarcharType.VARCHAR) {
+                        type.writeSlice(builder, utf8Slice(row.getJsonString(col.getName()).getString()));
                     }
                     else {
                         throw new PrestoException(NOT_SUPPORTED, "type:" + javaType);

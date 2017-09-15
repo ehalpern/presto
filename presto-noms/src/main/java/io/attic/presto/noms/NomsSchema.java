@@ -11,19 +11,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.attic.presto.noms.ngql;
+package io.attic.presto.noms;
 
 import io.attic.presto.noms.NomsType;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
-import java.util.Map;
 
 public interface NomsSchema
 {
-    boolean isColumnMajor();
+    enum TableStructure {
+        RowMajor,
+        ColumnMajor
+    }
+
+    TableStructure tableStructure();
     NomsType tableType();
     String primaryKey();
     List<Pair<String, NomsType>> columns();
-    Map<String, NgqlType> types();
 }

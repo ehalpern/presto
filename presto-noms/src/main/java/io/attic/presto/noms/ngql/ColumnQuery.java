@@ -13,11 +13,10 @@
  */
 package io.attic.presto.noms.ngql;
 
-import com.facebook.presto.spi.predicate.Domain;
-import com.facebook.presto.spi.predicate.Marker;
-import com.facebook.presto.spi.predicate.Range;
 import com.facebook.presto.spi.predicate.TupleDomain;
 import io.attic.presto.noms.NomsColumnHandle;
+import io.attic.presto.noms.NomsQuery;
+import io.attic.presto.noms.NomsSchema;
 
 import javax.json.JsonArray;
 import javax.json.JsonException;
@@ -26,17 +25,14 @@ import javax.json.JsonObject;
 import javax.json.JsonString;
 import javax.json.JsonValue;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Verify.verify;
 import static com.google.common.base.Verify.verifyNotNull;
 
 public class ColumnQuery
-        extends NomsQuery<ColumnQuery.Result>
+        extends NgqlQuery<ColumnQuery.Result>
 {
     public static ColumnQuery create(
             NomsSchema schema,
@@ -59,10 +55,7 @@ public class ColumnQuery
             long limit)
     {
         this.params = paramsFromPredicate(schema, columns, predicate, offset, limit);
-        Map<String, NgqlType> fields = columns.stream().collect(Collectors.toMap(
-                c -> c.getName(),
-                c -> ngqlType(schema, c)));
-        this.query = buildQuery(params, fields);
+        this.query = buildQuery(params, columns);
     }
 
     protected String query()
@@ -75,85 +68,6 @@ public class ColumnQuery
         return new Result(json);
     }
 
-    /**
-     * Build parameter list from query predicate.
-     * <p>
-     * Specifically, if there are constraints on the primary key column:
-     * - If only exact key values are specified, use (keys: [values]) to select only those rows.
-     * - If one or more non-exact key bounds (> or <) are specified, determine the range that spans
-     * the full set and use (key: start, through: end) to query that range. Note that the range
-     * query result will include rows corresponding to the low and high bounds if they exist, even
-     * if they are not required in the range. For example, a query for keys in the range 10 < k <= 100
-     * will include row 10 if it exists.
-     */
-    private static List<String> paramsFromPredicate(NomsSchema schema, List<NomsColumnHandle> columns, TupleDomain<NomsColumnHandle> predicate, long offset, long limit)
-    {
-        List<String> params = new ArrayList<>();
-        if (offset > 0) {
-            params.add("at:" + offset);
-        }
-        if (limit > 0) {
-            params.add("count:" + limit);
-        }
-        if (predicate.isAll() || schema.primaryKey() == null) {
-            return params;
-        }
-        else {
-            String pk = schema.primaryKey();
-            return columns.stream().filter(c -> c.getName().equals(pk)).map(c -> {
-                Domain constraints = predicate.getDomains().get().get(c);
-                return exactValues(constraints).map(values -> {
-                    params.add("keys: " + values);
-                    return params;
-                }).orElseGet(() ->
-                        keyBounds(constraints).map(bounds -> {
-                            if (bounds.getLow().getValueBlock().isPresent()) {
-                                params.add("key: " + bounds.getLow().getValue());
-                            }
-                            if (bounds.getHigh().getValueBlock().isPresent()) {
-                                params.add("through: " + bounds.getHigh().getValue());
-                            }
-                            return params;
-                        }).get());
-            }).findFirst().get();
-        }
-    }
-
-    private static Optional<List<Object>> exactValues(Domain domain)
-    {
-        List<Object> values = new ArrayList<>();
-        for (Range r : domain.getValues().getRanges().getOrderedRanges()) {
-            if (r.getLow().getBound() != Marker.Bound.EXACTLY) {
-                return Optional.empty();
-            }
-            values.add(r.getLow().getValue());
-        }
-        return Optional.of(values);
-    }
-
-    private static Optional<Range> keyBounds(Domain domain)
-    {
-        Range range = null;
-        for (Range r : domain.getValues().getRanges().getOrderedRanges()) {
-            if (range == null) {
-                range = r;
-            }
-            else {
-                range = range.span(r);
-            }
-        }
-        return Optional.ofNullable(range);
-    }
-
-    private static NgqlType ngqlType(NomsSchema schema, NomsColumnHandle column)
-    {
-        String name = column.getNomsType().name();
-        if (name.equals("Number")) {
-            name = "Float";
-        }
-        return verifyNotNull(schema.types().get(name), "NgqlType " + name + " not found");
-    }
-
     // {
     //   root {
     //     value {
@@ -164,18 +78,18 @@ public class ColumnQuery
     //     }
     // }
     //
-    private static String buildQuery(List<String> params, Map<String, NgqlType> fields)
+    private static String buildQuery(List<String> params, List<NomsColumnHandle> columns)
     {
         String paramList = params.isEmpty() ?
                 "" : String.format("(%s)", String.join(",", params));
-        List<String> fieldList = fields.keySet().stream().map(
-                f -> String.format("%s { size, values%s }", f, paramList)
+        List<String> fieldList = columns.stream().map(
+                c -> String.format("%s { size, values%s }", c.getName(), paramList)
         ).collect(Collectors.toList());
 
         String query =
                 "{ root { value {\n" +
-                        "  " + String.join("\n  ", fieldList) + "\n" +
-                        "}}}";
+                "  " + String.join("\n  ", fieldList) + "\n" +
+                "}}}";
         return query;
     }
 

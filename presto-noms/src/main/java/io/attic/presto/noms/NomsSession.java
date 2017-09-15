@@ -18,8 +18,6 @@ import com.facebook.presto.spi.SchemaTableName;
 import com.facebook.presto.spi.TableNotFoundException;
 import com.google.common.collect.ImmutableList;
 import io.airlift.log.Logger;
-import io.attic.presto.noms.ngql.NomsQuery;
-import io.attic.presto.noms.ngql.NomsSchema;
 import io.attic.presto.noms.ngql.SchemaQuery;
 import io.attic.presto.noms.util.NomsRunner;
 import org.apache.commons.lang3.tuple.Pair;

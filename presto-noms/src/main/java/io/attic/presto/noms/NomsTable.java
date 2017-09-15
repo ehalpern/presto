@@ -14,7 +14,6 @@
 package io.attic.presto.noms;
 
 import com.google.common.collect.ImmutableList;
-import io.attic.presto.noms.ngql.NomsSchema;
 
 import java.net.URI;
 import java.util.List;
