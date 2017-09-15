@@ -25,16 +25,14 @@ public class NomsTable
 {
     private final NomsTableHandle tableHandle;
     private final NomsSchema schema;
-    private final NomsType tableType;
 
     private final List<NomsColumnHandle> columns;
     private final URI source;
 
-    public NomsTable(NomsTableHandle tableHandle, NomsSchema schema, NomsType tableType, List<NomsColumnHandle> columns, URI source)
+    public NomsTable(NomsTableHandle tableHandle, NomsSchema schema, List<NomsColumnHandle> columns, URI source)
     {
         this.tableHandle = tableHandle;
         this.schema = schema;
-        this.tableType = tableType;
         this.columns = ImmutableList.copyOf(columns);
         this.source = source;
     }
@@ -52,11 +50,6 @@ public class NomsTable
     public NomsSchema schema()
     {
         return schema;
-    }
-
-    public NomsType tableType()
-    {
-        return tableType;
     }
 
     public URI source()

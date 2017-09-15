@@ -14,6 +14,7 @@
 package io.attic.presto.noms.ngql;
 
 import io.attic.presto.noms.NomsTable;
+import io.attic.presto.noms.NomsType;
 
 import javax.json.JsonException;
 import javax.json.JsonNumber;
@@ -32,23 +33,31 @@ public class SizeQuery
     }
 
     private final String query;
+    private final String sizePath;
 
     private SizeQuery(NomsTable table)
     {
-        switch (table.tableType().kind()) {
+        NomsSchema schema = table.schema();
+        NomsType.Kind kind = schema.tableType().kind();
+        switch (kind) {
             case Set:
             case List:
             case Map:
-                query = "{\n" +
-                        "  root {\n" +
-                        "    value {\n" +
-                        "      size\n" +
-                        "    }\n" +
-                        "  }\n" +
-                        "}";
+                query = "{ root {\n" +
+                        "    value { size }\n" +
+                        "}}";
+                sizePath = "root/value/size";
                 break;
+            case Struct:
+                String col = schema.columns().get(0).getKey();
+                query = "{ root { value {\n" +
+                        "  " + col + "{ size } }\n" +
+                        "}}}";
+                sizePath = "root/value/" + col + "/size";
+                break;
+
             default:
-                throw new IllegalStateException("Type " + table.tableType().kind() + " not implemented");
+                throw new IllegalStateException("Type " + kind + " not implemented");
         }
     }
 
@@ -59,7 +68,7 @@ public class SizeQuery
 
     protected SizeQuery.Result parseResult(JsonObject json)
     {
-        return new Result(json);
+        return new Result(json, sizePath);
     }
 
     public Result execute(URI nomsURI, String dataset)
@@ -79,9 +88,9 @@ public class SizeQuery
     {
         private long size;
 
-        private Result(JsonObject json)
+        private Result(JsonObject json, String sizePath)
         {
-            String fullPath = "/data/root/value/size";
+            String fullPath = "/data/" + sizePath;
             JsonValue value;
             try {
                 value = json.getValue(fullPath);

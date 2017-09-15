@@ -42,11 +42,25 @@ public class TestDistributedQueries
         ((NomsQueryRunner) getQueryRunner()).closeServer();
     }
 
-    @Test
     public void testSimpleSelect()
     {
         assertQuery(
                 "SELECT typestring, typebool, typedouble from types",
+                new Object[][] {
+                        {"string0", false, 1000},
+                        {"string1", true, 1001},
+                        {"string2", false, 1002},
+                        {"string3", true, 1003},
+                        {"string4", false, 1004},
+                        {"string5", true, 1005}
+                });
+    }
+
+    @Test(enabled = false)
+    public void testSimpleSelectRowMajor()
+    {
+        assertQuery(
+                "SELECT typestring, typebool, typedouble from types_rm",
                 new Object[][] {
                         {"string0", false, 1000},
                         {"string1", true, 1001},

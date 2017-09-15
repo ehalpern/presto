@@ -15,6 +15,7 @@ package io.attic.presto.noms;
 
 import com.facebook.presto.spi.ColumnHandle;
 import com.facebook.presto.spi.ColumnMetadata;
+import com.facebook.presto.spi.ConnectorPageSource;
 import com.facebook.presto.spi.ConnectorSplit;
 import com.facebook.presto.spi.ConnectorSplitSource;
 import com.facebook.presto.spi.ConnectorTableHandle;
@@ -22,12 +23,14 @@ import com.facebook.presto.spi.ConnectorTableLayoutHandle;
 import com.facebook.presto.spi.ConnectorTableLayoutResult;
 import com.facebook.presto.spi.ConnectorTableMetadata;
 import com.facebook.presto.spi.Constraint;
+import com.facebook.presto.spi.Page;
 import com.facebook.presto.spi.RecordCursor;
 import com.facebook.presto.spi.SchemaNotFoundException;
 import com.facebook.presto.spi.SchemaTableName;
 import com.facebook.presto.spi.SchemaTablePrefix;
-import com.facebook.presto.spi.connector.Connector;
+import com.facebook.presto.spi.block.Block;
 import com.facebook.presto.spi.connector.ConnectorMetadata;
+import com.facebook.presto.spi.connector.ConnectorPageSourceProvider;
 import com.facebook.presto.spi.connector.ConnectorRecordSetProvider;
 import com.facebook.presto.spi.connector.ConnectorSplitManager;
 import com.facebook.presto.spi.connector.ConnectorTransactionHandle;
@@ -71,12 +74,14 @@ public class TestNomsConnector
     protected static final String INVALID_DATABASE = "totally_invalid_database";
     private static final Date DATE = new Date();
     protected String database;
+    protected SchemaTableName tableRowMajor;
     protected SchemaTableName table;
     protected SchemaTableName tableUnpartitioned;
     protected SchemaTableName invalidTable;
     private ConnectorMetadata metadata;
     private ConnectorSplitManager splitManager;
     private ConnectorRecordSetProvider recordSetProvider;
+    private ConnectorPageSourceProvider pageSourceProvider;
     private NomsServer server;
 
     @BeforeClass
@@ -90,7 +95,7 @@ public class TestNomsConnector
         String connectorId = "noms-test";
         NomsConnectorFactory connectorFactory = new NomsConnectorFactory(connectorId);
 
-        Connector connector = connectorFactory.create(connectorId, ImmutableMap.of(
+        NomsConnector connector = (NomsConnector) connectorFactory.create(connectorId, ImmutableMap.of(
                 "noms.uri", server.uri().toString(),
                 "noms.database", database,
                 "noms.batch-size", "3"),
@@ -102,10 +107,15 @@ public class TestNomsConnector
         splitManager = connector.getSplitManager();
         assertInstanceOf(splitManager, NomsSplitManager.class);
 
-        recordSetProvider = connector.getRecordSetProvider();
+        recordSetProvider = connector.recordSetProvider();
         assertInstanceOf(recordSetProvider, NomsRecordSetProvider.class);
 
+        pageSourceProvider = connector.pageSourceProvider();
+        assertInstanceOf(recordSetProvider, NomsRecordSetProvider.class);
+
+        tableRowMajor = new SchemaTableName(database, "types_rm");
         table = new SchemaTableName(database, "types");
+
         tableUnpartitioned = new SchemaTableName(database, "presto_test_unpartitioned");
         invalidTable = new SchemaTableName(database, "totally_invalid_table_name");
     }
@@ -150,17 +160,16 @@ public class TestNomsConnector
     }
 
     @Test
-    public void testGetRecords()
+    public void testGetRecordsRowMajor()
             throws Exception
     {
-        ConnectorTableHandle tableHandle = getTableHandle(table);
+        ConnectorTableHandle tableHandle = getTableHandle(tableRowMajor);
+
         ConnectorTableMetadata tableMetadata = metadata.getTableMetadata(SESSION, tableHandle);
         List<ColumnHandle> columnHandles = ImmutableList.copyOf(metadata.getColumnHandles(SESSION, tableHandle).values());
         Map<String, Integer> columnIndex = indexColumns(columnHandles);
 
         ConnectorTransactionHandle transaction = NomsTransactionHandle.INSTANCE;
-
-        //TupleDomain.fromFixedValues();
 
         List<ConnectorTableLayoutResult> layouts = metadata.getTableLayouts(SESSION, tableHandle, Constraint.alwaysTrue(), Optional.empty());
         ConnectorTableLayoutHandle layout = getOnlyElement(layouts).getTableLayout().getHandle();
@@ -199,6 +208,53 @@ public class TestNomsConnector
             }
         }
         assertEquals(rowNumber, 6);
+    }
+
+    @Test
+    public void testGetRecordsColumnMajor()
+            throws Exception
+    {
+        ConnectorTableHandle table = getTableHandle(this.table);
+
+        ConnectorTableMetadata metadata = this.metadata.getTableMetadata(SESSION, table);
+        List<ColumnHandle> columns = ImmutableList.copyOf(this.metadata.getColumnHandles(SESSION, table).values());
+        Map<String, Integer> columnIndex = indexColumns(columns);
+        ConnectorTransactionHandle tx = NomsTransactionHandle.INSTANCE;
+        List<ConnectorTableLayoutResult> layouts = this.metadata.getTableLayouts(SESSION, table, Constraint.alwaysTrue(), Optional.empty());
+        ConnectorTableLayoutHandle layout = getOnlyElement(layouts).getTableLayout().getHandle();
+        List<ConnectorSplit> splits = getAllSplits(splitManager.getSplits(tx, SESSION, layout));
+
+        long rowNumber = 0;
+        for (ConnectorSplit split : splits) {
+            long completedBytes = 0;
+            try (ConnectorPageSource pageSource =
+                    pageSourceProvider.createPageSource(tx, SESSION, split, columns)) {
+                while (!pageSource.isFinished()) {
+                    Page page = pageSource.getNextPage();
+                    //assertPageFields(page, tableMetadata.getColumns());
+                    int channelCount = page.getChannelCount();
+                    int positionCount = page.getPositionCount();
+                    Block[] blocks = page.getBlocks();
+                    int size = blocks.length;
+                    /*
+                    String keyValue = cursor.getSlice(columnIndex.get("typestring")).toStringUtf8();
+                    assertTrue(keyValue.startsWith("string"));
+                    int rowId = Integer.parseInt(keyValue.substring(6));
+
+                    assertEquals(keyValue, String.format("string%d", rowId));
+
+                    assertEquals(cursor.getDouble(columnIndex.get("typedouble")), 1000.0 + rowId);
+
+                    assertEquals(cursor.getBoolean(columnIndex.get("typebool")), rowId % 2 == 1, "rowId:" + rowId);
+
+                    long newCompletedBytes = cursor.getCompletedBytes();
+                    assertTrue(newCompletedBytes >= completedBytes);
+                    completedBytes = newCompletedBytes;
+                    */
+                }
+            }
+        }
+        //assertEquals(rowNumber, 6);
     }
 
     private static void assertReadFields(RecordCursor cursor, List<ColumnMetadata> schema)

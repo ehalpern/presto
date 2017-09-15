@@ -13,7 +13,6 @@
  */
 package io.attic.presto.noms;
 
-import com.facebook.presto.spi.PrestoException;
 import com.facebook.presto.spi.SchemaNotFoundException;
 import com.facebook.presto.spi.SchemaTableName;
 import com.facebook.presto.spi.TableNotFoundException;
@@ -23,13 +22,12 @@ import io.attic.presto.noms.ngql.NomsQuery;
 import io.attic.presto.noms.ngql.NomsSchema;
 import io.attic.presto.noms.ngql.SchemaQuery;
 import io.attic.presto.noms.util.NomsRunner;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
-import java.util.Map;
 
-import static com.facebook.presto.spi.StandardErrorCode.NOT_SUPPORTED;
 import static java.util.Objects.requireNonNull;
 
 public class NomsSession
@@ -76,41 +74,18 @@ public class NomsSession
         ImmutableList.Builder<NomsColumnHandle> columnHandles = ImmutableList.builder();
 
         NomsSchema schema = querySchema(schemaTableName.getTableName());
-        NomsType tableType = schema.tableType();
-        NomsType rowType;
-        switch (tableType.kind()) {
-            case List: case Set:
-                rowType = tableType.arguments().get(0);
-                break;
-            case Map:
-                rowType = tableType.arguments().get(1);
-                break;
-            default:
-                rowType = tableType;
-                break;
-        }
-        switch (rowType.kind()) {
-            case Blob: case Boolean: case Number: case String:
-                columnHandles.add(new NomsColumnHandle(connectorId, "value", 0, tableType, false));
-                break;
-            case Struct:
-                int pos = 0;
-                for (Map.Entry<String, NomsType> e : rowType.fields().entrySet()) {
-                    columnHandles.add(new NomsColumnHandle(connectorId, e.getKey(), pos++, e.getValue(), false));
-                }
-                break;
-            default:
-                throw new PrestoException(NOT_SUPPORTED, "row type " + rowType + " non supported");
+        int i = 0;
+        for (Pair<String, NomsType> p : schema.columns()) {
+            columnHandles.add(new NomsColumnHandle(connectorId, p.getKey(), i++, p.getValue(), false));
         }
         return new NomsTable(
                 new NomsTableHandle(connectorId, config.getDatabase(), schemaTableName.getTableName()),
                 schema,
-                tableType,
                 columnHandles.build(),
                 nomsURI);
     }
 
-    private NomsSchema querySchema(String table)
+    public NomsSchema querySchema(String table)
     {
         return execute(table, SchemaQuery.create());
     }

@@ -13,14 +13,20 @@
  */
 package io.attic.presto.noms.ngql;
 
+import com.facebook.presto.spi.PrestoException;
 import io.attic.presto.noms.NomsType;
+import org.apache.commons.lang3.tuple.Pair;
 
 import javax.json.JsonException;
 import javax.json.JsonObject;
 import javax.json.JsonValue;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import static com.facebook.presto.spi.StandardErrorCode.NOT_SUPPORTED;
 
 public class SchemaQuery
         extends NomsQuery<SchemaQuery.Result>
@@ -164,6 +170,11 @@ public class SchemaQuery
             primaryKey = meta.getString("primaryKey", null);
         }
 
+        public boolean isColumnMajor()
+        {
+            return tableType().kind() == NomsType.Kind.Struct;
+        }
+
         public NomsType tableType()
         {
             return NgqlType.nomsType(lastCommitValueType, this);
@@ -172,6 +183,49 @@ public class SchemaQuery
         public String primaryKey()
         {
             return primaryKey;
+        }
+
+        public List<Pair<String, NomsType>> columns()
+        {
+            NomsType tableType = tableType();
+            NomsType rowType;
+            Map<String, NomsType> fields;
+
+            switch (tableType.kind()) {
+                case List: case Map:
+                    fields = rowMajorFields(tableType);
+                    break;
+                case Struct:
+                    // Column major. Columns are lists. Ignore other fields.
+                    fields = tableType.fields().entrySet().stream().filter(
+                            e -> e.getValue().kind() == NomsType.Kind.List
+                    ).collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue()));
+                    break;
+                default:
+                    throw new PrestoException(NOT_SUPPORTED, "unsupported table structure " + tableType);
+            }
+
+            return fields.entrySet().stream().map(e -> {
+                switch (e.getValue().kind()) {
+                    case List:
+                        return Pair.of(e.getKey(), e.getValue().arguments().get(0));
+                    default:
+                        return Pair.of(e.getKey(), e.getValue());
+                }
+            }).collect(Collectors.toList());
+        }
+
+        private Map<String, NomsType> rowMajorFields(NomsType type)
+        {
+            switch (type.kind()) {
+                case List:
+                    return type.arguments().get(0).fields();
+                case Map:
+                    return type.arguments().get(2).fields();
+                default:
+                    throw new PrestoException(NOT_SUPPORTED,
+                            "Unsupported table structure: " + type + ", must be List<Struct> | Map<Value, Struct>");
+            }
         }
 
         public NgqlType resolve(NgqlType type)

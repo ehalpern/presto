@@ -17,17 +17,16 @@ import com.facebook.presto.spi.predicate.Domain;
 import com.facebook.presto.spi.predicate.Marker;
 import com.facebook.presto.spi.predicate.Range;
 import com.facebook.presto.spi.predicate.TupleDomain;
-import com.google.common.base.Strings;
 import io.attic.presto.noms.NomsColumnHandle;
-import io.attic.presto.noms.NomsTable;
-import io.attic.presto.noms.NomsType;
 
+import javax.json.JsonArray;
 import javax.json.JsonException;
+import javax.json.JsonNumber;
 import javax.json.JsonObject;
+import javax.json.JsonString;
 import javax.json.JsonValue;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -36,37 +35,34 @@ import java.util.stream.Collectors;
 import static com.google.common.base.Verify.verify;
 import static com.google.common.base.Verify.verifyNotNull;
 
-public class RowQuery
-        extends NomsQuery<RowQuery.Result>
+public class ColumnQuery
+        extends NomsQuery<ColumnQuery.Result>
 {
-    public static RowQuery create(
-            NomsTable table,
+    public static ColumnQuery create(
+            NomsSchema schema,
             List<NomsColumnHandle> columns,
             TupleDomain<NomsColumnHandle> predicate,
             long offset,
             long limit)
     {
-        return new RowQuery(table, columns, predicate, offset, limit);
+        return new ColumnQuery(schema, columns, predicate, offset, limit);
     }
 
     private final String query;
     private final List<String> params;
-    private final List<String> pathToTable;
 
-    private RowQuery(
-            NomsTable table,
+    private ColumnQuery(
+            NomsSchema schema,
             List<NomsColumnHandle> columns,
             TupleDomain<NomsColumnHandle> predicate,
             long offset,
             long limit)
     {
-        List<String> path = pathToTable(table.schema().tableType());
-        this.params = paramsFromPredicate(table.schema(), columns, predicate, offset, limit);
+        this.params = paramsFromPredicate(schema, columns, predicate, offset, limit);
         Map<String, NgqlType> fields = columns.stream().collect(Collectors.toMap(
                 c -> c.getName(),
-                c -> ngqlType(table, c)));
-        this.query = "{\n" + buildQuery(path, params, fields, 1) + "}\n";
-        this.pathToTable = path;
+                c -> ngqlType(schema, c)));
+        this.query = buildQuery(params, fields);
     }
 
     protected String query()
@@ -74,9 +70,9 @@ public class RowQuery
         return query;
     }
 
-    protected RowQuery.Result parseResult(JsonObject json)
+    protected ColumnQuery.Result parseResult(JsonObject json)
     {
-        return new Result(json, pathToTable);
+        return new Result(json);
     }
 
     /**
@@ -149,78 +145,38 @@ public class RowQuery
         return Optional.ofNullable(range);
     }
 
-    private static NgqlType ngqlType(NomsTable table, NomsColumnHandle column)
+    private static NgqlType ngqlType(NomsSchema schema, NomsColumnHandle column)
     {
         String name = column.getNomsType().name();
         if (name.equals("Number")) {
             name = "Float";
         }
-        return verifyNotNull(table.schema().types().get(name), "NgqlType " + name + " not found");
+        return verifyNotNull(schema.types().get(name), "NgqlType " + name + " not found");
     }
 
-    private static List<String> pathToTable(NomsType tableType)
+    // {
+    //   root {
+    //     value {
+    //       col0 { size, values(at:$offset, count: $count) }
+    //       col1 { size, values(at:$offset, count: $count) }
+    //       ...
+    //       coln { size, values(at:$offset, count: $count) }
+    //     }
+    // }
+    //
+    private static String buildQuery(List<String> params, Map<String, NgqlType> fields)
     {
-        List<String> path = new ArrayList<>();
-        path.add("root");
-        path.add("value");
-        switch (tableType.kind()) {
-            case Set:
-            case List:
-            case Map:
-                path.add("values");
-                break;
-            default:
-                throw new IllegalStateException("Table type " + tableType.kind() + " not implemented");
-        }
-        return path;
-    }
+        String paramList = params.isEmpty() ?
+                "" : String.format("(%s)", String.join(",", params));
+        List<String> fieldList = fields.keySet().stream().map(
+                f -> String.format("%s { size, values%s }", f, paramList)
+        ).collect(Collectors.toList());
 
-    private static String buildQuery(List<String> path, List<String> params, Map<String, NgqlType> fields, int indent)
-    {
-        verify(path.size() > 0);
-        String tabs = Strings.repeat("\t", indent);
-        StringBuilder b = new StringBuilder(tabs + path.get(0));
-        String nested;
-        if (path.size() > 1) {
-            nested = buildQuery(path.subList(1, path.size()), params, fields, indent + 1);
-        }
-        else {
-            if (params.size() > 0) {
-                b.append("(" + String.join(",", params) + ")");
-            }
-            nested = buildFieldQuery(fields, indent + 1);
-        }
-        if (nested.length() > 0) {
-            b.append(" {\n" + nested + tabs + "}");
-        }
-        return b.append("\n").toString();
-    }
-
-    private static String buildFieldQuery(Map<String, NgqlType> fields, int indent)
-    {
-        String tabs = Strings.repeat("\t", indent);
-        StringBuilder b = new StringBuilder();
-        for (String field : fields.keySet()) {
-            b.append(tabs + field);
-            NgqlType type = fields.get(field);
-            switch (type.kind()) {
-                case SCALAR:
-                case ENUM:
-                    break;
-                case OBJECT:
-                    String nested = buildFieldQuery(type.fields(), indent + 1);
-                    if (nested.length() > 0) {
-                        b.append(" {\n" + nested + indent + "}");
-                    }
-                    break;
-                case LIST:
-                case NON_NULL:
-                case UNION:
-                    throw new AssertionError("kind " + type.kind() + " not implemented");
-            }
-            b.append("\n");
-        }
-        return b.toString();
+        String query =
+                "{ root { value {\n" +
+                        "  " + String.join("\n  ", fieldList) + "\n" +
+                        "}}}";
+        return query;
     }
 
     @Override
@@ -232,36 +188,74 @@ public class RowQuery
     public static class Result
             implements NomsQuery.Result
     {
-        private final JsonValue valueAtPath;
+        private final JsonObject columns;
+        private final long totalSize;
+        private int size;
 
-        private Result(JsonObject json, List<String> path)
+        private Result(JsonObject json)
         {
-            String fullPath = "/data/" + String.join("/", path);
+            String path = "/data/root/value";
             JsonValue value;
             try {
-                value = json.getValue(fullPath);
+                value = json.getValue(path);
             }
             catch (JsonException e) {
-                value = JsonValue.EMPTY_JSON_ARRAY;
+                value = JsonValue.EMPTY_JSON_OBJECT;
             }
-            verify(value.getValueType() == JsonValue.ValueType.ARRAY,
-                    "value at %s in not an array");
-            this.valueAtPath = value;
+            verify(value.getValueType() == JsonValue.ValueType.OBJECT,
+                    "commit value at %s in not an object");
+            this.columns = value.asJsonObject();
+            JsonObject firstColumn = this.columns.values().stream().findFirst().orElse(JsonValue.EMPTY_JSON_OBJECT).asJsonObject();
+            totalSize = firstColumn.getInt("size", 0);
+            size = firstColumn.getJsonArray("values").size();
         }
 
         public int size()
         {
-            return valueAtPath.asJsonArray().size();
+            return size;
         }
 
-        /*package*/ Iterator<JsonValue> rows()
+        public long totalSize()
         {
-            return valueAtPath.asJsonArray().iterator();
+            return totalSize;
+        }
+
+        public String[] columnOfStrings(String column)
+        {
+            JsonArray array = columnArray(column);
+            return array.stream().map(v -> ((JsonString) v).getString()).toArray(String[]::new);
+        }
+
+        public boolean[] columnOfBooleans(String column)
+        {
+            JsonArray array = columnArray(column);
+            boolean[] result = new boolean[array.size()];
+            int i = 0;
+            for (JsonValue v : array) {
+                result[i++] = v == JsonValue.TRUE;
+            }
+            return result;
+        }
+
+        public double[] columnOfDoubles(String column)
+        {
+            JsonArray array = columnArray(column);
+            return array.stream().mapToDouble(v -> ((JsonNumber) v).doubleValue()).toArray();
         }
 
         public String toString()
         {
-            return valueAtPath.toString();
+            return columns.toString();
+        }
+
+        private JsonArray columnArray(String name)
+        {
+            JsonObject o = verifyNotNull(columns.getJsonObject(name), "column %s no present", name);
+            JsonArray array = o.getJsonArray("values");
+            // lazily initialize size;
+            verify(size == 0 || size == array.size());
+            size = array.size();
+            return array;
         }
     }
 }

@@ -34,7 +34,7 @@ public class NomsRunner
 
     public static void deleteDS(String dsSpec)
     {
-        String result = exec(builder()
+        exec(builder()
                 .add(NOMS_BINARY)
                 .add("ds")
                 .add("-d")
@@ -50,8 +50,18 @@ public class NomsRunner
                 .add(dsSpec).build(), false);
     }
 
+    public static void invert(String srcDsSpec, String destDsSpec, String... options)
+    {
+        exec(builder()
+                .add(CSV_INVERT_BINARY)
+                .add(options)
+                .add(srcDsSpec)
+                .add(destDsSpec).build(), false);
+    }
+
     /*package*/ static final String NOMS_BINARY;
     /*package*/ static final String CSV_IMPORT_BINARY;
+    /*package*/ static final String CSV_INVERT_BINARY;
 
     private NomsRunner() {}
 
@@ -62,6 +72,7 @@ public class NomsRunner
         }
         NOMS_BINARY = goPath + "/bin/noms";
         CSV_IMPORT_BINARY = goPath + "/bin/csv-import";
+        CSV_INVERT_BINARY = goPath + "/bin/csv-invert";
     }
 
     private static String exec(List<String> command, boolean ignoreErrors)

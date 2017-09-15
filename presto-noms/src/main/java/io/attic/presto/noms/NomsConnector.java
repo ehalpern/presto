@@ -15,12 +15,14 @@ package io.attic.presto.noms;
 
 import com.facebook.presto.spi.connector.Connector;
 import com.facebook.presto.spi.connector.ConnectorMetadata;
+import com.facebook.presto.spi.connector.ConnectorPageSourceProvider;
 import com.facebook.presto.spi.connector.ConnectorRecordSetProvider;
 import com.facebook.presto.spi.connector.ConnectorSplitManager;
 import com.facebook.presto.spi.connector.ConnectorTransactionHandle;
 import com.facebook.presto.spi.transaction.IsolationLevel;
 import io.airlift.bootstrap.LifeCycleManager;
 import io.airlift.log.Logger;
+import io.attic.presto.noms.ngql.NomsPageSourceProvider;
 import io.attic.presto.noms.ngql.NomsRecordSetProvider;
 
 import javax.inject.Inject;
@@ -38,18 +40,21 @@ public class NomsConnector
     private final NomsMetadata metadata;
     private final NomsSplitManager splitManager;
     private final ConnectorRecordSetProvider recordSetProvider;
+    private final ConnectorPageSourceProvider pageSourceProvider;
 
     @Inject
     public NomsConnector(
             LifeCycleManager lifeCycleManager,
             NomsMetadata metadata,
             NomsSplitManager splitManager,
-            NomsRecordSetProvider recordSetProvider)
+            NomsRecordSetProvider recordSetProvider,
+            NomsPageSourceProvider pageSourceProvider)
     {
         this.lifeCycleManager = requireNonNull(lifeCycleManager, "lifeCycleManager is null");
         this.metadata = requireNonNull(metadata, "metadata is null");
         this.splitManager = requireNonNull(splitManager, "splitManager is null");
         this.recordSetProvider = requireNonNull(recordSetProvider, "recordSetProvider is null");
+        this.pageSourceProvider = requireNonNull(pageSourceProvider, "pageSourceProvider is null");
     }
 
     @Override
@@ -77,10 +82,28 @@ public class NomsConnector
         return splitManager;
     }
 
+    /*
     @Override
     public ConnectorRecordSetProvider getRecordSetProvider()
     {
+        return recordSetProvider();
+    }
+    */
+
+    /*package*/ ConnectorRecordSetProvider recordSetProvider()
+    {
         return recordSetProvider;
+    }
+
+    @Override
+    public ConnectorPageSourceProvider getPageSourceProvider()
+    {
+        return pageSourceProvider();
+    }
+
+    /*package*/ ConnectorPageSourceProvider pageSourceProvider()
+    {
+        return pageSourceProvider;
     }
 
     @Override

@@ -14,12 +14,16 @@
 package io.attic.presto.noms.ngql;
 
 import io.attic.presto.noms.NomsType;
+import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.List;
 import java.util.Map;
 
 public interface NomsSchema
 {
+    boolean isColumnMajor();
     NomsType tableType();
     String primaryKey();
+    List<Pair<String, NomsType>> columns();
     Map<String, NgqlType> types();
 }
