@@ -3,16 +3,19 @@
 DB_DIR=/tmp/presto-noms
 
 import() {
-    pk=$2
-    types=$3
-    db=$4
-    ds=$5
+    pk=$1
+    types=$2
+    db=$3
+    ds=$4
     dbpath=${DB_DIR}/${db}
     dsspec=nbs:${dbpath}::${ds}
     mkdir -p ${dbpath}
-    echo csv-import --lowercase --column-types="${types}" --dest-type="map:$pk" --meta primaryKey="$pk" ${ds}.csv ${dsspec}
-    csv-import --lowercase --column-types="${types}" --dest-type=list ${ds}.csv ${dsspec}
-    csv-import --lowercase --column-types="${types}" --dest-type="map:$pk" --meta primaryKey="$pk" ${ds}.csv ${dsspec}-map
+    (set -x; csv-import --lowercase --column-types="${types}" --dest-type=list ${ds}.csv ${dsspec})
+
+    if [ "$pk" != "" ]
+    then
+        (set -x; csv-import --lowercase --column-types="${types}" --dest-type="map:$pk" --meta primaryKey="$pk" ${ds}.csv ${dsspec}-map)
+    fi
 }
 
 rm -fr ${DB_DIR}/*
@@ -22,3 +25,7 @@ import partkey $lineitem_types example lineitem
 
 orders_types="Number,Number,String,Number,String,String,String,Number,String"
 import orderkey $orders_types example orders
+
+trips_types="String,String,String,String,String,String,String,String,String,String,String,String,String,String,String,String,String"
+import "" $trips_types test trips10k
+import "" $trips_types test trips1m
