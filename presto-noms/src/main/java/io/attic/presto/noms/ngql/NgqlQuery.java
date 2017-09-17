@@ -34,17 +34,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.google.common.base.Verify.verifyNotNull;
-
-public abstract class NgqlQuery<R extends NomsQuery.Result> implements NomsQuery<R>
+public abstract class NgqlQuery<R extends NomsQuery.Result>
+        implements NomsQuery<R>
 {
     protected abstract String query();
+
     protected abstract R parseResult(JsonObject json);
 
     public R execute(URI nomsURI, String dataset)
             throws IOException
     {
-        // TODO: replace with async IO
+        // TODO: Consider making async
         Content resp = Request.Post(nomsURI.toString() + "/graphql/").bodyForm(Form.form()
                 .add("ds", dataset)
                 .add("query", query())

@@ -81,16 +81,18 @@ public class ColumnQuery
     //
     private static String buildQuery(List<String> params, NomsSchema schema, List<NomsColumnHandle> columns)
     {
+        String paramList = params.isEmpty() ?
+                "" : String.format("(%s)", String.join(",", params));
         List<String> fieldList;
 
         if (columns.isEmpty()) {
             verify(schema.columns().size() > 0, "schema must have at least one column");
-            String dummyField = schema.columns().get(0).getKey();
-            fieldList = ImmutableList.of(String.format("%s { size }", dummyField));
+            String dummy = schema.columns().get(0).getKey();
+            fieldList = ImmutableList.of(params.isEmpty() ?
+                    String.format("%s { size }", dummy) :
+                    String.format("%s { size, values%s }", dummy, paramList));
         }
         else {
-            String paramList = params.isEmpty() ?
-                    "" : String.format("(%s)", String.join(",", params));
             fieldList = columns.stream().map(
                     c -> String.format("%s { size, values%s }", c.getName(), paramList)
             ).collect(Collectors.toList());

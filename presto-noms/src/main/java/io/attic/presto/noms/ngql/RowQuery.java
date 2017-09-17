@@ -75,9 +75,9 @@ public class RowQuery
                 "  size\n");
         if (fields.size() > 0) {
             b.append(
-                "  values" + paramList + "{\n" +
-                "    " + String.join("\n    ", fields) + "\n" +
-                "  }\n");
+                    "  values" + paramList + "{\n" +
+                    "    " + String.join("\n    ", fields) + "\n" +
+                    "  }\n");
         }
         b.append(
                 "}}}");

@@ -13,7 +13,6 @@
  */
 package io.attic.presto.noms;
 
-import io.attic.presto.noms.NomsType;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;

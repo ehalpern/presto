@@ -43,7 +43,7 @@ public class TestDistributedQueries
     }
 
     @Test
-    public void testSimpleSelect()
+    public void testSelect()
     {
         assertQuery(
                 "SELECT typestring, typebool, typedouble from types",
@@ -69,6 +69,16 @@ public class TestDistributedQueries
                         {"string3", true, 1003},
                         {"string4", false, 1004},
                         {"string5", true, 1005}
+                });
+    }
+
+    @Test
+    public void testSelectCountStar()
+    {
+        assertQuery(
+                "SELECT count(*) from types",
+                new Object[][] {
+                        {6}
                 });
     }
 

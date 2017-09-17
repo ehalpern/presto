@@ -75,8 +75,8 @@ public class NomsSplitManager
                 .transform(NomsColumnHandle.class::cast);
 
         List<HostAddress> addresses = nodeManager.getWorkerNodes().stream().map(Node::getHostAndPort).collect(Collectors.toList());
-        long[] lengths = computeSplitSizes(table);
         List<NomsSplit> splits = new ArrayList<>();
+        long[] lengths = computeSplitSizes(table);
         SchemaTableName tableName = tableHandle.getSchemaTableName();
         long offset = 0;
         for (int i = 0; i < lengths.length; i++) {
