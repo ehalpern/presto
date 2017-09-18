@@ -10,11 +10,18 @@ import() {
     dbpath=${DB_DIR}/${db}
     dsspec=nbs:${dbpath}::${ds}
     mkdir -p ${dbpath}
-    (set -x; csv-import --lowercase --column-types="${types}" --dest-type=list ${ds}.csv ${dsspec})
+    (
+        set -x;
+        csv-import --lowercase --column-types="${types}" --dest-type=list ${ds}.csv ${dsspec}-rm;
+        csv-invert ${dsspec}-rm ${dsspec}
+    )
 
     if [ "$pk" != "" ]
     then
-        (set -x; csv-import --lowercase --column-types="${types}" --dest-type="map:$pk" --meta primaryKey="$pk" ${ds}.csv ${dsspec}-map)
+        (
+            set -x;
+            csv-import --lowercase --column-types="${types}" --dest-type="map:$pk" --meta primaryKey="$pk" ${ds}.csv ${dsspec}-map-rm
+        )
     fi
 }
 
