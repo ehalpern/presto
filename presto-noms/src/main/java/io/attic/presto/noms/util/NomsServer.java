@@ -13,13 +13,9 @@
  */
 package io.attic.presto.noms.util;
 
-import org.apache.commons.io.IOUtils;
-
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.URI;
-import java.nio.charset.Charset;
-import java.util.concurrent.TimeUnit;
 
 public class NomsServer
         implements AutoCloseable
@@ -36,6 +32,7 @@ public class NomsServer
     {
         int port = findFreePort();
         ProcessBuilder b = new ProcessBuilder(NomsRunner.NOMS_BINARY, "serve", "--port=" + port, dbPath);
+        b.environment().put("NOMS_VERSION_NEXT", "1");
         b.inheritIO();
         try {
             process = b.start();
@@ -52,25 +49,6 @@ public class NomsServer
     public URI uri()
     {
         return uri;
-    }
-
-    public String exec(String command)
-    {
-        ProcessBuilder b = new ProcessBuilder("noms", command, uri.toString());
-        try {
-            Process p = b.start();
-            String result = IOUtils.toString(p.getInputStream(), Charset.defaultCharset());
-            if (!p.waitFor(5, TimeUnit.SECONDS)) {
-                throw new RuntimeException("timed out waiting for command to complete");
-            }
-            if (p.exitValue() != 0) {
-                throw new RuntimeException("command failed: " + p.exitValue() + " :" + IOUtils.toString(p.getErrorStream(), Charset.defaultCharset()));
-            }
-            return result;
-        }
-        catch (IOException | InterruptedException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public void stop()

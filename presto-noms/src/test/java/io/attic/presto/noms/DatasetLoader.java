@@ -26,6 +26,7 @@ import java.nio.file.Paths;
 public class DatasetLoader
 {
     private static final String TEST_DB_NAME = "test";
+    private static final String TEST_DB_PREFIX = "/tmp/presto-noms";
     private static final Path TEST_DB_PATH = Paths.get("/tmp", "presto-noms", TEST_DB_NAME);
     private static final String TEST_DATA = "test-data";
 
@@ -50,6 +51,11 @@ public class DatasetLoader
     public static String dbSpec()
     {
         return "nbs:" + TEST_DB_PATH.toString();
+    }
+
+    public static String dbPefix()
+    {
+        return "nbs:" + TEST_DB_PREFIX;
     }
 
     public static String dbName()

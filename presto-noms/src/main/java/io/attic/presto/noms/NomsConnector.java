@@ -86,6 +86,7 @@ public class NomsConnector
     public final void shutdown()
     {
         try {
+            metadata.session().close();
             lifeCycleManager.stop();
         }
         catch (Exception e) {

@@ -22,7 +22,7 @@ import java.util.List;
 import static org.testng.Assert.assertNotEquals;
 public class TestNomsServer
 {
-    @Test
+    @Test(enabled = false)
     public void testServer()
     {
         NomsServer server = new NomsServer("nbs:/tmp/presto-noms/test");

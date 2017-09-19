@@ -23,13 +23,16 @@ import java.net.URI;
 public class NomsClientConfig
 {
     public static final URI DEFAULT_URI = URI.create("http://localhost:8000");
+    public static final String DEFAULT_DATABASE_PREFIX = "nbs:/tmp/presto-noms";
     public static final String DEFAULT_DATABASE = "noms";
-    public static final int DEFAULT_BATCH_SIZE = 1_000;
-    public static final int DEFAULT_MIN_ROWS_PER_SPLIT = 5_000;
-    public static final int DEFAULT_MAX_SPLITS_PER_NODE = 0;
+    public static final int DEFAULT_BATCH_SIZE = 50_000;
+    public static final int DEFAULT_MIN_ROWS_PER_SPLIT = 50_000;
+    public static final int DEFAULT_MAX_SPLITS_PER_NODE = 1;
+    public static final boolean DEFAULT_AUTOSTART = true;
 
     private URI uri = DEFAULT_URI;
     private String database = DEFAULT_DATABASE;
+    private String databasePrefix = DEFAULT_DATABASE_PREFIX;
 
     // Number of rows to request per batch.
     // Ideally this would be computed by bytesPerBatch/estimatedBytesPerRow
@@ -45,6 +48,8 @@ public class NomsClientConfig
     // noms throughput
     private int maxSplitsPerNode = DEFAULT_MAX_SPLITS_PER_NODE;
 
+    private boolean autostart = DEFAULT_AUTOSTART;
+
     @NotNull
     public URI getURI()
     {
@@ -55,6 +60,19 @@ public class NomsClientConfig
     public NomsClientConfig setURI(URI uri)
     {
         this.uri = uri;
+        return this;
+    }
+
+    @NotNull
+    public String getDatabasePrefix()
+    {
+        return this.databasePrefix;
+    }
+
+    @Config("noms.database-prefix")
+    public NomsClientConfig setDatabasePrefix(String prefix)
+    {
+        this.databasePrefix = prefix;
         return this;
     }
 
@@ -107,6 +125,18 @@ public class NomsClientConfig
     public NomsClientConfig setMaxSplitsPerNode(int maxSplits)
     {
         this.maxSplitsPerNode = maxSplits;
+        return this;
+    }
+
+    public boolean isAutostart()
+    {
+        return autostart;
+    }
+
+    @Config("noms.autostart")
+    public NomsClientConfig setAutostart(boolean autostart)
+    {
+        this.autostart = autostart;
         return this;
     }
 }

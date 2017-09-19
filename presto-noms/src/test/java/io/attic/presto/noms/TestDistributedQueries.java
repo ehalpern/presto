@@ -72,7 +72,7 @@ public class TestDistributedQueries
                 });
     }
 
-    @Test
+    @Test(enabled = false)
     public void testSelectCountStar()
     {
         assertQuery(

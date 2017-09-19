@@ -110,3 +110,9 @@ BigQuery and Dataproc shine in independent big data platform comparison
 
 Article: https://cloud.google.com/blog/big-data/2016/05/bigquery-and-dataproc-shine-in-independent-big-data-platform-comparison
 
+
+## Installing data
+
+Use https://gist.github.com/whyvez/8d19096712ea44ba66b0 to install Postgres and PostGIS
+
+

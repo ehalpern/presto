@@ -37,7 +37,6 @@ import com.facebook.presto.spi.type.Type;
 import com.facebook.presto.testing.TestingConnectorContext;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import io.attic.presto.noms.util.NomsServer;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -76,10 +75,10 @@ public class TestNomsConnector
     protected SchemaTableName table;
     protected SchemaTableName tableUnpartitioned;
     protected SchemaTableName invalidTable;
+    private NomsConnector connector;
     private ConnectorMetadata metadata;
     private ConnectorSplitManager splitManager;
     private ConnectorPageSourceProvider pageSourceProvider;
-    private NomsServer server;
 
     @BeforeClass
     public void setup()
@@ -87,15 +86,16 @@ public class TestNomsConnector
     {
         DatasetLoader.loadDataset("types");
         database = "test";
-        server = NomsServer.start("nbs:/tmp/presto-noms/" + database);
+        //server = NomsServer.start("nbs:/tmp/presto-noms/" + database);
 
         String connectorId = "noms-test";
         NomsConnectorFactory connectorFactory = new NomsConnectorFactory(connectorId);
 
-        NomsConnector connector = (NomsConnector) connectorFactory.create(connectorId, ImmutableMap.of(
-                "noms.uri", server.uri().toString(),
-                "noms.database", database,
+        connector = (NomsConnector) connectorFactory.create(connectorId, ImmutableMap.of(
+                "noms.database-prefix", DatasetLoader.dbPefix(),
+                "noms.database", DatasetLoader.dbName(),
                 "noms.batch-size", "3"),
+
                 new TestingConnectorContext());
 
         metadata = connector.getMetadata(NomsTransactionHandle.INSTANCE);
@@ -118,7 +118,7 @@ public class TestNomsConnector
     public void tearDown()
             throws Exception
     {
-        server.close();
+        connector.shutdown();
     }
 
     @Test

@@ -78,6 +78,7 @@ public class NomsRunner
     private static String exec(List<String> command, boolean ignoreErrors)
     {
         ProcessBuilder b = new ProcessBuilder(command);
+        b.environment().put("NOMS_VERSION_NEXT", "1");
         try {
             Process p = b.start();
             String result = IOUtils.toString(p.getInputStream(), Charset.defaultCharset());

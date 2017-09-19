@@ -30,7 +30,9 @@ public class TestNomsClientConfig
                 .setDatabase(NomsClientConfig.DEFAULT_DATABASE)
                 .setBatchSize(NomsClientConfig.DEFAULT_BATCH_SIZE)
                 .setMinRowsPerSplit(NomsClientConfig.DEFAULT_MIN_ROWS_PER_SPLIT)
-                .setMaxSplitsPerNode(NomsClientConfig.DEFAULT_MAX_SPLITS_PER_NODE));
+                .setMaxSplitsPerNode(NomsClientConfig.DEFAULT_MAX_SPLITS_PER_NODE)
+                .setAutostart(NomsClientConfig.DEFAULT_AUTOSTART)
+                .setDatabasePrefix(NomsClientConfig.DEFAULT_DATABASE_PREFIX));
     }
 
     @Test
@@ -42,6 +44,8 @@ public class TestNomsClientConfig
                 .put("noms.batch-size", "10000")
                 .put("noms.min-rows-per-split", "10000")
                 .put("noms.max-splits-per-node", "5")
+                .put("noms.autostart", "false")
+                .put("noms.database-prefix", "nbs:/tmp/test")
                 .build();
 
         NomsClientConfig expected = new NomsClientConfig()
@@ -49,7 +53,9 @@ public class TestNomsClientConfig
                 .setDatabase("testdb")
                 .setBatchSize(10_000)
                 .setMinRowsPerSplit(10_000)
-                .setMaxSplitsPerNode(5);
+                .setMaxSplitsPerNode(5)
+                .setAutostart(false)
+                .setDatabasePrefix("nbs:/tmp/test");
 
         ConfigAssertions.assertFullMapping(properties, expected);
     }

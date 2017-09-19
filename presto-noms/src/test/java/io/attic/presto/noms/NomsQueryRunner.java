@@ -31,6 +31,7 @@ public final class NomsQueryRunner
         runner.installPlugin(new NomsPlugin());
         runner.createCatalog("noms", "noms", ImmutableMap.of(
                 "noms.uri", runner.noms.uri().toString(),
+                "noms.autostart", "false",
                 "noms.database", dbName,
                 "noms.min-rows-per-split", "2",
                 "noms.batch-size", "1"));
@@ -44,7 +45,7 @@ public final class NomsQueryRunner
             throws Exception
     {
         super(createSession(dbName), workerCount);
-        noms = NomsServer.start("nbs:/tmp/presto-noms/" + dbName);
+        noms = NomsServer.start(DatasetLoader.dbSpec());
     }
 
     private static Session createSession(String schema)

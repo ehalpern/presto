@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableList;
 import io.airlift.log.Logger;
 import io.attic.presto.noms.ngql.SchemaQuery;
 import io.attic.presto.noms.util.NomsRunner;
+import io.attic.presto.noms.util.NomsServer;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.IOException;
@@ -35,12 +36,22 @@ public class NomsSession
     private final String connectorId;
     private final URI nomsURI;
     private final NomsClientConfig config;
+    private final NomsServer server;
 
     public NomsSession(String connectorId, NomsClientConfig config)
     {
         this.connectorId = requireNonNull(connectorId, "connectorId is null");
-        this.nomsURI = config.getURI();
         this.config = requireNonNull(config, "config is null");
+        if (config.isAutostart()) {
+            String dbSpec = config.getDatabasePrefix() + "/" + config.getDatabase();
+            this.server = NomsServer.start(dbSpec);
+            this.nomsURI = this.server.uri();
+            log.info("Running noms server at " + this.nomsURI);
+        }
+        else {
+            server = null;
+            this.nomsURI = config.getURI();
+        }
     }
 
     public NomsClientConfig config()
@@ -97,6 +108,14 @@ public class NomsSession
         catch (IOException e) {
             // TODO: better error handling
             throw new RuntimeException(e);
+        }
+    }
+
+    public void close()
+    {
+        if (server != null) {
+            log.info("Shutting down noms server");
+            server.stop();
         }
     }
 }

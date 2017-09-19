@@ -17,7 +17,6 @@ import com.facebook.presto.spi.SchemaTableName;
 import com.facebook.presto.testing.TestingConnectorContext;
 import com.google.common.collect.ImmutableMap;
 import io.attic.presto.noms.ngql.SizeQuery;
-import io.attic.presto.noms.util.NomsServer;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -30,8 +29,8 @@ public class TestNomsQueries
     protected String database;
     protected SchemaTableName rowTable;
     protected SchemaTableName columnTable;
+    private NomsConnector connector;
     private NomsMetadata metadata;
-    private NomsServer server;
     private NomsSession session;
 
     @BeforeClass
@@ -39,18 +38,18 @@ public class TestNomsQueries
             throws Exception
     {
         DatasetLoader.loadDataset("types");
-        server = NomsServer.start(DatasetLoader.dbSpec());
         database = DatasetLoader.dbName();
 
         String connectorId = "noms-test";
         NomsConnectorFactory connectorFactory = new NomsConnectorFactory(connectorId);
-        NomsConnector connector = (NomsConnector) connectorFactory.create(connectorId, ImmutableMap.of(
-                "noms.uri", server.uri().toString(),
-                "noms.database", "test"),
+        connector = (NomsConnector) connectorFactory.create(connectorId, ImmutableMap.of(
+                "noms.database-prefix", DatasetLoader.dbPefix(),
+                "noms.database", DatasetLoader.dbName()),
+
                 new TestingConnectorContext());
 
         metadata = (NomsMetadata) connector.getMetadata(NomsTransactionHandle.INSTANCE);
-        session = ((NomsMetadata) metadata).session();
+        session = metadata.session();
 
         rowTable = new SchemaTableName(database, "types_rm");
         columnTable = new SchemaTableName(database, "types");
@@ -60,7 +59,7 @@ public class TestNomsQueries
     public void tearDown()
             throws Exception
     {
-        server.close();
+        connector.shutdown();
     }
 
     @Test
