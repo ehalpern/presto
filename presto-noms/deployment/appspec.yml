@@ -1,0 +1,22 @@
+version: 0.0
+os: linux
+
+files:
+  - source: go/bin
+    destination: /var/lib/presto/go/bin
+  - source: plugin/noms
+    destination: /usr/lib/presto/lib/plugin/noms
+  - source: etc
+    destination: /etc/presto
+
+hooks:
+  ApplicationStop:
+    - location: hooks/stop_presto.sh
+  BeforeInstall:
+    - location: hooks/before_install.sh
+  AfterInstall:
+    - location: hooks/after_install.sh
+  ApplicationStart:
+    - location: hooks/start_presto.sh
+  ValidateService:
+    - location: hooks/validate_presto.sh
