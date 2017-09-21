@@ -2,18 +2,17 @@
 
 . $(dirname $0)/common_functions.sh
 
-ASG=$(get_autoscaling_group)
-ROLE=$(role_from_asg $ASG)
-DISCOVERY_URI=http://master.presto.attic.io:8080
-
-config=/etc/presto/config.properties
+instance_id=$(get_instance_id)
 node=/etc/presto/node.properties
 
-sed -i "s#\(^discovery.uri=\).*#\1${DISCOVERY_URI}#g" ${config}
-sed -i 's/\(^node.environment==\).*/\1production/g' ${node}
+sed -i "s/\(^node.id=\).*/\1${instance_id}/g" ${node}
+sed -i 's/\(^node.environment=\).*/\1production/g' ${node}
 
+asg=$(get_autoscaling_group)
+role=$(role_from_asg $asg)
+config=/etc/presto/config.properties
 
-if [ "$ROLE" == "master" ]; then
+if [ "$role" == "master" ]; then
     sed -i 's/\(^coordinator=\).*/\1true/g' ${config}
     sed -i 's/\(^discovery-server.enabled=\).*/\1true/g' ${config}
     sed -i 's/\(^node-scheduler.include-coordinator=\).*/\1false/g' ${config}
