@@ -13,7 +13,6 @@
  */
 package io.attic.presto.noms;
 
-import com.datastax.driver.core.utils.Bytes;
 import com.facebook.presto.spi.type.BooleanType;
 import com.facebook.presto.spi.type.DoubleType;
 import com.facebook.presto.spi.type.Type;
@@ -23,6 +22,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.io.JsonStringEncoder;
 import com.google.common.annotations.VisibleForTesting;
+
+import javax.xml.bind.DatatypeConverter;
 
 import java.nio.ByteBuffer;
 import java.util.Collection;
@@ -180,7 +181,7 @@ public class NomsType
             case String:
                 return quoteStringLiteralForJson(object.toString());
             case Blob:
-                return quoteStringLiteralForJson(Bytes.toHexString((ByteBuffer) object));
+                return quoteStringLiteralForJson(DatatypeConverter.printHexBinary(((ByteBuffer) object).array()));
             case Boolean:
             case Number:
                 return object.toString();
