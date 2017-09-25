@@ -152,6 +152,12 @@
         </artifact>
     </artifactSet>
 
+    <artifactSet to="plugin/noms">
+        <artifact id="${project.groupId}:presto-noms:zip:${project.version}">
+            <unpack />
+        </artifact>
+    </artifactSet>
+
     <artifactSet to="plugin/presto-thrift">
         <artifact id="${project.groupId}:presto-thrift-connector:zip:${project.version}">
             <unpack />
