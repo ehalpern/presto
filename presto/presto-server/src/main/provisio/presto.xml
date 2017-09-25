@@ -153,7 +153,7 @@
     </artifactSet>
 
     <artifactSet to="plugin/noms">
-        <artifact id="${project.groupId}:presto-noms:zip:${project.version}">
+        <artifact id="io.attic.presto:presto-noms:zip:${project.version}">
             <unpack />
         </artifact>
     </artifactSet>

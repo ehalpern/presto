@@ -68,7 +68,6 @@
 
     <modules>
         <module>presto-noms</module>
-        <module>presto-main</module>
         <module>presto-cli</module>
         <module>presto-server</module>
     </modules>
