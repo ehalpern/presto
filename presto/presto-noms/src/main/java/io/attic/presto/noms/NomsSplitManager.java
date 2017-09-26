@@ -24,6 +24,7 @@ import com.facebook.presto.spi.SchemaTableName;
 import com.facebook.presto.spi.connector.ConnectorSplitManager;
 import com.facebook.presto.spi.connector.ConnectorTransactionHandle;
 import com.facebook.presto.spi.predicate.TupleDomain;
+import io.airlift.log.Logger;
 import io.attic.presto.noms.ngql.SizeQuery;
 
 import javax.inject.Inject;
@@ -40,6 +41,8 @@ import static java.util.Objects.requireNonNull;
 public class NomsSplitManager
         implements ConnectorSplitManager
 {
+    private static final Logger log = Logger.get(NomsSplitManager.class);
+
     private final NomsConnectorId connectorId;
     private final NomsSession session;
     private final NodeManager nodeManager;
@@ -82,6 +85,9 @@ public class NomsSplitManager
         for (int i = 0; i < lengths.length; i++) {
             splits.add(new NomsSplit(addresses, tableName, effectivePredicate, offset, lengths[i]));
             offset += lengths[i];
+        }
+        if (lengths.length > 0) {
+            log.info("Splitting query into %d parts of %d rows: %s", lengths.length, lengths[0], Arrays.asList(lengths));
         }
         return new FixedSplitSource(splits);
     }

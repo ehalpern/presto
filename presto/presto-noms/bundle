@@ -1,5 +1,5 @@
 #!/bin/bash
-set -x
+set -x -e
 
 version=0.183-SNAPSHOT
 bundle=target/presto-noms-bundle-${version}
@@ -9,7 +9,7 @@ noms_binaries=s3://download.noms.io/$(aws s3 ls --recursive s3://download.noms.i
 (
     cd $(dirname $0)
 
-    rm -r ${bundle}/*; mdkir -p ${bundle}
+    rm -fr ./${bundle}/*; mkdir -p ${bundle}
     cp -r deployment/* ${bundle}/
 
     mkdir -p ${bundle}/plugin/noms
@@ -18,4 +18,5 @@ noms_binaries=s3://download.noms.io/$(aws s3 ls --recursive s3://download.noms.i
     mkdir -p ${bundle}/go/bin
     aws s3 cp ${noms_binaries} target/noms.tar.gz
     tar -xf target/noms.tar.gz -C ${bundle}/go/bin/
+    #env GOOS=linux GOARCH=amd64 go build -v -o ${bundle}/go/bin/noms github.com/attic-labs/noms/cmd/noms
 )

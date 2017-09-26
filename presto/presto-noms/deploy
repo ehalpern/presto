@@ -1,5 +1,5 @@
 #!/bin/bash
-set -x
+set -x -e
 
 app=PrestoApp
 group=PrestoDeployment
@@ -13,20 +13,9 @@ type=zip
       --source $(find target -type d -name ${bundle}-*) \
       --s3-location s3://${bucket}/${bundle}.${type}
 
-    read -p "Deploy now (y/n)? " choice
-    case "$choice" in
-      y|Y )
-        id=$(aws deploy create-deployment \
-                --application-name ${app} --deployment-group-name ${group} \
-                --s3-location bucket=${bucket},bundleType=${type},key=${bundle}.${type} \
-                --output text)
-        aws deploy wait deployment-successful --deployment-id ${id}
-        ;;
-      * )
-        echo Deploy later using:
-        echo
-        echo id=$(aws deploy create-deployment --application-name ${app} --deployment-group-name ${group} --s3-location bucket=${bucket},bundleType=${type},key=${bundle}.${type} --output text)
-        echo aws deploy wait deployment-successful --deployment-id '${id}'
-        ;;
-    esac
+    id=$(aws deploy create-deployment \
+            --application-name ${app} --deployment-group-name ${group} \
+            --s3-location bucket=${bucket},bundleType=${type},key=${bundle}.${type} \
+            --output text)
+    aws deploy wait deployment-successful --deployment-id ${id}
 )

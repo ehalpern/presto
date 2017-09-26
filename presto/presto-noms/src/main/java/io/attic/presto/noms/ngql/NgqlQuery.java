@@ -17,6 +17,7 @@ import com.facebook.presto.spi.predicate.Domain;
 import com.facebook.presto.spi.predicate.Marker;
 import com.facebook.presto.spi.predicate.Range;
 import com.facebook.presto.spi.predicate.TupleDomain;
+import io.airlift.log.Logger;
 import io.attic.presto.noms.NomsColumnHandle;
 import io.attic.presto.noms.NomsQuery;
 import io.attic.presto.noms.NomsSchema;
@@ -37,6 +38,8 @@ import java.util.Optional;
 public abstract class NgqlQuery<R extends NomsQuery.Result>
         implements NomsQuery<R>
 {
+    protected static final Logger log = Logger.get(NgqlQuery.class);
+
     protected abstract String query();
 
     protected abstract R parseResult(JsonObject json);
@@ -44,6 +47,7 @@ public abstract class NgqlQuery<R extends NomsQuery.Result>
     public R execute(URI nomsURI, String dataset)
             throws IOException
     {
+        long start = System.nanoTime();
         // TODO: Consider making async
         Content resp = Request.Post(nomsURI.toString() + "/graphql/").bodyForm(Form.form()
                 .add("ds", dataset)
@@ -52,7 +56,10 @@ public abstract class NgqlQuery<R extends NomsQuery.Result>
                 .execute().returnContent();
 
         try (JsonReader reader = Json.createReader(resp.asStream())) {
-            return (R) parseResult(reader.readObject());
+            JsonObject o = reader.readObject();
+            long elapsed = (System.nanoTime() - start) / 1000000;
+            log.info("Query time: %d: %s", elapsed, query());
+            return (R) parseResult(o);
         }
     }
 
