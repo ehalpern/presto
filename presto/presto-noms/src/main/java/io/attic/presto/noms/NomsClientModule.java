@@ -24,7 +24,7 @@ import static io.airlift.configuration.ConfigBinder.configBinder;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Guice module for binding noms plugin implementation.
+ * Guice module for binding the noms plugin implementation.
  */
 public class NomsClientModule
         implements Module

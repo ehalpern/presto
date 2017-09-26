@@ -34,20 +34,20 @@ public class NomsClientConfig
     private String database = DEFAULT_DATABASE;
     private String databasePrefix = DEFAULT_DATABASE_PREFIX;
 
-    // Number of rows to request per batch.
-    // Ideally this would be computed by bytesPerBatch/estimatedBytesPerRow
+    // Number of rows to request per batch. Each split will request its
+    // data |batchSize| rows at a time.
+    // TODO: Ideally, this would be computed based on columns in the query
+    // using bytesPerBatch/estimatedBytesPerRow(columns).
     private int batchSize = DEFAULT_BATCH_SIZE;
 
     // Minimum number of rows per split.
-    // Ideally, this would be computed by bytesPerSplit/estimatedBytesPerRow
+    // TODO: Ideally, this would be computed by minBytesPerSplit/estimatedBytesPerRow(columns)
     private int minRowsPerSplit = DEFAULT_MIN_ROWS_PER_SPLIT;
 
-    // Maximum number of splits per node. Defaults to Runtime.availablePrcessors
-    // by default.
-    // Ideally, this would be a function of cpusPerNode, bandwidthPerNode and
-    // noms throughput
+    // Maximum number of splits per node. Defaults to 1
     private int maxSplitsPerNode = DEFAULT_MAX_SPLITS_PER_NODE;
 
+    // Autostart noms serve |databasePrefix|/|database|
     private boolean autostart = DEFAULT_AUTOSTART;
 
     @NotNull

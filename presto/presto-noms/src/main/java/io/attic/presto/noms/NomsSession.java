@@ -46,7 +46,6 @@ public class NomsSession
             String dbSpec = config.getDatabasePrefix() + "/" + config.getDatabase();
             this.server = NomsServer.start(dbSpec);
             this.nomsURI = this.server.uri();
-            log.info("Running noms server at " + this.nomsURI);
         }
         else {
             server = null;
@@ -74,21 +73,26 @@ public class NomsSession
         return NomsRunner.ds(nomsURI.toString());
     }
 
-    public NomsTable getTable(SchemaTableName schemaTableName)
-            throws SchemaNotFoundException, TableNotFoundException
+    public NomsTableHandle getTableHandle(SchemaTableName schemaTableName)
+            throws TableNotFoundException
     {
         if (!getTableNames(schemaTableName.getSchemaName()).contains(schemaTableName.getTableName())) {
             throw new TableNotFoundException(schemaTableName);
         }
+        return new NomsTableHandle(connectorId, config.getDatabase(), schemaTableName.getTableName());
+    }
+
+    public NomsTable getTable(NomsTableHandle tableHandle)
+    {
         ImmutableList.Builder<NomsColumnHandle> columnHandles = ImmutableList.builder();
 
-        NomsSchema schema = querySchema(schemaTableName.getTableName());
+        NomsSchema schema = querySchema(tableHandle.getTableName());
         int i = 0;
         for (Pair<String, NomsType> p : schema.columns()) {
             columnHandles.add(new NomsColumnHandle(connectorId, p.getKey(), i++, p.getValue(), false));
         }
         return new NomsTable(
-                new NomsTableHandle(connectorId, config.getDatabase(), schemaTableName.getTableName()),
+                new NomsTableHandle(connectorId, config.getDatabase(), tableHandle.getTableName()),
                 schema,
                 columnHandles.build(),
                 nomsURI);
@@ -114,7 +118,6 @@ public class NomsSession
     public void close()
     {
         if (server != null) {
-            log.info("Shutting down noms server");
             server.stop();
         }
     }

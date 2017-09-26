@@ -68,7 +68,7 @@ public class RowQuery
     {
         String paramList = params.isEmpty() ?
                 "" : String.format("(%s)", String.join(",", params));
-        List<String> fields = columns.stream().map(c -> c.getName()).collect(Collectors.toList());
+        List<String> fields = columns.stream().map(c -> c.name()).collect(Collectors.toList());
         StringBuilder b = new StringBuilder();
         b.append(
                 "{ root { value {\n" +

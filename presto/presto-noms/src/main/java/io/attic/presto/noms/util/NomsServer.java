@@ -13,19 +13,24 @@
  */
 package io.attic.presto.noms.util;
 
+import io.airlift.log.Logger;
+
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.ServerSocket;
 import java.net.URI;
 
 public class NomsServer
         implements AutoCloseable
 {
+    private static final Logger log = Logger.get(NomsServer.class);
+
     private Process process;
     private URI uri;
 
     public static NomsServer start(String dbPath)
     {
-        return new NomsServer(dbPath);
+        return (new NomsServer(dbPath)).waitForStart();
     }
 
     public NomsServer(String dbPath)
@@ -51,8 +56,37 @@ public class NomsServer
         return uri;
     }
 
+    private NomsServer waitForStart()
+    {
+        IOException lastException = new IOException();
+
+        for (int retry = 0; retry < 2; retry++) {
+            try {
+                uri.toURL().getContent();
+                log.info("Running " + this);
+                return this;
+            }
+            catch (ConnectException e) {
+                lastException = e;
+                try {
+                    Thread.sleep(100 * (retry + 1));
+                }
+                catch (InterruptedException ie) {
+                    throw new RuntimeException(ie);
+                }
+            }
+            catch (IOException e) {
+                lastException = e;
+                break;
+            }
+        }
+        stop();
+        throw new RuntimeException("Failed to start " + this, lastException);
+    }
+
     public void stop()
     {
+        log.info("Stopping " + this);
         process.destroyForcibly();
     }
 
@@ -69,5 +103,10 @@ public class NomsServer
     public void close()
     {
         stop();
+    }
+
+    public String toString()
+    {
+        return "noms serve " + uri.toString();
     }
 }

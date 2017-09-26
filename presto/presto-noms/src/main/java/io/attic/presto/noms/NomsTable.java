@@ -79,7 +79,7 @@ public class NomsTable
     public String toString()
     {
         return toStringHelper(this)
-                .add("tableHandle", tableHandle)
+                .add("getTableHandle", tableHandle)
                 .toString();
     }
 }

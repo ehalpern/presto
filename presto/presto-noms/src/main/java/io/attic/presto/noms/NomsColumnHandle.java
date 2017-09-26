@@ -52,19 +52,19 @@ public class NomsColumnHandle
     }
 
     @JsonProperty
-    public String getConnectorId()
+    public String connectorId()
     {
         return connectorId;
     }
 
     @JsonProperty
-    public String getName()
+    public String name()
     {
         return name;
     }
 
     @JsonProperty
-    public int getOrdinalPosition()
+    public int ordinalPosition()
     {
         return ordinalPosition;
     }
@@ -76,17 +76,17 @@ public class NomsColumnHandle
     }
 
     @JsonProperty
-    public NomsType getNomsType()
+    public NomsType nomsType()
     {
         return nomsType;
     }
 
-    public ColumnMetadata getColumnMetadata()
+    public ColumnMetadata columnMetadata()
     {
         return new ColumnMetadata(name, nomsType.nativeType(), null, false);
     }
 
-    public Type getType()
+    public Type type()
     {
         return nomsType.nativeType();
     }

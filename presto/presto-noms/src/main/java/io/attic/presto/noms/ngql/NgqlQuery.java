@@ -58,7 +58,7 @@ public abstract class NgqlQuery<R extends NomsQuery.Result>
         try (JsonReader reader = Json.createReader(resp.asStream())) {
             JsonObject o = reader.readObject();
             long elapsed = (System.nanoTime() - start) / 1000000;
-            log.info("Query time: %d: %s", elapsed, query());
+            log.debug("Query time: %d: %s", elapsed, query());
             return (R) parseResult(o);
         }
     }
@@ -88,7 +88,7 @@ public abstract class NgqlQuery<R extends NomsQuery.Result>
         }
         else {
             String pk = schema.primaryKey();
-            return columns.stream().filter(c -> c.getName().equals(pk)).map(c -> {
+            return columns.stream().filter(c -> c.name().equals(pk)).map(c -> {
                 Domain constraints = predicate.getDomains().get().get(c);
                 return exactValues(constraints).map(values -> {
                     params.add("keys: " + values);

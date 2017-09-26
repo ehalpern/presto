@@ -94,7 +94,7 @@ public class ColumnQuery
         }
         else {
             fieldList = columns.stream().map(
-                    c -> String.format("%s { size, values%s }", c.getName(), paramList)
+                    c -> String.format("%s { size, values%s }", c.name(), paramList)
             ).collect(Collectors.toList());
         }
         String query =

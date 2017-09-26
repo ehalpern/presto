@@ -58,7 +58,7 @@ public class NomsPageSource
             List<NomsColumnHandle> columns)
     {
         this.columns = columns;
-        this.columnTypes = columns.stream().map(NomsColumnHandle::getType).collect(toList());
+        this.columnTypes = columns.stream().map(NomsColumnHandle::type).collect(toList());
         this.tableName = split.getTableName().getTableName();
         this.schema = session.querySchema(this.tableName);
         this.predicate = split.getEffectivePredicate();
@@ -129,20 +129,20 @@ public class NomsPageSource
                 for (int i = 0; i < columns.size(); i++) {
                     NomsColumnHandle col = columns.get(i);
                     BlockBuilder builder = pageBuilder.getBlockBuilder(i);
-                    Type type = col.getType();
-                    Class<?> javaType = col.getType().getJavaType();
+                    Type type = col.type();
+                    Class<?> javaType = col.type().getJavaType();
                     if (type == BooleanType.BOOLEAN) {
-                        for (boolean b : result.columnOfBooleans(col.getName())) {
+                        for (boolean b : result.columnOfBooleans(col.name())) {
                             type.writeBoolean(builder, b);
                         }
                     }
                     else if (type == DoubleType.DOUBLE) {
-                        for (double d : result.columnOfDoubles(col.getName())) {
+                        for (double d : result.columnOfDoubles(col.name())) {
                             type.writeDouble(builder, d);
                         }
                     }
                     else if (type == VarcharType.VARCHAR) {
-                        for (String s : result.columnOfStrings(col.getName())) {
+                        for (String s : result.columnOfStrings(col.name())) {
                             type.writeSlice(builder, utf8Slice(s));
                         }
                     }
@@ -177,16 +177,16 @@ public class NomsPageSource
                 for (int i = 0; i < columns.size(); i++) {
                     NomsColumnHandle col = columns.get(i);
                     BlockBuilder builder = pageBuilder.getBlockBuilder(i);
-                    Type type = col.getType();
-                    Class<?> javaType = col.getType().getJavaType();
+                    Type type = col.type();
+                    Class<?> javaType = col.type().getJavaType();
                     if (type == BooleanType.BOOLEAN) {
-                        type.writeBoolean(builder, row.get(col.getName()) == JsonValue.TRUE);
+                        type.writeBoolean(builder, row.get(col.name()) == JsonValue.TRUE);
                     }
                     else if (type == DoubleType.DOUBLE) {
-                        type.writeDouble(builder, row.getJsonNumber(col.getName()).doubleValue());
+                        type.writeDouble(builder, row.getJsonNumber(col.name()).doubleValue());
                     }
                     else if (type == VarcharType.VARCHAR) {
-                        type.writeSlice(builder, utf8Slice(row.getJsonString(col.getName()).getString()));
+                        type.writeSlice(builder, utf8Slice(row.getJsonString(col.name()).getString()));
                     }
                     else {
                         throw new PrestoException(NOT_SUPPORTED, "type:" + javaType);

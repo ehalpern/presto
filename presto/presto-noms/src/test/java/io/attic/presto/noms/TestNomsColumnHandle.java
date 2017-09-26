@@ -43,10 +43,10 @@ public class TestNomsColumnHandle
             NomsColumnHandle expected = columns[i];
             byte[] json = codec.toJsonBytes(expected);
             NomsColumnHandle actual = codec.fromJson(json);
-            assertEquals(actual.getConnectorId(), expected.getConnectorId(), "column: " + expected.getName());
-            assertEquals(actual.getName(), expected.getName());
-            assertEquals(actual.getOrdinalPosition(), expected.getOrdinalPosition());
-            assertEquals(actual.getNomsType(), expected.getNomsType());
+            assertEquals(actual.connectorId(), expected.connectorId(), "column: " + expected.name());
+            assertEquals(actual.name(), expected.name());
+            assertEquals(actual.ordinalPosition(), expected.ordinalPosition());
+            assertEquals(actual.nomsType(), expected.nomsType());
         }
     }
 }

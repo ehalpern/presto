@@ -66,11 +66,11 @@ public class TestNomsQueries
     public void testSizeQuery()
             throws Exception
     {
-        NomsTable table = session.getTable(rowTable);
+        NomsTable table = session.getTable(session.getTableHandle(rowTable));
         SizeQuery.Result result = session.execute(rowTable.getTableName(), SizeQuery.create(table));
         assertEquals(6, result.size());
 
-        table = session.getTable(columnTable);
+        table = session.getTable(session.getTableHandle(columnTable));
         result = session.execute(columnTable.getTableName(), SizeQuery.create(table));
         assertEquals(6, result.size());
     }

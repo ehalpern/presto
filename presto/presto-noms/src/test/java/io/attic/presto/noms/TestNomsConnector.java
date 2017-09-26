@@ -94,7 +94,8 @@ public class TestNomsConnector
         connector = (NomsConnector) connectorFactory.create(connectorId, ImmutableMap.of(
                 "noms.database-prefix", DatasetLoader.dbPefix(),
                 "noms.database", DatasetLoader.dbName(),
-                "noms.batch-size", "3"),
+                "noms.batch-size", "3",
+                "noms.autostart", "true"),
 
                 new TestingConnectorContext());
 
@@ -273,7 +274,7 @@ public class TestNomsConnector
         ImmutableMap.Builder<String, Integer> index = ImmutableMap.builder();
         int i = 0;
         for (ColumnHandle columnHandle : columnHandles) {
-            String name = ((NomsColumnHandle) columnHandle).getName();
+            String name = ((NomsColumnHandle) columnHandle).name();
             index.put(name, i);
             i++;
         }

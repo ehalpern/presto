@@ -72,7 +72,7 @@ public class NomsMetadata
     {
         requireNonNull(tableName, "tableName is null");
         try {
-            return this.session.getTable(tableName).tableHandle();
+            return this.session.getTableHandle(tableName);
         }
         catch (TableNotFoundException | SchemaNotFoundException e) {
             // rows was not found
@@ -88,15 +88,15 @@ public class NomsMetadata
     @Override
     public ConnectorTableMetadata getTableMetadata(ConnectorSession session, ConnectorTableHandle tableHandle)
     {
-        requireNonNull(tableHandle, "tableHandle is null");
+        requireNonNull(tableHandle, "getTableHandle is null");
         return getTableMetadata(getTableName(tableHandle));
     }
 
     private ConnectorTableMetadata getTableMetadata(SchemaTableName tableName)
     {
-        NomsTable table = session.getTable(tableName);
+        NomsTable table = session.getTable(session.getTableHandle(tableName));
         List<ColumnMetadata> columns = table.columns().stream()
-                .map(NomsColumnHandle::getColumnMetadata)
+                .map(NomsColumnHandle::columnMetadata)
                 .collect(toList());
         return new ConnectorTableMetadata(tableName, columns);
     }
@@ -130,11 +130,11 @@ public class NomsMetadata
     public Map<String, ColumnHandle> getColumnHandles(ConnectorSession session, ConnectorTableHandle tableHandle)
     {
         requireNonNull(session, "session is null");
-        requireNonNull(tableHandle, "tableHandle is null");
-        NomsTable table = this.session.getTable(getTableName(tableHandle));
+        requireNonNull(tableHandle, "getTableHandle is null");
+        NomsTable table = this.session.getTable((NomsTableHandle) tableHandle);
         ImmutableMap.Builder<String, ColumnHandle> columnHandles = ImmutableMap.builder();
         for (NomsColumnHandle columnHandle : table.columns()) {
-            columnHandles.put(columnHandle.getName().toLowerCase(ENGLISH), columnHandle);
+            columnHandles.put(columnHandle.name().toLowerCase(ENGLISH), columnHandle);
         }
         return columnHandles.build();
     }
@@ -166,28 +166,28 @@ public class NomsMetadata
     @Override
     public ColumnMetadata getColumnMetadata(ConnectorSession session, ConnectorTableHandle tableHandle, ColumnHandle columnHandle)
     {
-        return ((NomsColumnHandle) columnHandle).getColumnMetadata();
+        return ((NomsColumnHandle) columnHandle).columnMetadata();
     }
 
     /**
      * Given the table, columns and constraints of a query, returns layout
      * information to be used by presto to execute and (potentially) distribute
      * the query.
-     *
+     * <p>
      * At a high-level, this method examines the query to determine how/if
      * it constrains columns that contribute to a partition or cluster key.
      * If so, it determines the list of partitions and/or buckets that need
      * to be queried. It returns a description of the query to execute and
      * the partitions to execute it on.
-     *
+     * <p>
      * Consider the example of HiveMetadata.getTableLayouts:
-     *   - If the query constrains the partition key, issue a query to
-     *     determine the distinct partition keys matching the predicate.
-     *   - If the query constrains the cluster key (by specifying exact
-     *     values), determine the buckets for these values
-     *   - Return a layout that specifies the new query (minus the partition
-     *     key predicates), the list of partitions and the list of buckets
-     *
+     * - If the query constrains the partition key, issue a query to
+     * determine the distinct partition keys matching the predicate.
+     * - If the query constrains the cluster key (by specifying exact
+     * values), determine the buckets for these values
+     * - Return a layout that specifies the new query (minus the partition
+     * key predicates), the list of partitions and the list of buckets
+     * <p>
      * TBD: For the first cut of noms, we'll forgo the partition and use the
      * primary key as the cluster key. This means there will one partition but
      * multiple buckets to split on.

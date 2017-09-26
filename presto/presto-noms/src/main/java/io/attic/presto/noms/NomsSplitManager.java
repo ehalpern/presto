@@ -70,7 +70,7 @@ public class NomsSplitManager
     {
         NomsTableLayoutHandle layoutHandle = (NomsTableLayoutHandle) layout;
         NomsTableHandle tableHandle = layoutHandle.getTable();
-        NomsTable table = this.session.getTable(tableHandle.getSchemaTableName());
+        NomsTable table = this.session.getTable(tableHandle);
         // this can happen if table is removed during a query
         checkState(table != null, "Table %s.%s no longer exists", tableHandle.getSchemaName(), tableHandle.getTableName());
 
@@ -87,7 +87,7 @@ public class NomsSplitManager
             offset += lengths[i];
         }
         if (lengths.length > 0) {
-            log.info("Splitting query into %d parts of %d rows: %s", lengths.length, lengths[0], Arrays.asList(lengths));
+            log.debug("Splitting query into %d parts of %d rows: %s", lengths.length, lengths[0], Arrays.asList(lengths));
         }
         return new FixedSplitSource(splits);
     }
