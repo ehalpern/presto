@@ -58,30 +58,26 @@ public class NomsServer
 
     private NomsServer waitForStart()
     {
-        IOException lastException = new IOException();
-
-        for (int retry = 0; retry < 3; retry++) {
+        for (int retry = 0; retry <= 3; retry++) {
             try {
                 uri.toURL().getContent();
                 log.info("Running " + this);
                 return this;
             }
             catch (ConnectException e) {
-                lastException = e;
                 try {
-                    Thread.sleep(100 * (retry + 1));
+                    Thread.sleep(200 * (retry + 1));
                 }
                 catch (InterruptedException ie) {
                     throw new RuntimeException(ie);
                 }
             }
             catch (IOException e) {
-                lastException = e;
-                break;
+                throw new RuntimeException(e);
             }
         }
-        stop();
-        throw new RuntimeException("Failed to start " + this, lastException);
+        log.warn("Timed out waiting for '%s'. Continuing anyway", this);
+        return this;
     }
 
     public void stop()
