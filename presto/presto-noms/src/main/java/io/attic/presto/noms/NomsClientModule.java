@@ -21,7 +21,6 @@ import com.google.inject.Scopes;
 import javax.inject.Singleton;
 
 import static io.airlift.configuration.ConfigBinder.configBinder;
-import static java.util.Objects.requireNonNull;
 
 /**
  * Guice module for binding the noms plugin implementation.
@@ -54,7 +53,6 @@ public class NomsClientModule
             NomsConnectorId connectorId,
             NomsClientConfig config)
     {
-        requireNonNull(config, "config is null");
         return new NomsSession(connectorId.toString(), config);
     }
 }

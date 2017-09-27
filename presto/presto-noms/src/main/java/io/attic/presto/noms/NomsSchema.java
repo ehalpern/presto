@@ -25,6 +25,7 @@ public interface NomsSchema
     }
 
     TableStructure tableStructure();
+    boolean usesColumnRefs();
     NomsType tableType();
     String primaryKey();
     List<Pair<String, NomsType>> columns();

@@ -60,7 +60,7 @@ public class NomsServer
     {
         IOException lastException = new IOException();
 
-        for (int retry = 0; retry < 2; retry++) {
+        for (int retry = 0; retry < 3; retry++) {
             try {
                 uri.toURL().getContent();
                 log.info("Running " + this);

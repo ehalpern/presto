@@ -72,10 +72,10 @@ public class ColumnQuery
     // {
     //   root {
     //     value {
-    //       col0 { size, values(at:$offset, count: $count) }
-    //       col1 { size, values(at:$offset, count: $count) }
+    //       col0 { targetValue { size, values(at:$offset, count: $count) } }
+    //       col1 { targetValue { size, values(at:$offset, count: $count) } }
     //       ...
-    //       coln { size, values(at:$offset, count: $count) }
+    //       coln { targetValue { size, values(at:$offset, count: $count) } }
     //     }
     // }
     //
@@ -88,19 +88,28 @@ public class ColumnQuery
         if (columns.isEmpty()) {
             verify(schema.columns().size() > 0, "schema must have at least one column");
             String dummy = schema.columns().get(0).getKey();
-            fieldList = ImmutableList.of(params.isEmpty() ?
-                    String.format("%s { size }", dummy) :
-                    String.format("%s { size, values%s }", dummy, paramList));
+            fieldList = ImmutableList.of(schema.usesColumnRefs() ?
+                    params.isEmpty() ?
+                        String.format("%s { targetValue { size } }", dummy) :
+                        String.format("%s { targetValue { size, values%s } }", dummy, paramList)
+                :
+                    params.isEmpty() ?
+                            String.format("%s { size }", dummy) :
+                            String.format("%s { size, values%s }", dummy, paramList));
         }
         else {
-            fieldList = columns.stream().map(
-                    c -> String.format("%s { size, values%s }", c.name(), paramList)
+            fieldList = columns.stream().map(c ->
+                schema.usesColumnRefs() ?
+                        String.format("%s { targetValue { size, values%s }}", c.name(), paramList)
+                        :
+                        String.format("%s { size, values%s }", c.name(), paramList)
             ).collect(Collectors.toList());
         }
         String query =
                 "{ root { value {\n" +
                 "  " + String.join("\n  ", fieldList) + "\n" +
                 "}}}";
+
         return query;
     }
 
@@ -130,7 +139,10 @@ public class ColumnQuery
                     "commit value at %s in not an object");
             columns = value.asJsonObject();
             verify(columns.size() > 0, "response must contain at least 1 column");
-            JsonObject firstColumn = columns.values().stream().findFirst().get().asJsonObject();
+            JsonObject firstColumn = columns.values().stream().findFirst().map(o -> {
+                JsonValue target = o.asJsonObject().get("targetValue");
+                return (target == null) ? o : target;
+            }).get().asJsonObject();
             if (firstColumn.containsKey("values")) {
                 size = firstColumn.getJsonArray("values").size();
             }
@@ -175,6 +187,9 @@ public class ColumnQuery
         private JsonArray columnArray(String name)
         {
             JsonObject o = verifyNotNull(columns.getJsonObject(name), "column %s no present", name);
+            if (o.containsKey("targetValue")) {
+                o = o.getJsonObject("targetValue");
+            }
             return o.getJsonArray("values");
         }
     }

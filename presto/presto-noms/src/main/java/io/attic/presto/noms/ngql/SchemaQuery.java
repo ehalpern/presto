@@ -147,6 +147,8 @@ public class SchemaQuery
         private final NgqlType lastCommitValueType;
         private final Map<String, NgqlType> types = new HashMap<>();
         private final String primaryKey;
+        private final TableStructure structure;
+        private final boolean usesColumnRefs;
 
         private Result(JsonObject json)
         {
@@ -170,18 +172,31 @@ public class SchemaQuery
             lastCommitValueType = resolve(rootValueType.fieldType("value"));
             JsonObject meta = object.getValue("/root/meta").asJsonObject();
             primaryKey = meta.getString("primaryKey", null);
+
+            switch (tableType().kind()) {
+                case Struct:
+                    structure = TableStructure.ColumnMajor;
+                    usesColumnRefs = tableType().fields().values().iterator().next().kind() == NomsType.Kind.Ref;
+                    break;
+                case List:
+                case Set:
+                case Map:
+                    structure = TableStructure.RowMajor;
+                    usesColumnRefs = false;
+                    break;
+                default:
+                    throw new PrestoException(NOT_SUPPORTED, "Unsupported table type: " + tableType());
+            }
         }
 
         public TableStructure tableStructure()
         {
-            switch (tableType().kind()) {
-                case Struct:
-                    return TableStructure.ColumnMajor;
-                case List: case Set: case Map:
-                    return TableStructure.RowMajor;
-                default:
-                    throw new PrestoException(NOT_SUPPORTED, "Unsupported table type: " + tableType());
-            }
+            return structure;
+        }
+
+        public boolean usesColumnRefs()
+        {
+            return usesColumnRefs;
         }
 
         public NomsType tableType()
@@ -197,7 +212,6 @@ public class SchemaQuery
         public List<Pair<String, NomsType>> columns()
         {
             NomsType tableType = tableType();
-            NomsType rowType;
             Map<String, NomsType> fields;
 
             switch (tableStructure()) {
@@ -206,9 +220,14 @@ public class SchemaQuery
                     break;
                 case ColumnMajor:
                     // Column major. Columns are lists. Ignore other fields.
-                    fields = tableType.fields().entrySet().stream().filter(
-                            e -> e.getValue().kind() == NomsType.Kind.List
-                    ).collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue()));
+                    fields = tableType.fields().entrySet().stream().filter(e -> {
+                        switch (e.getValue().kind()) {
+                            case List: case Ref:
+                                return true;
+                            default:
+                                return false;
+                        }
+                    }).collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue()));
                     break;
                 default:
                     throw new AssertionError("unexpected table structure " + tableStructure());
@@ -217,7 +236,9 @@ public class SchemaQuery
             return fields.entrySet().stream().map(e -> {
                 switch (e.getValue().kind()) {
                     case List:
-                        return Pair.of(e.getKey(), e.getValue().arguments().get(0));
+                        return Pair.of(e.getKey(), e.getValue().argument(0));
+                    case Ref:
+                        return Pair.of(e.getKey(), e.getValue().argument(0).argument(0));
                     default:
                         return Pair.of(e.getKey(), e.getValue());
                 }
@@ -228,9 +249,9 @@ public class SchemaQuery
         {
             switch (type.kind()) {
                 case List:
-                    return type.arguments().get(0).fields();
+                    return type.argument(0).fields();
                 case Map:
-                    return type.arguments().get(1).fields();
+                    return type.argument(1).fields();
                 default:
                     throw new PrestoException(NOT_SUPPORTED,
                             "Unsupported table structure: " + type + ", must be List<Struct> | Map<Value, Struct>");

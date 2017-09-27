@@ -133,6 +133,11 @@ public class NomsType
         return arguments;
     }
 
+    public NomsType argument(int position)
+    {
+        return arguments.get(position);
+    }
+
     @JsonProperty
     public Map<String, NomsType> fields()
     {
