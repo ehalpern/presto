@@ -23,14 +23,9 @@ Follow Presto README instructions for [IDE setup](PRESTO-README.md##running-pres
  
 ## Querying noms data
 
-Create an example database:
-
-    cd presto-noms/src/test/resources/test-data
-    ./load-noms-test-data.sh
-
 Start the noms server
 
-    noms serve nbs:/tmp/presto-noms/example
+    noms serve nbs:/tmp/presto-noms/test
 
 Start the presto server in the IDE by running presto-main 
 
@@ -59,11 +54,4 @@ Query some data:
 
     SELECT * from lineitme;
     SELECT orderkey, quanity FROM lineitem WHERE quantity < 5;
-
-## TODO:
-
-- Predicate pushdown 
-- Lazy loading
-- Partitioning 
-- Non-scalar column types
 

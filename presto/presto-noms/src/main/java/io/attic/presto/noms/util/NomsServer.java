@@ -27,6 +27,7 @@ public class NomsServer
 
     private Process process;
     private URI uri;
+    private String dbPath;
 
     public static NomsServer start(String dbPath)
     {
@@ -39,6 +40,7 @@ public class NomsServer
         ProcessBuilder b = new ProcessBuilder(NomsRunner.NOMS_BINARY, "serve", "--port=" + port, dbPath);
         b.environment().put("NOMS_VERSION_NEXT", "1");
         b.inheritIO();
+        this.dbPath = dbPath;
         try {
             process = b.start();
             uri = URI.create("http://localhost:" + port);
@@ -58,15 +60,21 @@ public class NomsServer
 
     private NomsServer waitForStart()
     {
-        for (int retry = 0; retry <= 3; retry++) {
+        long timeout = 200;
+        log.info("Starting " + this);
+        for (int retry = 0; true; retry++) {
             try {
                 uri.toURL().getContent();
                 log.info("Running " + this);
                 return this;
             }
             catch (ConnectException e) {
+                if (retry > 4) {
+                    break;
+                }
                 try {
-                    Thread.sleep(200 * (retry + 1));
+                    timeout *= (retry + 1);
+                    Thread.sleep(timeout);
                 }
                 catch (InterruptedException ie) {
                     throw new RuntimeException(ie);
@@ -76,7 +84,7 @@ public class NomsServer
                 throw new RuntimeException(e);
             }
         }
-        log.warn("Timed out waiting for '%s'. Continuing anyway", this);
+        log.warn("Timed out waiting for %s after %d ms. Continuing anyway", this, timeout);
         return this;
     }
 
@@ -103,6 +111,6 @@ public class NomsServer
 
     public String toString()
     {
-        return "noms serve " + uri.toString();
+        return String.format("[noms serve %s](%s)", dbPath, uri);
     }
 }
