@@ -37,10 +37,10 @@ public class DatasetLoader
             String columnTypesOption = columnTypesOption(dsName);
             String dsSpec = String.format("%s::%s", findOrCreateDB(), dsName);
             String dsSpecRowMajor = dsSpec + "_rm";
-            NomsRunner.deleteDS(dsSpec);
             NomsRunner.deleteDS(dsSpecRowMajor);
             NomsRunner.csvImport(csvFile, dsSpecRowMajor, columnTypesOption);
-            NomsRunner.invert(dsSpecRowMajor, dsSpec);
+            NomsRunner.deleteDS(dsSpec);
+            NomsRunner.csvImport(csvFile, dsSpec, "--invert", columnTypesOption);
             return dsSpec;
         }
         catch (IOException e) {
