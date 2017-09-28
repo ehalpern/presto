@@ -148,7 +148,6 @@ public class SchemaQuery
         private final Map<String, NgqlType> types = new HashMap<>();
         private final String primaryKey;
         private final TableStructure structure;
-        private final boolean usesColumnRefs;
 
         private Result(JsonObject json)
         {
@@ -176,13 +175,9 @@ public class SchemaQuery
             switch (tableType().kind()) {
                 case Struct:
                     structure = TableStructure.ColumnMajor;
-                    usesColumnRefs = tableType().fields().values().iterator().next().kind() == NomsType.Kind.Ref;
                     break;
-                case List:
-                case Set:
-                case Map:
+                case List: case Set: case Map:
                     structure = TableStructure.RowMajor;
-                    usesColumnRefs = false;
                     break;
                 default:
                     throw new PrestoException(NOT_SUPPORTED, "Unsupported table type: " + tableType());
@@ -192,11 +187,6 @@ public class SchemaQuery
         public TableStructure tableStructure()
         {
             return structure;
-        }
-
-        public boolean usesColumnRefs()
-        {
-            return usesColumnRefs;
         }
 
         public NomsType tableType()
@@ -219,15 +209,10 @@ public class SchemaQuery
                     fields = rowMajorFields(tableType);
                     break;
                 case ColumnMajor:
-                    // Column major. Columns are lists. Ignore other fields.
-                    fields = tableType.fields().entrySet().stream().filter(e -> {
-                        switch (e.getValue().kind()) {
-                            case List: case Ref:
-                                return true;
-                            default:
-                                return false;
-                        }
-                    }).collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue()));
+                    // Column major. Columns are Ref<List>. Ignore other fields.
+                    fields = tableType.fields().entrySet().stream().filter(
+                            e -> e.getValue().kind() == NomsType.Kind.Ref
+                    ).collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue()));
                     break;
                 default:
                     throw new AssertionError("unexpected table structure " + tableStructure());
@@ -235,8 +220,6 @@ public class SchemaQuery
 
             return fields.entrySet().stream().map(e -> {
                 switch (e.getValue().kind()) {
-                    case List:
-                        return Pair.of(e.getKey(), e.getValue().argument(0));
                     case Ref:
                         return Pair.of(e.getKey(), e.getValue().argument(0).argument(0));
                     default:
