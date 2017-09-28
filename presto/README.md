@@ -1,13 +1,11 @@
 # Noms Connector for Presto
 
-This is a fork of [prestodb/presto](https://github.com/prestodb/presto) that adds the [presto-noms](presto-noms) connector. See the [Presto README](PRESTO-README.md) for presto details  
+Provides a connector for querying noms bucketdb dataset using Presto.
+
+This project originated as a fork of [prestodb/presto](https://github.com/prestodb/presto).  See the [Presto README](PRESTO-README.md) for presto details.  
 
 ## Setup
-Clone this repo:
-
-    git clone git@github.com:ehalpern/presto.git
-
-Build Presto (details in [Presto README](PRESTO-README.md#building-presto)):
+__Build Presto (details in [Presto README](PRESTO-README.md#building-presto)):__
 
    ``` 
    ./mvnw clean install               # with tests
@@ -16,10 +14,19 @@ Build Presto (details in [Presto README](PRESTO-README.md#building-presto)):
    ```
     ./mvnw clean install -DskipTests   # without tests
    ```
+__Configure IntelliJ__
 
-Download  [IntelliJ IDEA](http://www.jetbrains.com/idea/download) if you don't have it
-
-Follow Presto README instructions for [IDE setup](PRESTO-README.md##running-presto-in-your-ide)
+- Download  [IntelliJ IDEA](http://www.jetbrains.com/idea/download) if needed
+- Open the project in IntelliJ
+- Open the File menu and select Project Structure
+- In the SDKs section, ensure that a 1.8 JDK is selected (create one if none exist)
+- In the Project section, ensure the language level is set to 8.0
+- Presto comes with sample configuration that should work out-of-the-box for development. Use the following options to create a run configuration:
+  - Main Class: `com.facebook.presto.server.PrestoServer`
+  - VM Options: `-ea -XX:+UseG1GC -XX:G1HeapRegionSize=32M -XX:+UseGCOverheadLimit -XX:+ExplicitGCInvokesConcurrent -Xmx2G -Dconfig=etc/config.properties -Dlog.levels-file=etc/log.properties`
+  - Working directory: `$MODULE_DIR$`
+  - Use classpath of module: `presto-server`
+- Configure code style as described in the [Developers](PRESTO-README.md##developers) section of the Presto README 
  
 ## Querying noms data
 
@@ -27,7 +34,7 @@ Start the noms server
 
     noms serve nbs:/tmp/presto-noms/test
 
-Start the presto server in the IDE by running presto-main 
+Start the presto server in the IDE by running presto-server 
 
 Start the presto CLI:
 
@@ -37,13 +44,13 @@ Verify that the server's running:
 
     SELECT * FROM system.runtime.nodes;
 
-Verify that the noms **example** database is visible:
+Verify that the noms **test** database is visible:
 
     SHOW SCHEMAS;
 
 Checkout available tables (i.e. datasets):
 
-    USE example;
+    USE test;
     SHOW TABLES;
 
 Checkout a table schema:
