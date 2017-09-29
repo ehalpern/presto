@@ -58,7 +58,7 @@ public abstract class NgqlQuery<R extends NomsQuery.Result>
         try (JsonReader reader = Json.createReader(resp.asStream())) {
             JsonObject o = reader.readObject();
             long elapsed = (System.nanoTime() - start) / 1000000;
-            log.debug("Query time: %d: %s", elapsed, query());
+            log.debug("Query time: %d: %s", elapsed, query().replace("\n", " "));
             return (R) parseResult(o);
         }
     }

@@ -59,6 +59,6 @@ Checkout a table schema:
 
 Query some data:
 
-    SELECT * from lineitme;
+    SELECT * from lineitem;
     SELECT orderkey, quanity FROM lineitem WHERE quantity < 5;
 
