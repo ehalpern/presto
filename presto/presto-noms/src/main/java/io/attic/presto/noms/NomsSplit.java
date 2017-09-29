@@ -43,9 +43,9 @@ public class NomsSplit
             @JsonProperty("offset") long offset,
             @JsonProperty("limit") long limit)
     {
-        this.addresses = requireNonNull(addresses, "addresses is null");
-        this.tableName = requireNonNull(tableName, "tableName is null");
-        this.effectivePredicate = requireNonNull(effectivePredicate, "effectivePredicate is null");
+        this.addresses = requireNonNull(addresses);
+        this.tableName = requireNonNull(tableName);
+        this.effectivePredicate = requireNonNull(effectivePredicate);
         checkArgument(offset >= 0, "offset:%s >= 0");
         this.offset = offset;
         this.limit = limit;

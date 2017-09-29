@@ -73,9 +73,6 @@ public class ColumnQuery
     //   root {
     //     value {
     //       col0 { targetValue { size, values(at:$offset, count: $count) } }
-    //       col1 { targetValue { size, values(at:$offset, count: $count) } }
-    //       ...
-    //       coln { targetValue { size, values(at:$offset, count: $count) } }
     //     }
     // }
     //

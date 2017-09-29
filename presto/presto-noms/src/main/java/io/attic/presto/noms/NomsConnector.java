@@ -26,7 +26,6 @@ import javax.inject.Inject;
 
 import static com.facebook.presto.spi.transaction.IsolationLevel.READ_UNCOMMITTED;
 import static com.facebook.presto.spi.transaction.IsolationLevel.checkConnectorSupports;
-import static java.util.Objects.requireNonNull;
 
 public class NomsConnector
         implements Connector
@@ -45,10 +44,10 @@ public class NomsConnector
             NomsSplitManager splitManager,
             NomsPageSourceProvider pageSourceProvider)
     {
-        this.lifeCycleManager = requireNonNull(lifeCycleManager, "lifeCycleManager is null");
-        this.metadata = requireNonNull(metadata, "metadata is null");
-        this.splitManager = requireNonNull(splitManager, "splitManager is null");
-        this.pageSourceProvider = requireNonNull(pageSourceProvider, "pageSourceProvider is null");
+        this.lifeCycleManager = lifeCycleManager;
+        this.metadata = metadata;
+        this.splitManager = splitManager;
+        this.pageSourceProvider = pageSourceProvider;
     }
 
     @Override

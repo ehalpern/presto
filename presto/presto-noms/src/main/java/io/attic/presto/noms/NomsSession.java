@@ -40,8 +40,8 @@ public class NomsSession
 
     public NomsSession(String connectorId, NomsClientConfig config)
     {
-        this.connectorId = requireNonNull(connectorId, "connectorId is null");
-        this.config = requireNonNull(config, "config is null");
+        this.connectorId = requireNonNull(connectorId);
+        this.config = requireNonNull(config);
         if (config.isAutostart()) {
             String dbSpec = config.getDatabasePrefix() + "/" + config.getDatabase();
             this.server = NomsServer.start(dbSpec);
@@ -69,7 +69,7 @@ public class NomsSession
         if (!config.getDatabase().equals(schemaName)) {
             throw new SchemaNotFoundException("Schema '" + schemaName + "' is not defined in configuration");
         }
-        // Hack by using noms CLI for now. Would be nice for ngql to provide a dataset query.
+        // Use `noms ds` for now.
         return NomsRunner.ds(nomsURI.toString());
     }
 
@@ -94,8 +94,7 @@ public class NomsSession
         return new NomsTable(
                 new NomsTableHandle(connectorId, config.getDatabase(), tableHandle.getTableName()),
                 schema,
-                columnHandles.build(),
-                nomsURI);
+                columnHandles.build());
     }
 
     public NomsSchema querySchema(String table)

@@ -48,7 +48,6 @@ public abstract class NgqlQuery<R extends NomsQuery.Result>
             throws IOException
     {
         long start = System.nanoTime();
-        // TODO: Consider making async
         Content resp = Request.Post(nomsURI.toString() + "/graphql/").bodyForm(Form.form()
                 .add("ds", dataset)
                 .add("query", query())

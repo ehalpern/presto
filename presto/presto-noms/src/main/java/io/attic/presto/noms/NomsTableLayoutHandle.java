@@ -34,8 +34,8 @@ public class NomsTableLayoutHandle
             @JsonProperty("table") NomsTableHandle table,
             @JsonProperty("effectivePredicate") TupleDomain<ColumnHandle> effectivePredicate)
     {
-        this.table = requireNonNull(table, "table is null");
-        this.effectivePredicate = requireNonNull(effectivePredicate, "effectivePredicate is null");
+        this.table = requireNonNull(table);
+        this.effectivePredicate = requireNonNull(effectivePredicate);
     }
 
     @JsonProperty

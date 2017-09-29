@@ -24,7 +24,7 @@ public class NomsConnectorId
 
     public NomsConnectorId(String connectorId)
     {
-        requireNonNull(connectorId, "connectorId is null");
+        requireNonNull(connectorId);
         checkArgument(!connectorId.isEmpty(), "connectorId is empty");
         this.connectorId = connectorId;
     }

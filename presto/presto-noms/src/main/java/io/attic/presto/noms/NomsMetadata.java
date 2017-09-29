@@ -55,8 +55,8 @@ public class NomsMetadata
             NomsConnectorId connectorId,
             NomsSession session)
     {
-        this.connectorId = requireNonNull(connectorId, "connectorId is null").toString();
-        this.session = requireNonNull(session, "session is null");
+        this.connectorId = requireNonNull(connectorId).toString();
+        this.session = requireNonNull(session);
     }
 
     @Override
@@ -70,26 +70,20 @@ public class NomsMetadata
     @Override
     public NomsTableHandle getTableHandle(ConnectorSession session, SchemaTableName tableName)
     {
-        requireNonNull(tableName, "tableName is null");
+        requireNonNull(tableName);
         try {
             return this.session.getTableHandle(tableName);
         }
         catch (TableNotFoundException | SchemaNotFoundException e) {
-            // rows was not found
             return null;
         }
-    }
-
-    private static SchemaTableName getTableName(ConnectorTableHandle tableHandle)
-    {
-        return ((NomsTableHandle) tableHandle).getSchemaTableName();
     }
 
     @Override
     public ConnectorTableMetadata getTableMetadata(ConnectorSession session, ConnectorTableHandle tableHandle)
     {
-        requireNonNull(tableHandle, "getTableHandle is null");
-        return getTableMetadata(getTableName(tableHandle));
+        SchemaTableName name = ((NomsTableHandle) requireNonNull(tableHandle)).getSchemaTableName();
+        return getTableMetadata(name);
     }
 
     private ConnectorTableMetadata getTableMetadata(SchemaTableName tableName)
@@ -129,8 +123,8 @@ public class NomsMetadata
     @Override
     public Map<String, ColumnHandle> getColumnHandles(ConnectorSession session, ConnectorTableHandle tableHandle)
     {
-        requireNonNull(session, "session is null");
-        requireNonNull(tableHandle, "getTableHandle is null");
+        requireNonNull(session);
+        requireNonNull(tableHandle);
         NomsTable table = this.session.getTable((NomsTableHandle) tableHandle);
         ImmutableMap.Builder<String, ColumnHandle> columnHandles = ImmutableMap.builder();
         for (NomsColumnHandle columnHandle : table.columns()) {
@@ -142,7 +136,7 @@ public class NomsMetadata
     @Override
     public Map<SchemaTableName, List<ColumnMetadata>> listTableColumns(ConnectorSession session, SchemaTablePrefix prefix)
     {
-        requireNonNull(prefix, "prefix is null");
+        requireNonNull(prefix);
         ImmutableMap.Builder<SchemaTableName, List<ColumnMetadata>> columns = ImmutableMap.builder();
         for (SchemaTableName tableName : listTables(session, prefix)) {
             try {
@@ -173,12 +167,6 @@ public class NomsMetadata
      * Given the table, columns and constraints of a query, returns layout
      * information to be used by presto to execute and (potentially) distribute
      * the query.
-     * <p>
-     * At a high-level, this method examines the query to determine how/if
-     * it constrains columns that contribute to a partition or cluster key.
-     * If so, it determines the list of partitions and/or buckets that need
-     * to be queried. It returns a description of the query to execute and
-     * the partitions to execute it on.
      * <p>
      * Consider the example of HiveMetadata.getTableLayouts:
      * - If the query constrains the partition key, issue a query to

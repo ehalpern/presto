@@ -47,6 +47,9 @@ public class NomsClientModule
         configBinder(binder).bindConfig(NomsClientConfig.class);
     }
 
+    /**
+     * Custom factory for NomsSession
+     */
     @Singleton
     @Provides
     public static NomsSession createNomsSession(

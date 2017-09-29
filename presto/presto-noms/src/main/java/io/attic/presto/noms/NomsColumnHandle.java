@@ -43,11 +43,11 @@ public class NomsColumnHandle
             @JsonProperty("nomsType") NomsType nomsType,
             @JsonProperty("primaryKey") boolean primaryKey)
     {
-        this.connectorId = requireNonNull(connectorId, "connectorId is null");
-        this.name = requireNonNull(name, "name is null");
+        this.connectorId = requireNonNull(connectorId);
+        this.name = requireNonNull(name);
         checkArgument(ordinalPosition >= 0, "ordinalPosition is negative");
         this.ordinalPosition = ordinalPosition;
-        this.nomsType = requireNonNull(nomsType, "nomsType is null");
+        this.nomsType = requireNonNull(nomsType);
         this.primaryKey = primaryKey;
     }
 

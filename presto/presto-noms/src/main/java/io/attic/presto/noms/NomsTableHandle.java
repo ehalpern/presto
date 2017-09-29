@@ -35,9 +35,9 @@ public class NomsTableHandle
             @JsonProperty("schemaName") String schemaName,
             @JsonProperty("tableName") String tableName)
     {
-        this.connectorId = requireNonNull(connectorId, "connectorId is null");
-        this.schemaName = requireNonNull(schemaName, "schemaName is null");
-        this.tableName = requireNonNull(tableName, "tableName is null");
+        this.connectorId = requireNonNull(connectorId);
+        this.schemaName = requireNonNull(schemaName);
+        this.tableName = requireNonNull(tableName);
     }
 
     @JsonProperty

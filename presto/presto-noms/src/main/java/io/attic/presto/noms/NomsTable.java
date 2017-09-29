@@ -15,7 +15,6 @@ package io.attic.presto.noms;
 
 import com.google.common.collect.ImmutableList;
 
-import java.net.URI;
 import java.util.List;
 
 import static com.google.common.base.MoreObjects.toStringHelper;
@@ -24,16 +23,13 @@ public class NomsTable
 {
     private final NomsTableHandle tableHandle;
     private final NomsSchema schema;
-
     private final List<NomsColumnHandle> columns;
-    private final URI source;
 
-    public NomsTable(NomsTableHandle tableHandle, NomsSchema schema, List<NomsColumnHandle> columns, URI source)
+    public NomsTable(NomsTableHandle tableHandle, NomsSchema schema, List<NomsColumnHandle> columns)
     {
         this.tableHandle = tableHandle;
         this.schema = schema;
         this.columns = ImmutableList.copyOf(columns);
-        this.source = source;
     }
 
     public List<NomsColumnHandle> columns()
@@ -49,11 +45,6 @@ public class NomsTable
     public NomsSchema schema()
     {
         return schema;
-    }
-
-    public URI source()
-    {
-        return source;
     }
 
     @Override

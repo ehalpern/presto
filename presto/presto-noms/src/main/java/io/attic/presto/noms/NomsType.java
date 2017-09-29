@@ -35,36 +35,29 @@ public class NomsType
 {
     public enum Kind
     {
-        Blob(VarbinaryType.VARBINARY, ByteBuffer.class),
-        Cycle(VarbinaryType.VARBINARY, null), // TODO: verify native type
-        Boolean(BooleanType.BOOLEAN, Boolean.class),
-        Number(DoubleType.DOUBLE, Double.class),
-        String(VarcharType.VARCHAR, String.class),
-        List(VarcharType.VARCHAR, null),    // TODO: Why not List?
-        Map(VarcharType.VARCHAR, null),    // TODO: Why not Map?
-        Ref(VarcharType.VARCHAR, null),     // TODO: Verify native type
-        Set(VarcharType.VARCHAR, null),     // TODO: Why not Set?
-        Struct(VarcharType.VARCHAR, null),  // TODO: Why not Row?
-        Type(VarcharType.VARCHAR, null),    // TODO: Verify native type
-        Union(VarcharType.VARCHAR, null);   // TODO: determine native type
+        Blob(VarbinaryType.VARBINARY),
+        Cycle(VarbinaryType.VARBINARY),
+        Boolean(BooleanType.BOOLEAN),
+        Number(DoubleType.DOUBLE),
+        String(VarcharType.VARCHAR),
+        List(VarcharType.VARCHAR),
+        Map(VarcharType.VARCHAR),
+        Ref(VarcharType.VARCHAR),
+        Set(VarcharType.VARCHAR),
+        Struct(VarcharType.VARCHAR),
+        Type(VarcharType.VARCHAR),
+        Union(VarcharType.VARCHAR);
 
         private final Type nativeType;
-        private final Class<?> javaType;
 
-        private Kind(Type nativeType, Class<?> javaType)
+        private Kind(Type nativeType)
         {
             this.nativeType = nativeType;
-            this.javaType = javaType;
         }
 
         public Type nativeType()
         {
             return nativeType;
-        }
-
-        public Class<?> javaType()
-        {
-            return javaType;
         }
     }
 
@@ -147,11 +140,6 @@ public class NomsType
     public Type nativeType()
     {
         return kind.nativeType();
-    }
-
-    public Class<?> javaType()
-    {
-        return kind.javaType();
     }
 
     public int hashCode()
