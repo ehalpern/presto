@@ -43,4 +43,9 @@ cd ~
 
 #### Step 3: Import into bucketdb
 
-TBD
+Execute noms-import.sh to import the data from the csv files into a Noms database.
+```
+noms-import --dir ./export/trips <dsspec>
+```
+This will import the first 100 million rows into the noms database. You can add the arguments: "--size 1000", to import all the csv files (about ~1G rows). If you need to restart the script for some reason and you don't want to start importing from scratch, you can use "--skip <n>" to indicate that the first n rows should not be imported. This can be combined with "--append true" so that the existing dataset is appended to, rather than overwritten.
+```
