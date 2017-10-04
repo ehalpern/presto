@@ -331,7 +331,6 @@
                 <groupId>com.facebook.presto</groupId>
                 <artifactId>presto-thrift-connector</artifactId>
                 <version>${project.version}</version>
-                <type>zip</type>
             </dependency>
 
             <dependency>

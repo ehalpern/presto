@@ -1,0 +1,13 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "tuCz3k+tWEgzfuWpiB8k+adLhRg=",
+			"path": "git.apache.org/thrift.git/lib/go/thrift",
+			"revision": "9f9e30b51e3912c0b63258badf5501d3cb2550be",
+			"revisionTime": "2017-10-06T07:57:27Z"
+		}
+	],
+	"rootPath": "github.com/attic-labs/bucketdb/presto/presto-noms-thrift"
+}

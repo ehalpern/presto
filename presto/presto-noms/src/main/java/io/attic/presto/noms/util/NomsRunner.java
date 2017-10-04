@@ -62,6 +62,8 @@ public class NomsRunner
     /*package*/ static final String NOMS_BINARY;
     /*package*/ static final String CSV_IMPORT_BINARY;
     /*package*/ static final String CSV_INVERT_BINARY;
+    /*package*/ static final String NOMS_THRIFT_BINARY;
+
 
     private NomsRunner() {}
 
@@ -73,6 +75,7 @@ public class NomsRunner
         NOMS_BINARY = goPath + "/bin/noms";
         CSV_IMPORT_BINARY = goPath + "/bin/csv-import";
         CSV_INVERT_BINARY = goPath + "/bin/csv-invert";
+        NOMS_THRIFT_BINARY = goPath + "/bin/presto-noms-thrift";
     }
 
     private static String exec(List<String> command, boolean ignoreErrors)

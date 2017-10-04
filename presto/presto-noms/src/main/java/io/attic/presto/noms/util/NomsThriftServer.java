@@ -16,31 +16,31 @@ package io.attic.presto.noms.util;
 import io.airlift.log.Logger;
 
 import java.io.IOException;
-import java.net.ConnectException;
 import java.net.ServerSocket;
+import java.net.Socket;
 import java.net.URI;
 
-public class NomsServer
+public class NomsThriftServer
         implements AutoCloseable
 {
-    private static final Logger log = Logger.get(NomsServer.class);
+    private static final Logger log = Logger.get(NomsThriftServer.class);
 
     private Process process;
     private URI uri;
-    private String dbPath;
+    private String dbPrefix;
 
-    public static NomsServer start(String dbPath)
+    public static NomsThriftServer start(String dbPrefix)
     {
-        return (new NomsServer(dbPath)).waitForStart();
+        return (new NomsThriftServer(dbPrefix)).waitForStart();
     }
 
-    public NomsServer(String dbPath)
+    public NomsThriftServer(String dbPrefix)
     {
         int port = findFreePort();
-        ProcessBuilder b = new ProcessBuilder(NomsRunner.NOMS_BINARY, "serve", "--port=" + port, dbPath);
+        ProcessBuilder b = new ProcessBuilder(NomsRunner.NOMS_THRIFT_BINARY, "--framed", "--addr=localhost:" + port, "--db-prefix=" + dbPrefix);
         b.environment().put("NOMS_VERSION_NEXT", "1");
         b.inheritIO();
-        this.dbPath = dbPath;
+        this.dbPrefix = dbPrefix;
         try {
             process = b.start();
             uri = URI.create("http://localhost:" + port);
@@ -58,17 +58,18 @@ public class NomsServer
         return uri;
     }
 
-    private NomsServer waitForStart()
+    private NomsThriftServer waitForStart()
     {
         long timeout = 200;
         log.info("Starting " + this);
         for (int retry = 0; true; retry++) {
+            Socket s = null;
             try {
-                uri.toURL().getContent();
+                s = new Socket(uri.getHost(), uri.getPort());
                 log.info("Running " + this);
                 return this;
             }
-            catch (ConnectException e) {
+            catch (Exception e) {
                 if (retry > 4) {
                     break;
                 }
@@ -80,8 +81,10 @@ public class NomsServer
                     throw new RuntimeException(ie);
                 }
             }
-            catch (IOException e) {
-                throw new RuntimeException(e);
+            finally {
+                if (s != null)
+                    try {s.close();}
+                    catch(Exception e){}
             }
         }
         // Startup can be very slow (> 20 seconds) with a large database.
@@ -115,6 +118,6 @@ public class NomsServer
 
     public String toString()
     {
-        return String.format("[noms serve %s](%s)", dbPath, uri);
+        return String.format("[presto-noms-thrift %s](%s)", dbPrefix, uri);
     }
 }

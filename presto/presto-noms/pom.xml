@@ -7,7 +7,6 @@
         <version>0.183</version>
     </parent>
 
-    <version>0.183-SNAPSHOT</version>
     <groupId>io.attic.presto</groupId>
     <artifactId>presto-noms</artifactId>
     <description>Presto - Noms Connector</description>
@@ -177,6 +176,19 @@
             <artifactId>testing</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.facebook.presto</groupId>
+            <artifactId>presto-thrift-connector</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.facebook.presto</groupId>
+            <artifactId>presto-thrift-connector-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>
