@@ -82,9 +82,13 @@ public class NomsThriftServer
                 }
             }
             finally {
-                if (s != null)
-                    try {s.close();}
-                    catch(Exception e){}
+                if (s != null) {
+                    try {
+                        s.close();
+                    }
+                    catch (Exception e) {
+                    }
+                }
             }
         }
         // Startup can be very slow (> 20 seconds) with a large database.

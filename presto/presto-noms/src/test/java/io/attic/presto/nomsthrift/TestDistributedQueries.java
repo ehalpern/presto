@@ -17,7 +17,6 @@ import com.facebook.presto.Session;
 import com.facebook.presto.testing.MaterializedResult;
 import com.facebook.presto.testing.MaterializedRow;
 import com.facebook.presto.tests.AbstractTestQueryFramework;
-import io.attic.presto.noms.NomsQueryRunner;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
@@ -26,7 +25,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.facebook.presto.tests.QueryAssertions.assertEqualsIgnoreOrder;
-import static com.facebook.presto.tests.QueryAssertions.assertContains;
 import static org.testng.Assert.fail;
 
 @Test(singleThreaded = true)
@@ -52,8 +50,7 @@ public class TestDistributedQueries
                 new Object[][] {
                         {"information_schema"},
                         {"test"},
-                        {"tiny"},
-                });
+                        });
     }
 
     @Test
@@ -62,13 +59,13 @@ public class TestDistributedQueries
         assertQuery(
                 "DESCRIBE test.types",
                 new Object[][] {
-                        {"typebool"},
-                        {"typedouble"},
-                        {"typestring"},
+                        {"typebool", "boolean", "", ""},
+                        {"typedouble", "double", "", ""},
+                        {"typestring", "varchar", "", ""},
                         });
     }
 
-    @Test(enabled = false)
+    @Test(enabled = true)
     public void testSelect()
     {
         assertQuery(
@@ -83,11 +80,11 @@ public class TestDistributedQueries
                 });
     }
 
-    @Test(enabled = true)
+    @Test(enabled = false)
     public void testSimpleSelectRowMajor()
     {
         assertQuery(
-                "SELECT typestring, typebool, typedouble from test.types_rm",
+                "SELECT typestring, typebool, typedouble FROM test.types_rm",
                 new Object[][] {
                         {"string0", false, 1000},
                         {"string1", true, 1001},
@@ -98,7 +95,7 @@ public class TestDistributedQueries
                 });
     }
 
-    @Test(enabled = true)
+    @Test(enabled = false)
     public void testSelectCountStar()
     {
         assertQuery(
@@ -138,6 +135,5 @@ public class TestDistributedQueries
         }
         List<MaterializedRow> actualRows = actualResults.getMaterializedRows();
         assertEqualsIgnoreOrder(actualRows, expectedRows, "For query: \n " + sql);
-
     }
 }

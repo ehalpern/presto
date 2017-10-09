@@ -5,12 +5,13 @@ app=PrestoApp
 group=PrestoDeployment
 bucket=bucketdb-builds
 bundle=presto-noms-bundle
+target=presto-noms/target
 type=zip
 (
     cd $(dirname $0)
     ./bundle
     aws deploy push --application-name ${app} \
-      --source $(find target -type d -name ${bundle}-*) \
+      --source $(find ${target} -type d -name ${bundle}-*) \
       --s3-location s3://${bucket}/${bundle}.${type}
 
     id=$(aws deploy create-deployment \

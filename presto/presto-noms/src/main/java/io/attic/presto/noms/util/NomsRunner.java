@@ -64,7 +64,6 @@ public class NomsRunner
     /*package*/ static final String CSV_INVERT_BINARY;
     /*package*/ static final String NOMS_THRIFT_BINARY;
 
-
     private NomsRunner() {}
 
     static {

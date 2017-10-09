@@ -6,7 +6,9 @@ files:
     destination: /var/lib/presto/go/bin
   - source: plugin/noms
     destination: /usr/lib/presto/lib/plugin/noms
-  - source: etc
+  - source: etc/init.d
+    destination: /etc/init.d
+  - source: etc/presto
     destination: /etc/presto
 
 hooks:
