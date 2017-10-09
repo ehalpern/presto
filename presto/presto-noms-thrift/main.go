@@ -38,10 +38,10 @@ func main() {
 	framed := flag.Bool("framed", false, "Use framed transport")
 	buffered := flag.Bool("buffered", false, "Use buffered transport")
 	addr := flag.String("addr", "localhost:9090", "Address to listen to")
-	dbPrefix := flag.String("db-prefix", "nbs:/tmp/presto-noms", "Database path prefix")
-
+	flag.StringVar(&config.dbPrefix,"db-prefix", "nbs:/tmp/presto-noms", "Database path prefix")
+	flag.Uint64Var(&config.maxBatchSize,"max-batch-size", 1000000, "Max rows per batch")
 	flag.Parse()
-
+	config.minRowsPerSplit = minUint64(config.maxBatchSize, config.minRowsPerSplit)
 	var protocolFactory thrift.TProtocolFactory
 	switch *protocol {
 	case "compact":
@@ -69,7 +69,7 @@ func main() {
 		transportFactory = thrift.NewTFramedTransportFactory(transportFactory)
 	}
 
-	if err := runServer(transportFactory, protocolFactory, *addr, *dbPrefix); err != nil {
+	if err := runServer(transportFactory, protocolFactory, *addr, config.dbPrefix); err != nil {
 		fmt.Println("error running server:", err)
 	}
 }

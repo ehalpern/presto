@@ -44,13 +44,14 @@ func getTable(dbPrefix string, name *PrestoThriftSchemaTableName) (t nomsTable, 
 	if err != nil {
 		return nil, err
 	}
+	// TODO: validate entire type structure and return (nil, nil) if not valid
 	switch table := sp.GetDataset().HeadValue().(type) {
 	case types.List, types.Set, types.Map:
 		return &rowMajorTable{name, sp, table}, nil
 	case types.Struct:
 		return &colMajorTable{name, sp, table}, nil
 	default:
-		return nil, serviceError("Dataset %v not a queriable type. It must be Struct<List<Ref>> or List|Map|Set<Struct>", types.TypeOf(table))
+		return nil, nil
 	}
 }
 
@@ -73,6 +74,9 @@ func (t *colMajorTable) getMetadata() (metadata *PrestoThriftTableMetadata, err 
 			Type: kindToPrestoType[colType.TargetKind()],
 		})
 	})
+	if len(columns) == 0 {
+		return nil, serviceError("%v not a queriable type", t.name)
+	}
 	comment := "column-major"
 	metadata = &PrestoThriftTableMetadata {
 		t.name,
@@ -228,6 +232,9 @@ func (t *rowMajorTable) getMetadata() (metadata *PrestoThriftTableMetadata, err 
 			return
 		}
 	})
+	if len(columns) == 0 {
+		return nil, serviceError("%v not a queriable type", t.name)
+	}
 	comment := "row-major"
 	metadata = &PrestoThriftTableMetadata {
 			t.name,

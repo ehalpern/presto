@@ -1,6 +1,11 @@
 package main
 
-const (
-	MaxBatchSize = 1000000
-	MinRowsPerSplit = 1000000
-)
+var config = struct {
+	dbPrefix string
+	maxBatchSize uint64
+	minRowsPerSplit uint64
+}{
+	"nbs:/tmp/presto-noms",
+	1000000,
+	1000000,
+}

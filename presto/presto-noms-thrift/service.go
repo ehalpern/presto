@@ -174,7 +174,7 @@ func (h *ServiceHandler) PrestoGetSplits(
 		return
 	}
 	rowCount := table.getRowCount()
-	splitCount := minUint64(rowCount / MinRowsPerSplit, uint64(maxSplitCount))
+	splitCount := maxUint64(1, minUint64(rowCount / config.minRowsPerSplit, uint64(maxSplitCount)))
 	rowsPerSplit := rowCount / splitCount
 	var splits []*PrestoThriftSplit
 	for i := uint64(0); i < splitCount; i++ {
@@ -223,6 +223,13 @@ func (h *ServiceHandler) PrestoGetRows(ctx context.Context,
 
 func minUint64(x, y uint64) uint64 {
 	if x < y {
+		return x
+	}
+	return y
+}
+
+func maxUint64(x, y uint64) uint64 {
+	if x > y {
 		return x
 	}
 	return y

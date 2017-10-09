@@ -27,7 +27,7 @@ func newBatch(splitId *PrestoThriftId, batchToken *PrestoThriftNullableToken) *B
 		s := splitFromId(splitId)
 		b = Batch{
 			s.Schema, s.Table,
-			s.Offset, minUint64(MaxBatchSize, s.Limit),
+			s.Offset, minUint64(config.maxBatchSize, s.Limit),
 			s.Limit,
 		}
 	}
@@ -40,7 +40,7 @@ func (b *Batch) nextBatchToken() *PrestoThriftId {
 	}
 	next := Batch{
 		b.Schema, b.Table,
-		b.Offset + b.Limit, minUint64(MaxBatchSize, b.TotalLimit),
+		b.Offset + b.Limit, minUint64(config.maxBatchSize, b.TotalLimit),
 		b.TotalLimit,
 	}
 	return next.id()
