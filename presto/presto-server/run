@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -x
+dir=$(dirname $0)
+etc=${dir}/etc
+java_opts=`cat ${etc}/jvm.config`
+java ${java_opts} -cp "${dir}/lib/*" \
+    -Dlog.levels-file=${etc}/log.properties \
+    -Dconfig=${etc}/config.properties \
+    com.facebook.presto.server.PrestoServer
