@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-run --framed --max-batch-size=50000 --db-prefix=nbs:/tmp/presto-noms $*
+presto-noms-thrift --framed --max-batch-size=50000 --db-prefix=nbs:/tmp/presto-noms $*
