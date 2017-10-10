@@ -2,12 +2,24 @@
 set -x -e
 
 version=0.183-SNAPSHOT
-target=presto-noms/target
+target=./presto-noms/target
 bundle=${target}/presto-noms-bundle-${version}
+gobin=${bundle}/go/bin
 noms_plugin=${target}/presto-noms-${version}
-noms_binaries=s3://download.noms.io/$(aws s3 ls --recursive s3://download.noms.io/jobs/NomsBuildGoBinaries/ | grep linux-amd64 | tail -1 | awk '{ print $4 }')
 
-(
+get_noms_binaries() {
+    noms_binaries=s3://download.noms.io/$(aws s3 ls --recursive s3://download.noms.io/jobs/NomsBuildGoBinaries/ | grep linux-amd64 | tail -1 | awk '{ print $4 }')
+    aws s3 cp ${noms_binaries} ${target}/noms.tar.gz
+    tar -xf ${target}/noms.tar.gz -C ${gobin}/
+}
+
+go_build() {
+    pkg=$1
+    name=`basename ${pkg}`
+    env GOOS=linux GOARCH=amd64 go build -o ${gobin}/${name} ${pkg}
+}
+
+bundle() {
     cd $(dirname $0)
 
     rm -fr ./${bundle}/*; mkdir -p ${bundle}
@@ -16,8 +28,11 @@ noms_binaries=s3://download.noms.io/$(aws s3 ls --recursive s3://download.noms.i
     mkdir -p ${bundle}/plugin/noms
     cp -r ${noms_plugin}/* ${bundle}/plugin/noms/
 
-    mkdir -p ${bundle}/go/bin
-    aws s3 cp ${noms_binaries} ${target}/noms.tar.gz
-    tar -xf ${target}/noms.tar.gz -C ${bundle}/go/bin/
-    env GOOS=linux GOARCH=amd64 go build -v -o ${bundle}/go/bin/presto-noms-thrift github.com/attic-labs/bucketdb/presto/presto-noms-thrift
-)
+    mkdir -p ${gobin}
+    #get_noms_binaries
+    go_build "github.com/attic-labs/noms/cmd/noms"
+    go_build "github.com/attic-labs/bucketdb/presto/presto-noms-thrift"
+}
+
+bundle
+
