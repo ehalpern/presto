@@ -44,10 +44,10 @@ func (h *ServiceHandler) PrestoListSchemaNames(ctx context.Context) (r []string,
 			}
 		}
 	case "aws":
-		manifest := parts[1]
-		query := &dynamodb.QueryInput{
+		manifest := strings.Trim(parts[1], "//")
+		scan := &dynamodb.ScanInput{
 			TableName: aws.String(manifest),
-			KeyConditionExpression: aws.String("begins_with(db, :prefix)"),
+			FilterExpression: aws.String("begins_with(db, :prefix)"),
 			ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
 				":prefix": {S: aws.String("/p/")},
 			},
@@ -55,16 +55,16 @@ func (h *ServiceHandler) PrestoListSchemaNames(ctx context.Context) (r []string,
 		}
 		sess := session.Must(session.NewSession(aws.NewConfig().WithRegion("us-west-2")))
 		svc := dynamodb.New(sess)
-		result, err := svc.Query(query)
+		result, err := svc.Scan(scan)
 		if err != nil {
 			return r, serviceError("failed to find manifests: %v", err)
 		}
-		if len(result.Items) != 1 {
+		if len(result.Items) == 0 {
 			return r, serviceError("manifest query had no results")
 		}
-		for k, v := range result.Items[0] {
-			if k == "db" {
-				r = append(r, strings.TrimPrefix(*(v.S), "/p/"))
+		for _, v := range result.Items {
+			if v["db"] != nil {
+				r = append(r, strings.TrimPrefix(*(v["db"].S), "/p/"))
 			}
 		}
 	}
