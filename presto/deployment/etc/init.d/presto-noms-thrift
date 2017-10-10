@@ -9,7 +9,8 @@
 # Description:       Enable service provided by daemon.
 ### END INIT INFO
 
-cmd="NOMS_VERSION_NEXT=1 /var/lib/presto/go/bin/presto-noms-thrift"
+db_prefix="aws://bucketdb-manifests:bucketdb-tables/p"
+cmd="NOMS_VERSION_NEXT=1 /var/lib/presto/go/bin/presto-noms-thrift --framed --db-prefix=${db_prefix}"
 user="presto"
 
 name=`basename $0`
