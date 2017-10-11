@@ -9,6 +9,209 @@
 			"revisionTime": "2017-10-06T07:57:27Z"
 		},
 		{
+			"checksumSHA1": "8M1v4Y5ozLprZlI9oyjqfZ9dWZ0=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/attic-labs/graphql",
+			"path": "github.com/attic-labs/graphql",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "PyRdNW2SO7+wXCdlidW2f07WhnQ=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/attic-labs/graphql/gqlerrors",
+			"path": "github.com/attic-labs/graphql/gqlerrors",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "siqzwhvA8uV+9N/EYnLvtQCuLYU=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/attic-labs/graphql/language/ast",
+			"path": "github.com/attic-labs/graphql/language/ast",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "VIY8cl8/ZzsK6by8BfJtGz5YZME=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/attic-labs/graphql/language/kinds",
+			"path": "github.com/attic-labs/graphql/language/kinds",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "VyU/Wv64d/Ys1KaQI0YiN8fZoPs=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/attic-labs/graphql/language/lexer",
+			"path": "github.com/attic-labs/graphql/language/lexer",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "VZ3GcvYo7ZXdAQeBYGhsSFGyYaU=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/attic-labs/graphql/language/location",
+			"path": "github.com/attic-labs/graphql/language/location",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "TqCzffaBSXU/0GZnzwcuGi0bM7E=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/attic-labs/graphql/language/parser",
+			"path": "github.com/attic-labs/graphql/language/parser",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "SBjKOEfU2LbZke7P8R/KPVLkt8I=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/attic-labs/graphql/language/printer",
+			"path": "github.com/attic-labs/graphql/language/printer",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "HS1BAlagtS19SOyv12ct6ADIrnE=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/attic-labs/graphql/language/source",
+			"path": "github.com/attic-labs/graphql/language/source",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "JT+hiskurzI13rBxfXnPf57ePxs=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/attic-labs/graphql/language/typeInfo",
+			"path": "github.com/attic-labs/graphql/language/typeInfo",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "53XPR4gQwmeqErbM27FzoUaFM3M=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/attic-labs/graphql/language/visitor",
+			"path": "github.com/attic-labs/graphql/language/visitor",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "UY4V9a48kpgOl3J3P1qLKW7lquE=",
+			"path": "github.com/attic-labs/noms/go/chunks",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "HPMBQ9b7A0BIfZc2tea2gW0yIC4=",
+			"path": "github.com/attic-labs/noms/go/constants",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "864MlumC7P3xBPzMyaDIkf3O/sI=",
+			"path": "github.com/attic-labs/noms/go/d",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "hEaeNhrWCtZICwmhbf6MIn794cI=",
+			"path": "github.com/attic-labs/noms/go/datas",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "wXXPDY11ry1hZ7j+z5VUVUJez7Q=",
+			"path": "github.com/attic-labs/noms/go/hash",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "l8/sQhZKhRCPXcrriWaSjAD8ajI=",
+			"path": "github.com/attic-labs/noms/go/ipfs",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "M3PErNFV6If1D9cU9LYDt1wjqoI=",
+			"path": "github.com/attic-labs/noms/go/marshal",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "SusuCPod2mUB17jvg15Dz9RPmZg=",
+			"path": "github.com/attic-labs/noms/go/merge",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "eLpvm5tkpJNyz1ipGfGhyz5ojZI=",
+			"path": "github.com/attic-labs/noms/go/metrics",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "skAd2Ni8P1+ePLirm0KqrAeVgFs=",
+			"path": "github.com/attic-labs/noms/go/nbs",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "tQzPbzu53Iya3+dtpBe8ILfQKLc=",
+			"path": "github.com/attic-labs/noms/go/ngql",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "93Wnwx/1M63VCymTnKmGEeueo28=",
+			"path": "github.com/attic-labs/noms/go/nomdl",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "7PnxWqt7NrA40FHvahk0CCw+RuA=",
+			"path": "github.com/attic-labs/noms/go/sloppy",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "Efhe0JI/p4WptCtAWoYcGvwcYdQ=",
+			"path": "github.com/attic-labs/noms/go/spec",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "HrGBS5+noSsDqtnbjxR8jESQ3aQ=",
+			"path": "github.com/attic-labs/noms/go/types",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "HBZM55R2+3uRbKrRTWpWwLyLnbs=",
+			"path": "github.com/attic-labs/noms/go/util/exit",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "TT9lBhu8H3nzGklK0BGs4KoQR3I=",
+			"path": "github.com/attic-labs/noms/go/util/functions",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "FMFB4R0OhdlMTDOBQ0gptMutVR8=",
+			"path": "github.com/attic-labs/noms/go/util/sizecache",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "WDEaGFCEP3QhW4QkZH/2pnLYNew=",
+			"path": "github.com/attic-labs/noms/go/util/verbose",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "e2cjvTqWFLmdhbputO4vXFCBwts=",
+			"path": "github.com/attic-labs/noms/go/util/writers",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "9jfWjT9EpJwgh7fTjdNsoVHvACw=",
+			"path": "github.com/attic-labs/noms/samples/go/decent/dbg",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
 			"checksumSHA1": "S8Kr1ZC1hLHjRLJSUUEZ93COnqs=",
 			"path": "github.com/aws/aws-sdk-go/aws",
 			"revision": "6a685514dcef5639d0cf495cd15febca0eed7a6b",
@@ -187,16 +390,478 @@
 			"revisionTime": "2017-10-02T20:02:53Z"
 		},
 		{
+			"checksumSHA1": "xteP9Px90oMrg/HZuqvZkpXCR+s=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/dustin/go-humanize",
+			"path": "github.com/dustin/go-humanize",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
 			"checksumSHA1": "87LEfpY9cOk9CP7pWyIbmQ/6enU=",
 			"path": "github.com/go-ini/ini",
 			"revision": "c787282c39ac1fc618827141a1f762240def08a3",
 			"revisionTime": "2017-08-13T05:22:30Z"
 		},
 		{
+			"checksumSHA1": "W+E/2xXcE1GmJ0Qb784ald0Fn6I=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/golang/snappy",
+			"path": "github.com/golang/snappy",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "fBEPNY7V5VEs/kTIeOPyCvQO+rI=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/Godeps/_workspace/src/github.com/briantigerchow/pubsub",
+			"path": "github.com/ipfs/go-ipfs/Godeps/_workspace/src/github.com/briantigerchow/pubsub",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "3N7NapaW5VGqC+y61bbYTew+LSE=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/Godeps/_workspace/src/github.com/mitchellh/go-homedir",
+			"path": "github.com/ipfs/go-ipfs/Godeps/_workspace/src/github.com/mitchellh/go-homedir",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "1Pi+/7D2iYQRj5p0IA3fPOf1Y/U=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/Godeps/_workspace/src/github.com/whyrusleeping/chunker",
+			"path": "github.com/ipfs/go-ipfs/Godeps/_workspace/src/github.com/whyrusleeping/chunker",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "o1SaRa2wOThY6sATCt3LX7KUl08=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/blocks/blockstore",
+			"path": "github.com/ipfs/go-ipfs/blocks/blockstore",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "cdj5FqceABoF0uYkc3fr2CLBwW4=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/blockservice",
+			"path": "github.com/ipfs/go-ipfs/blockservice",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "W0eH2TQ1+/6wSgRUf0/tvFUXWnM=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/commands/files",
+			"path": "github.com/ipfs/go-ipfs/commands/files",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "bU+MtuTx+OKwqVhYn5NmYdVjtX8=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/core",
+			"path": "github.com/ipfs/go-ipfs/core",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "4E9cQaw0UeiFk9WMZSYliv4qFQ8=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/exchange",
+			"path": "github.com/ipfs/go-ipfs/exchange",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "z3YLlVHSTnUkU9pcH/O6EoxjM4g=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/exchange/bitswap",
+			"path": "github.com/ipfs/go-ipfs/exchange/bitswap",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "hKC9YqyQZf3pgDD3rIKOe20Wvcg=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/exchange/bitswap/decision",
+			"path": "github.com/ipfs/go-ipfs/exchange/bitswap/decision",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "bySnDF5VrooX200kCX6RyhDAlP0=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/exchange/bitswap/message",
+			"path": "github.com/ipfs/go-ipfs/exchange/bitswap/message",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "ixlYHOzOJCKhcX+eskYu6SjuJi0=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/exchange/bitswap/message/pb",
+			"path": "github.com/ipfs/go-ipfs/exchange/bitswap/message/pb",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "LennU27F010MshxNPMXYG5FwdC8=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/exchange/bitswap/network",
+			"path": "github.com/ipfs/go-ipfs/exchange/bitswap/network",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "E4zIGuZ37JhWj6iQl2bMzB0+Hbg=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/exchange/bitswap/notifications",
+			"path": "github.com/ipfs/go-ipfs/exchange/bitswap/notifications",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "n14tlSRhqQ8s+5wAMP/m2JmsbJ0=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/exchange/bitswap/testnet",
+			"path": "github.com/ipfs/go-ipfs/exchange/bitswap/testnet",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "HtqK/hEBvzFiddTCzKY20Ywny5g=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/exchange/bitswap/wantlist",
+			"path": "github.com/ipfs/go-ipfs/exchange/bitswap/wantlist",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "7vVlXnw938je3811+lphU9Z/3cI=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/exchange/offline",
+			"path": "github.com/ipfs/go-ipfs/exchange/offline",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "p2ny04JHj1VsIQEQu9JCQQM6XkQ=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/exchange/reprovide",
+			"path": "github.com/ipfs/go-ipfs/exchange/reprovide",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "JB4QdGV3LGOzuuy8tXoOlZCyhkk=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/filestore",
+			"path": "github.com/ipfs/go-ipfs/filestore",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "nFdwR9wVY/0sr453FypBghQJHG8=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/filestore/pb",
+			"path": "github.com/ipfs/go-ipfs/filestore/pb",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "6iqSls3RaYY3tYVA56CQxD9Q2RU=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/flags",
+			"path": "github.com/ipfs/go-ipfs/flags",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "Lo4f4NAkSdrIwfrMuZq/YHnRjKA=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/fuse/mount",
+			"path": "github.com/ipfs/go-ipfs/fuse/mount",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "n6im1K+lHwaZRRL3X4hodbMvVjs=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/importer/chunk",
+			"path": "github.com/ipfs/go-ipfs/importer/chunk",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "U6MB3HUuBezvBUX+v2k455Gh5UA=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/importer/helpers",
+			"path": "github.com/ipfs/go-ipfs/importer/helpers",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "kFv9T9MziIyVchqhb8VZW9aWE/c=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/importer/trickle",
+			"path": "github.com/ipfs/go-ipfs/importer/trickle",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "Qe54eeB7mjVhA/CwmuNWebSl5vw=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/keystore",
+			"path": "github.com/ipfs/go-ipfs/keystore",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "y9sNNWVnGSphqnio4OusgJR+gpM=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/merkledag",
+			"path": "github.com/ipfs/go-ipfs/merkledag",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "Il5lOuD5//Nyvu63YC3vNPPWWkw=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/merkledag/pb",
+			"path": "github.com/ipfs/go-ipfs/merkledag/pb",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "gTyn1YyTXHz9kUUQ2WT7HgeMdSE=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/merkledag/utils",
+			"path": "github.com/ipfs/go-ipfs/merkledag/utils",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "hiQ6Uq4J6K4SvuKt9l+OL0ffJ8E=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/mfs",
+			"path": "github.com/ipfs/go-ipfs/mfs",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "YNTysLkU3w3gameKVHx+NNMzO6I=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/namesys",
+			"path": "github.com/ipfs/go-ipfs/namesys",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "q1YxPc/kS542fRRgekMwChEenmg=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/namesys/pb",
+			"path": "github.com/ipfs/go-ipfs/namesys/pb",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "96GR3f0S1okpqQcDFtmGDUuo4KI=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/namesys/republisher",
+			"path": "github.com/ipfs/go-ipfs/namesys/republisher",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "tGtSFWtRE+bMQL+TbCA8KTVrfok=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/p2p",
+			"path": "github.com/ipfs/go-ipfs/p2p",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "9F9Ot6sm5CVop1MO9KZ6bzY3Qho=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/path",
+			"path": "github.com/ipfs/go-ipfs/path",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "zn10fZVpX0hR36fNKZXzZE1JNYo=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/pin",
+			"path": "github.com/ipfs/go-ipfs/pin",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "vz+hn+kIdvwMVMMRgDFHUw5WJnE=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/pin/internal/pb",
+			"path": "github.com/ipfs/go-ipfs/pin/internal/pb",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "gV9xrGkdoYJiSqdv5uapXI/1O00=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/repo",
+			"path": "github.com/ipfs/go-ipfs/repo",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "LyV/KXNeGXkWLMEG4Zhy4xlfB2A=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/repo/common",
+			"path": "github.com/ipfs/go-ipfs/repo/common",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "HnPcPxSFGGCG46ASfrN24kPG8Xo=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/repo/config",
+			"path": "github.com/ipfs/go-ipfs/repo/config",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "K6ZSLx+r2dfJPEuUYVAeLTzEtrE=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/repo/fsrepo",
+			"path": "github.com/ipfs/go-ipfs/repo/fsrepo",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "k70TLVnVR3vWWDAgt9XjdWYyU/A=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/repo/fsrepo/lock",
+			"path": "github.com/ipfs/go-ipfs/repo/fsrepo/lock",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "oIz6qu6LTxak5OUvG51agOp7qV0=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/repo/fsrepo/migrations",
+			"path": "github.com/ipfs/go-ipfs/repo/fsrepo/migrations",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "OSo/efBw9Vc0b5F9PhsEyGgdp7Q=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/repo/fsrepo/serialize",
+			"path": "github.com/ipfs/go-ipfs/repo/fsrepo/serialize",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "BaV6m12d9DXgNjGLzBJw5LCj+kw=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/routing/mock",
+			"path": "github.com/ipfs/go-ipfs/routing/mock",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "08QtkL17+toDXEVdtXMA0tZzeQw=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/routing/none",
+			"path": "github.com/ipfs/go-ipfs/routing/none",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "gNIBW7yZbWa9x7RMRB000JM+Rpg=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/routing/offline",
+			"path": "github.com/ipfs/go-ipfs/routing/offline",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "gxALRKnF7aPdqYPPz36vo0PTzLg=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/thirdparty/datastore2",
+			"path": "github.com/ipfs/go-ipfs/thirdparty/datastore2",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "0ONf6hIFM7zoH5JHFLzJJrO1+Dg=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/thirdparty/delay",
+			"path": "github.com/ipfs/go-ipfs/thirdparty/delay",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "nO/94qqEkgZVQ+tO/paiqWzf1qE=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/thirdparty/dir",
+			"path": "github.com/ipfs/go-ipfs/thirdparty/dir",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "ox0ZNUOQz2Yleb1/6nIYg/iq9tk=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/thirdparty/ds-help",
+			"path": "github.com/ipfs/go-ipfs/thirdparty/ds-help",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "mfk9R9oNATNSKFxOqOC1hHi0F90=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/thirdparty/ipfsaddr",
+			"path": "github.com/ipfs/go-ipfs/thirdparty/ipfsaddr",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "7N9sp5RmH1qJazXzrAfK2rjrQlU=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/thirdparty/math2",
+			"path": "github.com/ipfs/go-ipfs/thirdparty/math2",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "tn413nKBD5eJXoM52fsNSa7K6zw=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/thirdparty/posinfo",
+			"path": "github.com/ipfs/go-ipfs/thirdparty/posinfo",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "O7xqd5cRbk+RctxRuaOtnFmxyHs=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/thirdparty/pq",
+			"path": "github.com/ipfs/go-ipfs/thirdparty/pq",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "ypW9D02fTDbkdJfxXi2uefPBf8g=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/unixfs",
+			"path": "github.com/ipfs/go-ipfs/unixfs",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "hVJxcWaVFdfIV7C+I5Z880cezLE=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/unixfs/hamt",
+			"path": "github.com/ipfs/go-ipfs/unixfs/hamt",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "SL0zCcO6LNsLPUiU8GrlbcMXCOw=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/unixfs/io",
+			"path": "github.com/ipfs/go-ipfs/unixfs/io",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "pLKYCwB/3PoBGiJNvOk/glRgKm8=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/unixfs/mod",
+			"path": "github.com/ipfs/go-ipfs/unixfs/mod",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "GbHMa08bS3nMVLzvqT4q3NcZlw0=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/ipfs/go-ipfs/unixfs/pb",
+			"path": "github.com/ipfs/go-ipfs/unixfs/pb",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
 			"checksumSHA1": "0ZrwvB6KoGPj2PoDNSEJwxQ6Mog=",
 			"path": "github.com/jmespath/go-jmespath",
 			"revision": "bd40a432e4c76585ef6b72d3fd96fb9b6dc7b68d",
 			"revisionTime": "2016-08-03T19:07:31Z"
+		},
+		{
+			"checksumSHA1": "oqpLCsrXQdvns4RtmcO61+4BiQk=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/jpillora/backoff",
+			"path": "github.com/jpillora/backoff",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "LXkmb3vu7MUi9E55m1k1Cil4PiE=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/juju/gnuflag",
+			"path": "github.com/juju/gnuflag",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "0aax/qOmVxrexQc7w9+P99GH7zs=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/julienschmidt/httprouter",
+			"path": "github.com/julienschmidt/httprouter",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "grCnUJAhDPfy1i4rcsXgn80SyNI=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/kch42/buzhash",
+			"path": "github.com/kch42/buzhash",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
 		},
 		{
 			"checksumSHA1": "LuFv4/jlrmFNnDb/5SCSEPAM9vU=",
@@ -209,6 +874,1468 @@
 			"path": "github.com/stretchr/testify/assert",
 			"revision": "890a5c3458b43e6104ff5da8dfa139d013d77544",
 			"revisionTime": "2017-07-05T02:17:15Z"
+		},
+		{
+			"checksumSHA1": "gAbBMXBHsWGR/2YnCgk2tvRC/Xw=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/syndtr/goleveldb/leveldb",
+			"path": "github.com/syndtr/goleveldb/leveldb",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "AEbLOVNbFr+SjBkBukltDJiR58o=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/syndtr/goleveldb/leveldb/cache",
+			"path": "github.com/syndtr/goleveldb/leveldb/cache",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "5KPgnvCPlR0ysDAqo6jApzRQ3tw=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/syndtr/goleveldb/leveldb/comparer",
+			"path": "github.com/syndtr/goleveldb/leveldb/comparer",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "fN497lLW+8s95VMEXBdvo6euVLI=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/syndtr/goleveldb/leveldb/errors",
+			"path": "github.com/syndtr/goleveldb/leveldb/errors",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "eqKeD6DS7eNCtxVYZEHHRKkyZrw=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/syndtr/goleveldb/leveldb/filter",
+			"path": "github.com/syndtr/goleveldb/leveldb/filter",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "cRn09EwfU3k2ZjvClHYmVFlakRY=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/syndtr/goleveldb/leveldb/iterator",
+			"path": "github.com/syndtr/goleveldb/leveldb/iterator",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "6UUddO1LxE2XvZrFLML8UYxcNH8=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/syndtr/goleveldb/leveldb/journal",
+			"path": "github.com/syndtr/goleveldb/leveldb/journal",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "LshzRv+3spfwuHLepRxiyjf/3sQ=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/syndtr/goleveldb/leveldb/memdb",
+			"path": "github.com/syndtr/goleveldb/leveldb/memdb",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "RDHx3eCcgLNgxdmoSopQP4GrvO0=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/syndtr/goleveldb/leveldb/opt",
+			"path": "github.com/syndtr/goleveldb/leveldb/opt",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "rCr1faK7Bj3FRJVTONBUSFIuWLw=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/syndtr/goleveldb/leveldb/storage",
+			"path": "github.com/syndtr/goleveldb/leveldb/storage",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "VygDrZVbOvkfC82Snan5QM5mhDM=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/syndtr/goleveldb/leveldb/table",
+			"path": "github.com/syndtr/goleveldb/leveldb/table",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "FmE6QSxe8QqI1R6HWdyTotwVHm8=",
+			"origin": "github.com/attic-labs/noms/vendor/github.com/syndtr/goleveldb/leveldb/util",
+			"path": "github.com/syndtr/goleveldb/leveldb/util",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "9jjO5GjLa0XF/nfWihF02RoH4qc=",
+			"path": "golang.org/x/net/context",
+			"revision": "6250b412798208e6c90b03b7c4f226de5aa299e2",
+			"revisionTime": "2016-08-24T22:20:41Z"
+		},
+		{
+			"checksumSHA1": "J8aCbdjfajXb15J79Ytz1YMIjCs=",
+			"origin": "github.com/attic-labs/noms/vendor/golang.org/x/sys/unix",
+			"path": "golang.org/x/sys/unix",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "h+a2PpyiKKh21hZZ9SC7gqPJ0zk=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmNMCAuxnQFHLGWcvay3DmVFrKuY6Y2nsc9vzsf4gVouJV/go-libp2p-pnet",
+			"path": "gx/ipfs/QmNMCAuxnQFHLGWcvay3DmVFrKuY6Y2nsc9vzsf4gVouJV/go-libp2p-pnet",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "54GCnlA21YT0ApiOgeqV1pFSDo0=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmNhVCV7kgAqW6oh6n8m9myxT2ksGPhVZnHkzkBvR5qg2d/go-multicodec-packed",
+			"path": "gx/ipfs/QmNhVCV7kgAqW6oh6n8m9myxT2ksGPhVZnHkzkBvR5qg2d/go-multicodec-packed",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "XatcMS5aFwqk05s57EcK035B0lA=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmNtxDQBrVzy88FEjVikyM5tAbyfnHm5jJbJZcUhVykusq/snappy",
+			"path": "gx/ipfs/QmNtxDQBrVzy88FEjVikyM5tAbyfnHm5jJbJZcUhVykusq/snappy",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "mE6H3VYlqaYDQ8YCu0Xny76qlzU=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmPJUtEJsm5YLUWhF6imvyCH8KZXRJa9Wup7FDMwTy5Ufz/backoff",
+			"path": "gx/ipfs/QmPJUtEJsm5YLUWhF6imvyCH8KZXRJa9Wup7FDMwTy5Ufz/backoff",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "FCgM0HNtLBf1jUzWC1l5KLhIQow=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmPP91WFAb8LCs8EMzGvDPPvg1kacbqRkoxgTTnUsZckGe/retry-datastore",
+			"path": "gx/ipfs/QmPP91WFAb8LCs8EMzGvDPPvg1kacbqRkoxgTTnUsZckGe/retry-datastore",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "AY/oihF3tHVvZ3r9Nwpt/wDGMbQ=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmPdvXuXWAR6gtxxqZw42RtSADMwz4ijVmYHGS542b6cMz/go-ds-leveldb",
+			"path": "gx/ipfs/QmPdvXuXWAR6gtxxqZw42RtSADMwz4ijVmYHGS542b6cMz/go-ds-leveldb",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "7kVIsfG3YUxuMgNvEpZ7sBRSoUk=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmPgDWmTmuzvP7QE5zwo1TmjbJme9pmZHNujB2453jkCTr/go-libp2p-peerstore",
+			"path": "gx/ipfs/QmPgDWmTmuzvP7QE5zwo1TmjbJme9pmZHNujB2453jkCTr/go-libp2p-peerstore",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "LFHSGVlMcfm1+iSC24h2SC9TaRg=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmPgDWmTmuzvP7QE5zwo1TmjbJme9pmZHNujB2453jkCTr/go-libp2p-peerstore/addr",
+			"path": "gx/ipfs/QmPgDWmTmuzvP7QE5zwo1TmjbJme9pmZHNujB2453jkCTr/go-libp2p-peerstore/addr",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "aZAUAepFPRIOGw6g+lTk9N8WpB0=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmPgDWmTmuzvP7QE5zwo1TmjbJme9pmZHNujB2453jkCTr/go-libp2p-peerstore/queue",
+			"path": "gx/ipfs/QmPgDWmTmuzvP7QE5zwo1TmjbJme9pmZHNujB2453jkCTr/go-libp2p-peerstore/queue",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "QpTl91bzJyf0AVIG6JdT7FzWSos=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmPjTrrSfE6TzLv6ya6VWhGcCgPrUAdcgrDcQyRDX2VyW1/go-libp2p-routing",
+			"path": "gx/ipfs/QmPjTrrSfE6TzLv6ya6VWhGcCgPrUAdcgrDcQyRDX2VyW1/go-libp2p-routing",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "yaToW0puCkVkKAv54H1GSTDOs60=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmPjTrrSfE6TzLv6ya6VWhGcCgPrUAdcgrDcQyRDX2VyW1/go-libp2p-routing/notifications",
+			"path": "gx/ipfs/QmPjTrrSfE6TzLv6ya6VWhGcCgPrUAdcgrDcQyRDX2VyW1/go-libp2p-routing/notifications",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "7nD2LWdYeBCo6tx71HHDF9vaR1s=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmQ51pHe6u7CWodkUGDLqaCEMchkbMt7VEZnECF5mp6tVb/ed25519",
+			"path": "gx/ipfs/QmQ51pHe6u7CWodkUGDLqaCEMchkbMt7VEZnECF5mp6tVb/ed25519",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "KPgcZSPSpKNwGGjmJOvJDhXX2bk=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmQ51pHe6u7CWodkUGDLqaCEMchkbMt7VEZnECF5mp6tVb/ed25519/edwards25519",
+			"path": "gx/ipfs/QmQ51pHe6u7CWodkUGDLqaCEMchkbMt7VEZnECF5mp6tVb/ed25519/edwards25519",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "yHt/5bJbFg3Kaja2n8D6CGMbA2w=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmQ51pHe6u7CWodkUGDLqaCEMchkbMt7VEZnECF5mp6tVb/ed25519/extra25519",
+			"path": "gx/ipfs/QmQ51pHe6u7CWodkUGDLqaCEMchkbMt7VEZnECF5mp6tVb/ed25519/extra25519",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "8nBFXQzqOBY5FyuToJfR/p6blnI=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmQ8t8yZJv6bTgnDcHMPMgpUcSTnpNMGPjFxmGwZ2MWak9/go-nat",
+			"path": "gx/ipfs/QmQ8t8yZJv6bTgnDcHMPMgpUcSTnpNMGPjFxmGwZ2MWak9/go-nat",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "7lLvsLDGynobWbQnMSFG0/she28=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmQBB2dQLmQHJgs2gqZ3iqL2XiuCtUCvXzWt5kMXDf5Zcr/go-maddr-filter",
+			"path": "gx/ipfs/QmQBB2dQLmQHJgs2gqZ3iqL2XiuCtUCvXzWt5kMXDf5Zcr/go-maddr-filter",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "+V1lM3d/rTWVncQkmAps3zXltUI=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmQNQhNmY4STU1MURjH9vYEMpx2ncMS4gbwxXWtrEjzVAq/go-todocounter",
+			"path": "gx/ipfs/QmQNQhNmY4STU1MURjH9vYEMpx2ncMS4gbwxXWtrEjzVAq/go-todocounter",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "Bq++7318SOF5mgNKWaE5oHSEXQE=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmQPWTeQJnJE7MYu6dJTiNTQRNuqBr41dis6UgY6Uekmgd/keccakpg",
+			"path": "gx/ipfs/QmQPWTeQJnJE7MYu6dJTiNTQRNuqBr41dis6UgY6Uekmgd/keccakpg",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "tPA6exOxYBy7+rOvP++eJ6D+FJY=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmQVm7pWYKPStMeMrXNRpvAJE5rSm9ThtQoNmjNHC7sh3k/go-libp2p-transport",
+			"path": "gx/ipfs/QmQVm7pWYKPStMeMrXNRpvAJE5rSm9ThtQoNmjNHC7sh3k/go-libp2p-transport",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "kbTYDrUEmeWV8wD32YoPPmm/vYE=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmQq9YzmdFdWNTDdArueGyD7L5yyiRQigrRHJnTGkxcEjT/go-libp2p-interface-pnet",
+			"path": "gx/ipfs/QmQq9YzmdFdWNTDdArueGyD7L5yyiRQigrRHJnTGkxcEjT/go-libp2p-interface-pnet",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "/nwXPv0VRN0wcSVBYl3IBHo4aGI=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmQtBcHtRy9BxjawZjWJBn8aSKbqraBnQiVsc3wt9w9TTn/goupnp",
+			"path": "gx/ipfs/QmQtBcHtRy9BxjawZjWJBn8aSKbqraBnQiVsc3wt9w9TTn/goupnp",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "YOCRtiDmB/ywvjncgyO/+Yc0MHw=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmQtBcHtRy9BxjawZjWJBn8aSKbqraBnQiVsc3wt9w9TTn/goupnp/dcps/internetgateway1",
+			"path": "gx/ipfs/QmQtBcHtRy9BxjawZjWJBn8aSKbqraBnQiVsc3wt9w9TTn/goupnp/dcps/internetgateway1",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "VXa8wQAoUc2OJGaam2AphwLbo1M=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmQtBcHtRy9BxjawZjWJBn8aSKbqraBnQiVsc3wt9w9TTn/goupnp/dcps/internetgateway2",
+			"path": "gx/ipfs/QmQtBcHtRy9BxjawZjWJBn8aSKbqraBnQiVsc3wt9w9TTn/goupnp/dcps/internetgateway2",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "x4zdh9Ax4lC2v7udiu9BCM6ETmc=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmQtBcHtRy9BxjawZjWJBn8aSKbqraBnQiVsc3wt9w9TTn/goupnp/httpu",
+			"path": "gx/ipfs/QmQtBcHtRy9BxjawZjWJBn8aSKbqraBnQiVsc3wt9w9TTn/goupnp/httpu",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "VtoIpFEL/8lnAI56KIxghpWSPXg=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmQtBcHtRy9BxjawZjWJBn8aSKbqraBnQiVsc3wt9w9TTn/goupnp/scpd",
+			"path": "gx/ipfs/QmQtBcHtRy9BxjawZjWJBn8aSKbqraBnQiVsc3wt9w9TTn/goupnp/scpd",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "HxA1fhJIOz4TGJMzZ/6m/3r77jY=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmQtBcHtRy9BxjawZjWJBn8aSKbqraBnQiVsc3wt9w9TTn/goupnp/soap",
+			"path": "gx/ipfs/QmQtBcHtRy9BxjawZjWJBn8aSKbqraBnQiVsc3wt9w9TTn/goupnp/soap",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "szm7UvUnE3Uy799NufOTSvtjvO0=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmQtBcHtRy9BxjawZjWJBn8aSKbqraBnQiVsc3wt9w9TTn/goupnp/ssdp",
+			"path": "gx/ipfs/QmQtBcHtRy9BxjawZjWJBn8aSKbqraBnQiVsc3wt9w9TTn/goupnp/ssdp",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "1VK38La+E6Dk7XIwpFJF3npkCGs=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmQur8VHmc276wJDRdU7KtR3qbA88Dov587DpBnzDbENuo/go-crypto-dav/salsa20",
+			"path": "gx/ipfs/QmQur8VHmc276wJDRdU7KtR3qbA88Dov587DpBnzDbENuo/go-crypto-dav/salsa20",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "w3F8QgSo5tRWZDnWU8em6O0V36A=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmQvJiADDe7JR4m968MwXobTCCzUqQkP87aRHe29MEBGHV/go-logging",
+			"path": "gx/ipfs/QmQvJiADDe7JR4m968MwXobTCCzUqQkP87aRHe29MEBGHV/go-logging",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "7oporrzuqnFjRSW4xVcVIcACrw4=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmQvbWzZPGpoppaAvBtj6QmyBZPw4ivFD7ryyHesxuYYDa/yamux",
+			"path": "gx/ipfs/QmQvbWzZPGpoppaAvBtj6QmyBZPw4ivFD7ryyHesxuYYDa/yamux",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "NvHRjwvtzYUTN9IKMffcQos9+yE=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmRQhVisS8dmPbjBUthVkenn81pBxrx1GxE281csJhm2vL/go-msgio",
+			"path": "gx/ipfs/QmRQhVisS8dmPbjBUthVkenn81pBxrx1GxE281csJhm2vL/go-msgio",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "Y+Am2H0DAXOLJf/sdv5yia87StM=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmRQhVisS8dmPbjBUthVkenn81pBxrx1GxE281csJhm2vL/go-msgio/mpool",
+			"path": "gx/ipfs/QmRQhVisS8dmPbjBUthVkenn81pBxrx1GxE281csJhm2vL/go-msgio/mpool",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "XaETlj81atEpru1LelE18c+jA+M=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmRVYfZ7tWNHPBzWiG6KWGzvT2hcGems8srihsQE29x1U5/go-smux-multistream",
+			"path": "gx/ipfs/QmRVYfZ7tWNHPBzWiG6KWGzvT2hcGems8srihsQE29x1U5/go-smux-multistream",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "QFbnwfSuyzE8mVhBim4dru2Wh5I=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmRg1gKTHzc3CZXSKzem8aR4E3TubFhbgXwfVuWnSK5CC5/go-metrics-interface",
+			"path": "gx/ipfs/QmRg1gKTHzc3CZXSKzem8aR4E3TubFhbgXwfVuWnSK5CC5/go-metrics-interface",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "72Y+p4ub4AYbiSjtROGeoC1GQlU=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmS7xUmsTdVNU2t1bPV6o9aXuXfufAjNGYgh2bcN2z9DAs/go-multiaddr-dns",
+			"path": "gx/ipfs/QmS7xUmsTdVNU2t1bPV6o9aXuXfufAjNGYgh2bcN2z9DAs/go-multiaddr-dns",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "92kMrZtrU4VWXpNCvTBI1yJKFo0=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmSF8fPo3jgVBAy8fpdjjYqgG87dkJgUprRBHRd2tmfgpP/goprocess",
+			"path": "gx/ipfs/QmSF8fPo3jgVBAy8fpdjjYqgG87dkJgUprRBHRd2tmfgpP/goprocess",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "gT4fjIHi6n+vy5MTHD8ahuG8aKU=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmSF8fPo3jgVBAy8fpdjjYqgG87dkJgUprRBHRd2tmfgpP/goprocess/context",
+			"path": "gx/ipfs/QmSF8fPo3jgVBAy8fpdjjYqgG87dkJgUprRBHRd2tmfgpP/goprocess/context",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "Fl0xSNbcgnLzlKDaGTT6Ku1lNzo=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmSF8fPo3jgVBAy8fpdjjYqgG87dkJgUprRBHRd2tmfgpP/goprocess/periodic",
+			"path": "gx/ipfs/QmSF8fPo3jgVBAy8fpdjjYqgG87dkJgUprRBHRd2tmfgpP/goprocess/periodic",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "ccaa1N+9EqvZjRnvsLO5nb9L0f4=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmSGRM5Udmy1jsFBr1Cawez7Lt7LZ3ZKA23GGVEsiEW6F3/eventfd",
+			"path": "gx/ipfs/QmSGRM5Udmy1jsFBr1Cawez7Lt7LZ3ZKA23GGVEsiEW6F3/eventfd",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "vt5MoBpcs2CfAOj1Hbk9roB+6ZE=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmSMZwvs3n4GBikZ7hKzT17c3bk65FmyZo2JqtJ16swqCv/multiaddr-filter",
+			"path": "gx/ipfs/QmSMZwvs3n4GBikZ7hKzT17c3bk65FmyZo2JqtJ16swqCv/multiaddr-filter",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "0G9RtC8SAxab3LqADfnsjcIze3k=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmSU6eubNdhXjFBJBSksTp8kv8YRub8mGAPv8tVJHmL2EU/go-ipfs-util",
+			"path": "gx/ipfs/QmSU6eubNdhXjFBJBSksTp8kv8YRub8mGAPv8tVJHmL2EU/go-ipfs-util",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "f7RkAXnILD0Cr6Fj1oFKN7wRaQo=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmSb95iHExSSb47zpmyn5CyY5PZidVWSjyKyDqgYQrnKor/go-ds-measure",
+			"path": "gx/ipfs/QmSb95iHExSSb47zpmyn5CyY5PZidVWSjyKyDqgYQrnKor/go-ds-measure",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "7zltuJpO07pJ6Zl5Zi47cFCBjtA=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmSpJByNKFX1sCsHBEp3R73FL4NF6FnQTEGyNAXHm2GS52/go-log",
+			"path": "gx/ipfs/QmSpJByNKFX1sCsHBEp3R73FL4NF6FnQTEGyNAXHm2GS52/go-log",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "zGhXMfueNj2HMO+oyDJss2Shj64=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmT4PgCNdv73hnFAqzHqwW44q7M9PWpykSswHDxndquZbc/go-libp2p-loggables",
+			"path": "gx/ipfs/QmT4PgCNdv73hnFAqzHqwW44q7M9PWpykSswHDxndquZbc/go-libp2p-loggables",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "SY3ZZ9MzU4qSX8Cs2DhvU/XUkd4=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmT6n4mspWYEya864BhCUJEgyxiRfmiSY9ruQwTUNpRKaM/protobuf/proto",
+			"path": "gx/ipfs/QmT6n4mspWYEya864BhCUJEgyxiRfmiSY9ruQwTUNpRKaM/protobuf/proto",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "XEoBQw0pNcffR6EA/0BqbYc8e9k=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmT8rehPR3F6bmwL6zjUN8XpiDBFFpMP2myPdC6ApsWfJf/go-base58",
+			"path": "gx/ipfs/QmT8rehPR3F6bmwL6zjUN8XpiDBFFpMP2myPdC6ApsWfJf/go-base58",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "RNW0jSb8noIwd40JkGxpcycAMBg=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmTB2V4JbXx6njJcCxSLyUmQHQHCFYdezb3582sor4sTjm/go-ws-transport",
+			"path": "gx/ipfs/QmTB2V4JbXx6njJcCxSLyUmQHQHCFYdezb3582sor4sTjm/go-ws-transport",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "RpavTS8Vvk8k+y7hS2crDuhL+tY=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmTEmsyNnckEq8rEfALfdhLHjrEHGoSGFDrAYReuetn7MC/go-net/html",
+			"path": "gx/ipfs/QmTEmsyNnckEq8rEfALfdhLHjrEHGoSGFDrAYReuetn7MC/go-net/html",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "3XvvtfVEo+jDEl32VV+PE8coC1A=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmTEmsyNnckEq8rEfALfdhLHjrEHGoSGFDrAYReuetn7MC/go-net/html/atom",
+			"path": "gx/ipfs/QmTEmsyNnckEq8rEfALfdhLHjrEHGoSGFDrAYReuetn7MC/go-net/html/atom",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "p3TU6y6daXeMncPb6AC7jHDMwYs=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmTEmsyNnckEq8rEfALfdhLHjrEHGoSGFDrAYReuetn7MC/go-net/html/charset",
+			"path": "gx/ipfs/QmTEmsyNnckEq8rEfALfdhLHjrEHGoSGFDrAYReuetn7MC/go-net/html/charset",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "z3boaHz7+pvNSp6b1wFq5aLum3U=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmTEmsyNnckEq8rEfALfdhLHjrEHGoSGFDrAYReuetn7MC/go-net/internal/iana",
+			"path": "gx/ipfs/QmTEmsyNnckEq8rEfALfdhLHjrEHGoSGFDrAYReuetn7MC/go-net/internal/iana",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "4dowZkhFulxgKiqGUqBvJ6vti5Q=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmTEmsyNnckEq8rEfALfdhLHjrEHGoSGFDrAYReuetn7MC/go-net/ipv4",
+			"path": "gx/ipfs/QmTEmsyNnckEq8rEfALfdhLHjrEHGoSGFDrAYReuetn7MC/go-net/ipv4",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "toLbq5OJPcDTOf4FLSo8RoV0bcE=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmTEmsyNnckEq8rEfALfdhLHjrEHGoSGFDrAYReuetn7MC/go-net/ipv6",
+			"path": "gx/ipfs/QmTEmsyNnckEq8rEfALfdhLHjrEHGoSGFDrAYReuetn7MC/go-net/ipv6",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "B10qV1LwzLlA8vQg70+BgG6SzM0=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmTKsRYeY4simJyf37K93juSq75Lo8MVCDJ7owjmf46u8W/go-context/frac",
+			"path": "gx/ipfs/QmTKsRYeY4simJyf37K93juSq75Lo8MVCDJ7owjmf46u8W/go-context/frac",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "MaAL2y//CLnJhAX3gJmMBdbYIpg=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmTKsRYeY4simJyf37K93juSq75Lo8MVCDJ7owjmf46u8W/go-context/io",
+			"path": "gx/ipfs/QmTKsRYeY4simJyf37K93juSq75Lo8MVCDJ7owjmf46u8W/go-context/io",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "YkaEsJ+lWxAhUjEOcLcVvKqLKEM=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmTnsezaB1wWNRHeHnYrm8K4d5i9wtyj3GsqjC3Rt5b5v5/go-multistream",
+			"path": "gx/ipfs/QmTnsezaB1wWNRHeHnYrm8K4d5i9wtyj3GsqjC3Rt5b5v5/go-multistream",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "MCwBCo5NutMPhOixfpxCZshlOG4=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmTprEaAA2A9bst5XH7exuyi5KzNMK3SEDNN8rBDnKWcUS/go-cid",
+			"path": "gx/ipfs/QmTprEaAA2A9bst5XH7exuyi5KzNMK3SEDNN8rBDnKWcUS/go-cid",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "XBDxDI2Hz4s26A9s32Ugjbt+6Ak=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmU9a9NV9RdPNwZQDYd5uKsm6N6LJLSvLbywDDYFbaaC6P/go-multihash",
+			"path": "gx/ipfs/QmU9a9NV9RdPNwZQDYd5uKsm6N6LJLSvLbywDDYFbaaC6P/go-multihash",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "y+ng+usIc6NT+xuv4x9MV3UrJkA=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmUTshC2PP4ZDqkrFfDU4JGJFMWjYnunxPgkQ6ZCA2hGqh/go-ds-flatfs",
+			"path": "gx/ipfs/QmUTshC2PP4ZDqkrFfDU4JGJFMWjYnunxPgkQ6ZCA2hGqh/go-ds-flatfs",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "ZX29fwtiZapIpRt+dulnBvJzX6o=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmUusaX99BZoELh7dmPgirqRQ1FAmMnmnBn3oiqDFGBUSc/go-keyspace",
+			"path": "gx/ipfs/QmUusaX99BZoELh7dmPgirqRQ1FAmMnmnBn3oiqDFGBUSc/go-keyspace",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "ctqz0kKc53o5r8FT/+ehRTxyYUY=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmVA4mafxbfH5aEvNz8fyoxC6J1xhAtw88B4GerPznSZBg/go-block-format",
+			"path": "gx/ipfs/QmVA4mafxbfH5aEvNz8fyoxC6J1xhAtw88B4GerPznSZBg/go-block-format",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "yUureDtb7bwOyt1RckJRT992gWc=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmVFEAZHvDvgFhGVmySEfejrzgBmWyHPdJhC3jDHDQjtzg/go-reuseport",
+			"path": "gx/ipfs/QmVFEAZHvDvgFhGVmySEfejrzgBmWyHPdJhC3jDHDQjtzg/go-reuseport",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "ygmYLtJ7L+bGmXVpRIM5bwVbCrg=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmVFEAZHvDvgFhGVmySEfejrzgBmWyHPdJhC3jDHDQjtzg/go-reuseport/poll",
+			"path": "gx/ipfs/QmVFEAZHvDvgFhGVmySEfejrzgBmWyHPdJhC3jDHDQjtzg/go-reuseport/poll",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "yqHCPhtbPz61GU17KVC7ZdA3xn0=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmVFEAZHvDvgFhGVmySEfejrzgBmWyHPdJhC3jDHDQjtzg/go-reuseport/singlepoll",
+			"path": "gx/ipfs/QmVFEAZHvDvgFhGVmySEfejrzgBmWyHPdJhC3jDHDQjtzg/go-reuseport/singlepoll",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "pTOOjDm/ARZQHlAd6ZBJs6HhDDE=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmVJefKHXEx28RFpmj5GeRg43AqeBH3npPwvgJ875fBPm7/go-libp2p-swarm",
+			"path": "gx/ipfs/QmVJefKHXEx28RFpmj5GeRg43AqeBH3npPwvgJ875fBPm7/go-libp2p-swarm",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "Y6fa60uKJG5lNs31FddqTXgVdkU=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmVNPgPmEG4QKaDKkxMPKY34Z53n8efzv1sEh4NTsdhto7/go-peerstream",
+			"path": "gx/ipfs/QmVNPgPmEG4QKaDKkxMPKY34Z53n8efzv1sEh4NTsdhto7/go-peerstream",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "sbAwd+MEB3TtyirR83BlPBWlpog=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmVQfuckfPnW5LGmgSWsJVJr6Xea1bWXD8sBixe8E9MQD6/cbor/go",
+			"path": "gx/ipfs/QmVQfuckfPnW5LGmgSWsJVJr6Xea1bWXD8sBixe8E9MQD6/cbor/go",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "oDTBhDr4Gn2z12V7c110fVeuEOk=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmVRuqGJ881CFiNLgwWSfRVjTjqQ6FeCNufkftNC4fpACZ/go-multicodec",
+			"path": "gx/ipfs/QmVRuqGJ881CFiNLgwWSfRVjTjqQ6FeCNufkftNC4fpACZ/go-multicodec",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "CLUq//pq2Hl5Z/YGl+hYDWoPa7s=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmVRuqGJ881CFiNLgwWSfRVjTjqQ6FeCNufkftNC4fpACZ/go-multicodec/base",
+			"path": "gx/ipfs/QmVRuqGJ881CFiNLgwWSfRVjTjqQ6FeCNufkftNC4fpACZ/go-multicodec/base",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "hyySC7MAJoprAQyvnz3/1RNCanU=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmVRuqGJ881CFiNLgwWSfRVjTjqQ6FeCNufkftNC4fpACZ/go-multicodec/base/b64",
+			"path": "gx/ipfs/QmVRuqGJ881CFiNLgwWSfRVjTjqQ6FeCNufkftNC4fpACZ/go-multicodec/base/b64",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "sNugMU1AwcQVjA/MqPk5YmETj9s=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmVRuqGJ881CFiNLgwWSfRVjTjqQ6FeCNufkftNC4fpACZ/go-multicodec/base/bin",
+			"path": "gx/ipfs/QmVRuqGJ881CFiNLgwWSfRVjTjqQ6FeCNufkftNC4fpACZ/go-multicodec/base/bin",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "klYiM1xJHXMLusHlX/4RtfAIVRc=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmVRuqGJ881CFiNLgwWSfRVjTjqQ6FeCNufkftNC4fpACZ/go-multicodec/base/hex",
+			"path": "gx/ipfs/QmVRuqGJ881CFiNLgwWSfRVjTjqQ6FeCNufkftNC4fpACZ/go-multicodec/base/hex",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "SjKt6frzVLRrkq281ovNQ7akoHI=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmVRuqGJ881CFiNLgwWSfRVjTjqQ6FeCNufkftNC4fpACZ/go-multicodec/base/mux",
+			"path": "gx/ipfs/QmVRuqGJ881CFiNLgwWSfRVjTjqQ6FeCNufkftNC4fpACZ/go-multicodec/base/mux",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "NXhAMXRQjuMkL5INHgnKctGwa3g=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmVRuqGJ881CFiNLgwWSfRVjTjqQ6FeCNufkftNC4fpACZ/go-multicodec/cbor",
+			"path": "gx/ipfs/QmVRuqGJ881CFiNLgwWSfRVjTjqQ6FeCNufkftNC4fpACZ/go-multicodec/cbor",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "xn1wLmMfUwmzlTFkgoAd224EZgk=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmVRuqGJ881CFiNLgwWSfRVjTjqQ6FeCNufkftNC4fpACZ/go-multicodec/json",
+			"path": "gx/ipfs/QmVRuqGJ881CFiNLgwWSfRVjTjqQ6FeCNufkftNC4fpACZ/go-multicodec/json",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "+TWmqIUWyeLvcSbL2QXfIB3YVVQ=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmVRuqGJ881CFiNLgwWSfRVjTjqQ6FeCNufkftNC4fpACZ/go-multicodec/mux",
+			"path": "gx/ipfs/QmVRuqGJ881CFiNLgwWSfRVjTjqQ6FeCNufkftNC4fpACZ/go-multicodec/mux",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "yiVqEiq7uj3fDBHQMSf+Qxjp6xM=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmVSase1JP7cq9QkPT46oNwdp9pT6kBkG3oqS14y3QcZjG/go-datastore",
+			"path": "gx/ipfs/QmVSase1JP7cq9QkPT46oNwdp9pT6kBkG3oqS14y3QcZjG/go-datastore",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "gItSPXaQNqPO3MCUI0tpS3/ui4M=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmVSase1JP7cq9QkPT46oNwdp9pT6kBkG3oqS14y3QcZjG/go-datastore/keytransform",
+			"path": "gx/ipfs/QmVSase1JP7cq9QkPT46oNwdp9pT6kBkG3oqS14y3QcZjG/go-datastore/keytransform",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "6zuREnX604414yWJMktSyOpEzns=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmVSase1JP7cq9QkPT46oNwdp9pT6kBkG3oqS14y3QcZjG/go-datastore/namespace",
+			"path": "gx/ipfs/QmVSase1JP7cq9QkPT46oNwdp9pT6kBkG3oqS14y3QcZjG/go-datastore/namespace",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "5cTLzZFQ6gV+GmonVCDHyheGTjQ=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmVSase1JP7cq9QkPT46oNwdp9pT6kBkG3oqS14y3QcZjG/go-datastore/query",
+			"path": "gx/ipfs/QmVSase1JP7cq9QkPT46oNwdp9pT6kBkG3oqS14y3QcZjG/go-datastore/query",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "KvcO88qMmz5Ldk60CsnVBatmfXs=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmVSase1JP7cq9QkPT46oNwdp9pT6kBkG3oqS14y3QcZjG/go-datastore/sync",
+			"path": "gx/ipfs/QmVSase1JP7cq9QkPT46oNwdp9pT6kBkG3oqS14y3QcZjG/go-datastore/sync",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "fysg2wdqvq4kwdL1HQBNxDCe3gA=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmVSase1JP7cq9QkPT46oNwdp9pT6kBkG3oqS14y3QcZjG/go-datastore/syncmount",
+			"path": "gx/ipfs/QmVSase1JP7cq9QkPT46oNwdp9pT6kBkG3oqS14y3QcZjG/go-datastore/syncmount",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "NhgnWncvPN+CRxicNCVx8c6THIE=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmVU26BGUSt3LkbWmoH7dP16mNz5VVRg4hDmWZBHAkq97w/go-libp2p-kbucket",
+			"path": "gx/ipfs/QmVU26BGUSt3LkbWmoH7dP16mNz5VVRg4hDmWZBHAkq97w/go-libp2p-kbucket",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "QOQ/hiUiMTqJjfXoj940E75AycI=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmVU26BGUSt3LkbWmoH7dP16mNz5VVRg4hDmWZBHAkq97w/go-libp2p-kbucket/keyspace",
+			"path": "gx/ipfs/QmVU26BGUSt3LkbWmoH7dP16mNz5VVRg4hDmWZBHAkq97w/go-libp2p-kbucket/keyspace",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "9Hxph4ewVee9N54DuESVMSDZ+bM=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmVYxfoJQiZijTgPNHCHgHELvQpbsJNTg6Crmc3dQkj3yy/golang-lru",
+			"path": "gx/ipfs/QmVYxfoJQiZijTgPNHCHgHELvQpbsJNTg6Crmc3dQkj3yy/golang-lru",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "hN6fzm3ZC4W4imegmLmPGD/IVGc=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmVYxfoJQiZijTgPNHCHgHELvQpbsJNTg6Crmc3dQkj3yy/golang-lru/simplelru",
+			"path": "gx/ipfs/QmVYxfoJQiZijTgPNHCHgHELvQpbsJNTg6Crmc3dQkj3yy/golang-lru/simplelru",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "p7oh2QkL6nk200sQuJWNSQROPgg=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmVjRAPfRtResCMCE4eBqr4Beoa6A89P1YweG9wUS6RqUL/go-libp2p-metrics",
+			"path": "gx/ipfs/QmVjRAPfRtResCMCE4eBqr4Beoa6A89P1YweG9wUS6RqUL/go-libp2p-metrics",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "0GFOgNqeUoXm3sLb3KbKN7j2514=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmVjRAPfRtResCMCE4eBqr4Beoa6A89P1YweG9wUS6RqUL/go-libp2p-metrics/conn",
+			"path": "gx/ipfs/QmVjRAPfRtResCMCE4eBqr4Beoa6A89P1YweG9wUS6RqUL/go-libp2p-metrics/conn",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "5NglW/dE08+5Y/zwNMLD8IkveVU=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmVjRAPfRtResCMCE4eBqr4Beoa6A89P1YweG9wUS6RqUL/go-libp2p-metrics/stream",
+			"path": "gx/ipfs/QmVjRAPfRtResCMCE4eBqr4Beoa6A89P1YweG9wUS6RqUL/go-libp2p-metrics/stream",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "Ha9fBI+ypKjmaZWiFJBk6wr6L/E=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmW8Rgju5JrSMHP7RDNdiwwXyenRqAbtSaPfdQKQC7ZdH6/go-libp2p-host",
+			"path": "gx/ipfs/QmW8Rgju5JrSMHP7RDNdiwwXyenRqAbtSaPfdQKQC7ZdH6/go-libp2p-host",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "YMlmW6rhc8Ehtt8C43qW+RQjx7Y=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmWHgLqrghM9zw77nF6gdvT9ExQ2RB9pLxkd8sDHZf1rWb/go-temp-err-catcher",
+			"path": "gx/ipfs/QmWHgLqrghM9zw77nF6gdvT9ExQ2RB9pLxkd8sDHZf1rWb/go-temp-err-catcher",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "QG/YmjNDZ4morLsvgIiZ40lSIsw=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmWSvDKkcno2UyDg13rUBwWfhRsdj7uR3daAq57VoG5QeN/mdns",
+			"path": "gx/ipfs/QmWSvDKkcno2UyDg13rUBwWfhRsdj7uR3daAq57VoG5QeN/mdns",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "ZFFr3OyAh3PJkW3fYmAPTV9sjF4=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmWUNsat6Jb19nC5CiJCDXepTkxjdxi3eZqeoB6mrmmaGu/go-smux-spdystream",
+			"path": "gx/ipfs/QmWUNsat6Jb19nC5CiJCDXepTkxjdxi3eZqeoB6mrmmaGu/go-smux-spdystream",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "pdCHJxCSKQv41WMN1T8B5XRMrz4=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmWchsfMt9Re1CQaiHqPQC1DrZ9bkpa6n229dRYkGyLXNh/dns",
+			"path": "gx/ipfs/QmWchsfMt9Re1CQaiHqPQC1DrZ9bkpa6n229dRYkGyLXNh/dns",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "84I6eXinpNEzNGD5USh0cJ7MY0A=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmWi28zbQG6B1xfaaWx5cYoLn3kBFU6pQ6GWQNRV5P6dNe/lock",
+			"path": "gx/ipfs/QmWi28zbQG6B1xfaaWx5cYoLn3kBFU6pQ6GWQNRV5P6dNe/lock",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "bHceYWJCYZytw/KJw7g/SKaRBfE=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmWjNfGgm61ABELTxPDwvNDm18j1EmQiPt9zXkCSEYgMDm/spdystream",
+			"path": "gx/ipfs/QmWjNfGgm61ABELTxPDwvNDm18j1EmQiPt9zXkCSEYgMDm/spdystream",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "S752h/6GpW45ERz+9N6UOKmDNqg=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmWjNfGgm61ABELTxPDwvNDm18j1EmQiPt9zXkCSEYgMDm/spdystream/spdy",
+			"path": "gx/ipfs/QmWjNfGgm61ABELTxPDwvNDm18j1EmQiPt9zXkCSEYgMDm/spdystream/spdy",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "LmSOh5QyEMfnSRUJzLlHpAZSIHE=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmWmMyq4ZG5yHhQkySSHfEVVUAnEJfxhTjhHZeGchmNe23/go-multiplex",
+			"path": "gx/ipfs/QmWmMyq4ZG5yHhQkySSHfEVVUAnEJfxhTjhHZeGchmNe23/go-multiplex",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "R2+qUbG+9RKs5lXoIFgH3omc77Q=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmWq5PJgAQKDWQerAijYUVKW8mN5MDatK5j7VMp8rizKQd/btcec",
+			"path": "gx/ipfs/QmWq5PJgAQKDWQerAijYUVKW8mN5MDatK5j7VMp8rizKQd/btcec",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "IjReXLJkLpBRWHRK3DPYdGnPO3M=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmX3U3YXCQ6UYBxq2LVWF8dARS1hPUTEYLrSx654Qyxyw6/go-multiaddr-net",
+			"path": "gx/ipfs/QmX3U3YXCQ6UYBxq2LVWF8dARS1hPUTEYLrSx654Qyxyw6/go-multiaddr-net",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "eHm0oV8AElo6k96U+Lgzcw8f5FY=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmXPKMT5cT8ajqamSD1YaeEpfeaHvs9AU4MQzte4Bkr6V4/sys/unix",
+			"path": "gx/ipfs/QmXPKMT5cT8ajqamSD1YaeEpfeaHvs9AU4MQzte4Bkr6V4/sys/unix",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "8/1ElFmnloyA/eNmEw7FMFCTv7w=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmXY77cVe7rVRQXZZQRioukUM7aRW3BTcAgJe12MCtb3Ji/go-multiaddr",
+			"path": "gx/ipfs/QmXY77cVe7rVRQXZZQRioukUM7aRW3BTcAgJe12MCtb3Ji/go-multiaddr",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "DiTSfyAnUbEb34f8B6sGh4OGQ+k=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmXYjuNuxVzXKJCfWasQk1RqkhVLDM9jtUKhqc2WPQmFSB/go-libp2p-peer",
+			"path": "gx/ipfs/QmXYjuNuxVzXKJCfWasQk1RqkhVLDM9jtUKhqc2WPQmFSB/go-libp2p-peer",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "16DpFiKZA4BQGmus4NiN2th2rb8=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmXYjuNuxVzXKJCfWasQk1RqkhVLDM9jtUKhqc2WPQmFSB/go-libp2p-peer/peerset",
+			"path": "gx/ipfs/QmXYjuNuxVzXKJCfWasQk1RqkhVLDM9jtUKhqc2WPQmFSB/go-libp2p-peer/peerset",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "lvUkKkY5ce0R7yNeDxLc7UaDtSY=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmXYjuNuxVzXKJCfWasQk1RqkhVLDM9jtUKhqc2WPQmFSB/go-libp2p-peer/test",
+			"path": "gx/ipfs/QmXYjuNuxVzXKJCfWasQk1RqkhVLDM9jtUKhqc2WPQmFSB/go-libp2p-peer/test",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "nd350TEg36ZQ+dljqw3LOee72s0=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmXqKGu7QzfRzFC4yd5aL9sThYx22vY163VGwmxfp5qGHk/bbloom",
+			"path": "gx/ipfs/QmXqKGu7QzfRzFC4yd5aL9sThYx22vY163VGwmxfp5qGHk/bbloom",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "IkNOQRZ/Hs4FKdlpbGK63j5e0n4=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmYBCDHS74pfbhMhtLeDpZyBa4Z9X76JLyACSKum1K39eP/go-smux-multiplex",
+			"path": "gx/ipfs/QmYBCDHS74pfbhMhtLeDpZyBa4Z9X76JLyACSKum1K39eP/go-smux-multiplex",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "IAX36uPPKGtSbJdmzTvqSEDzi/U=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmYBGpZ3hV89RZTd3CTjjgjgcX64QnbcBS9dCqU7mCgS1n/go-libp2p-circuit",
+			"path": "gx/ipfs/QmYBGpZ3hV89RZTd3CTjjgjgcX64QnbcBS9dCqU7mCgS1n/go-libp2p-circuit",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "lJOYWPgDPUdHcQ0LPC9Tb+Jboqw=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmYBGpZ3hV89RZTd3CTjjgjgcX64QnbcBS9dCqU7mCgS1n/go-libp2p-circuit/pb",
+			"path": "gx/ipfs/QmYBGpZ3hV89RZTd3CTjjgjgcX64QnbcBS9dCqU7mCgS1n/go-libp2p-circuit/pb",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "kFzA+7qu+YEYnwjKMhAKtwsEWWQ=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmYNyRZJBUYPNrLszFmrBrPJbsBh2vMsefz5gnDpB5M1P6/go-ipld-format",
+			"path": "gx/ipfs/QmYNyRZJBUYPNrLszFmrBrPJbsBh2vMsefz5gnDpB5M1P6/go-ipld-format",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "tPgORqYZAmhr0BVK0ELKcTmHVck=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmYdcTdkuCvFXLj2uejJF5aY3HWhtd8JLT4BjPxF9BNPYf/go-libp2p-netutil",
+			"path": "gx/ipfs/QmYdcTdkuCvFXLj2uejJF5aY3HWhtd8JLT4BjPxF9BNPYf/go-libp2p-netutil",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "hx/jUWRLKCDyFiv6ubGKxSCxFjM=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmYftoT56eEfUBTD3erR6heXuPSUhGRezSmhSU8LeczP8b/timecache",
+			"path": "gx/ipfs/QmYftoT56eEfUBTD3erR6heXuPSUhGRezSmhSU8LeczP8b/timecache",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "Ojn4uozAhtUbT3q515XaNy3HuYM=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmYnf27kzqR2cxt6LFZdrAFJuQd6785fTkBvMuEj9EeRxM/proquint",
+			"path": "gx/ipfs/QmYnf27kzqR2cxt6LFZdrAFJuQd6785fTkBvMuEj9EeRxM/proquint",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "tjnoFb2FuhMd2VBCHPbdCijKII4=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmYsYNh6saxUYHajdj49uiRzdxQgiFTtymrjf3d1f2Cer4/go-nat-pmp",
+			"path": "gx/ipfs/QmYsYNh6saxUYHajdj49uiRzdxQgiFTtymrjf3d1f2Cer4/go-nat-pmp",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "8CClMLuhfRW7L1heMDL5EB81NjA=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmZ4Qi3GaRbjcx28Sme5eMH7RQjGkt8wHxt2a65oLaeFEV/gogo-protobuf/io",
+			"path": "gx/ipfs/QmZ4Qi3GaRbjcx28Sme5eMH7RQjGkt8wHxt2a65oLaeFEV/gogo-protobuf/io",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "KBokI/L75pFOBUrPiM4JNnWHaQk=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmZ4Qi3GaRbjcx28Sme5eMH7RQjGkt8wHxt2a65oLaeFEV/gogo-protobuf/proto",
+			"path": "gx/ipfs/QmZ4Qi3GaRbjcx28Sme5eMH7RQjGkt8wHxt2a65oLaeFEV/gogo-protobuf/proto",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "LVNV2d8zx19UCBXdOpg/+Bu6Zr8=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmZH5VXfAJouGMyCCHTRPGCT3e5MG9Lu78Ln3YAYW1XTts/websocket",
+			"path": "gx/ipfs/QmZH5VXfAJouGMyCCHTRPGCT3e5MG9Lu78Ln3YAYW1XTts/websocket",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "AUErzO0uzp0fYTX+Q3j2Y3m5XWU=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmZJD56ZWLViJAVkvLc7xbbDerHzUMLr2X4fLRYfbxZWDN/go-testutil",
+			"path": "gx/ipfs/QmZJD56ZWLViJAVkvLc7xbbDerHzUMLr2X4fLRYfbxZWDN/go-testutil",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "+PuXSPy4EiktXHg42ffF3zv5LW0=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmZNkThpqfVXs9GNbexPrfBbXSLNYeKrE7jwFM2oqHbyqN/go-libp2p-protocol",
+			"path": "gx/ipfs/QmZNkThpqfVXs9GNbexPrfBbXSLNYeKrE7jwFM2oqHbyqN/go-libp2p-protocol",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "sBuY9FFl0G3SeOzLSTnbbnbiu64=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmZQa5J7j7kd44GGC4aKX8J9JGGzCMqwGzcEFqGV1YD57A/mafmt",
+			"path": "gx/ipfs/QmZQa5J7j7kd44GGC4aKX8J9JGGzCMqwGzcEFqGV1YD57A/mafmt",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "DFkLTSs062sAI4eiaFtYAR58dPY=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmZSEstKChFezMwTcAWH5UQxvRckmnvgVZjFeSnGLDHU3Y/go-libp2p-kad-dht",
+			"path": "gx/ipfs/QmZSEstKChFezMwTcAWH5UQxvRckmnvgVZjFeSnGLDHU3Y/go-libp2p-kad-dht",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "HFwPtRUULaZtwjol6t3KcPBRcVI=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmZSEstKChFezMwTcAWH5UQxvRckmnvgVZjFeSnGLDHU3Y/go-libp2p-kad-dht/pb",
+			"path": "gx/ipfs/QmZSEstKChFezMwTcAWH5UQxvRckmnvgVZjFeSnGLDHU3Y/go-libp2p-kad-dht/pb",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "W/FjR6RzjZpyDVdKmvtoOG1yfy4=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmZSEstKChFezMwTcAWH5UQxvRckmnvgVZjFeSnGLDHU3Y/go-libp2p-kad-dht/providers",
+			"path": "gx/ipfs/QmZSEstKChFezMwTcAWH5UQxvRckmnvgVZjFeSnGLDHU3Y/go-libp2p-kad-dht/providers",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "o0iUbWowMtRW3cbCZtS7O8mYJGY=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmZfwmhbcgSDGqGaoMMYx8jxBGauZw75zPjnZAyfwPso7M/go-libp2p-secio",
+			"path": "gx/ipfs/QmZfwmhbcgSDGqGaoMMYx8jxBGauZw75zPjnZAyfwPso7M/go-libp2p-secio",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "RYSRY0rRkRl+5wJrKJrNVQNxk6w=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmZfwmhbcgSDGqGaoMMYx8jxBGauZw75zPjnZAyfwPso7M/go-libp2p-secio/pb",
+			"path": "gx/ipfs/QmZfwmhbcgSDGqGaoMMYx8jxBGauZw75zPjnZAyfwPso7M/go-libp2p-secio/pb",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "X1CldMrHQv2EEtMib2B8X16T76g=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmZmmuAXgX73UQmX1jRKjTGmjzq24Jinqkq8vzkBtno4uX/go-is-domain",
+			"path": "gx/ipfs/QmZmmuAXgX73UQmX1jRKjTGmjzq24Jinqkq8vzkBtno4uX/go-is-domain",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "FedplxXpE0Uy+ahv/2qTS22B1w8=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmZvZSVtvxak4dcTkhsQhqd1SQ6rg5UzaSTu62WfWKjj93/base32",
+			"path": "gx/ipfs/QmZvZSVtvxak4dcTkhsQhqd1SQ6rg5UzaSTu62WfWKjj93/base32",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "1FsFmOVHMOtO96ZML5VISMURSVQ=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmZyngpQxUGyx1T2bzEcst6YzERkvVwDzBMbsSQF4f1smE/go-libp2p/p2p/discovery",
+			"path": "gx/ipfs/QmZyngpQxUGyx1T2bzEcst6YzERkvVwDzBMbsSQF4f1smE/go-libp2p/p2p/discovery",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "9cJarnI/LwgHy2KH2fDt/hDNvEY=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmZyngpQxUGyx1T2bzEcst6YzERkvVwDzBMbsSQF4f1smE/go-libp2p/p2p/host/basic",
+			"path": "gx/ipfs/QmZyngpQxUGyx1T2bzEcst6YzERkvVwDzBMbsSQF4f1smE/go-libp2p/p2p/host/basic",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "G6SDE70lxwrX3FY1qd14YcaWdkU=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmZyngpQxUGyx1T2bzEcst6YzERkvVwDzBMbsSQF4f1smE/go-libp2p/p2p/host/routed",
+			"path": "gx/ipfs/QmZyngpQxUGyx1T2bzEcst6YzERkvVwDzBMbsSQF4f1smE/go-libp2p/p2p/host/routed",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "U4gJ8XXDgQM5izJF1pFhrxa9fgU=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmZyngpQxUGyx1T2bzEcst6YzERkvVwDzBMbsSQF4f1smE/go-libp2p/p2p/net/mock",
+			"path": "gx/ipfs/QmZyngpQxUGyx1T2bzEcst6YzERkvVwDzBMbsSQF4f1smE/go-libp2p/p2p/net/mock",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "5lO+tUxQaANhS66c3mBcgxSL6Zw=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmZyngpQxUGyx1T2bzEcst6YzERkvVwDzBMbsSQF4f1smE/go-libp2p/p2p/protocol/identify",
+			"path": "gx/ipfs/QmZyngpQxUGyx1T2bzEcst6YzERkvVwDzBMbsSQF4f1smE/go-libp2p/p2p/protocol/identify",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "D7dvL+shz44H3xGDZ4J8TgdPWUw=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmZyngpQxUGyx1T2bzEcst6YzERkvVwDzBMbsSQF4f1smE/go-libp2p/p2p/protocol/identify/pb",
+			"path": "gx/ipfs/QmZyngpQxUGyx1T2bzEcst6YzERkvVwDzBMbsSQF4f1smE/go-libp2p/p2p/protocol/identify/pb",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "dzWOH+eKat1s4KO0baO0BYdBOdw=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmZyngpQxUGyx1T2bzEcst6YzERkvVwDzBMbsSQF4f1smE/go-libp2p/p2p/protocol/ping",
+			"path": "gx/ipfs/QmZyngpQxUGyx1T2bzEcst6YzERkvVwDzBMbsSQF4f1smE/go-libp2p/p2p/protocol/ping",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "wkHD1OgHnEUANakKJ2USuUjYtnI=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmaFNtBAXX4nVMQWbUqNysXyhevUj1k4B1y5uS45LC7Vw9/fuse",
+			"path": "gx/ipfs/QmaFNtBAXX4nVMQWbUqNysXyhevUj1k4B1y5uS45LC7Vw9/fuse",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "EbdDYQERsgFzvDN5SGzgaZOjfdc=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmaFNtBAXX4nVMQWbUqNysXyhevUj1k4B1y5uS45LC7Vw9/fuse/fs",
+			"path": "gx/ipfs/QmaFNtBAXX4nVMQWbUqNysXyhevUj1k4B1y5uS45LC7Vw9/fuse/fs",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "TcXWx7t0BNe6Mvr1f1iDfP/hjnY=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmaFNtBAXX4nVMQWbUqNysXyhevUj1k4B1y5uS45LC7Vw9/fuse/fuseutil",
+			"path": "gx/ipfs/QmaFNtBAXX4nVMQWbUqNysXyhevUj1k4B1y5uS45LC7Vw9/fuse/fuseutil",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "rT25kGYsA4toipDqKrDA4t0kIOs=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmaPHkZLbQQbvcyavn8q1GFHg6o6yeceyHFSJ3Pjf3p3TQ/go-crypto/blake2b",
+			"path": "gx/ipfs/QmaPHkZLbQQbvcyavn8q1GFHg6o6yeceyHFSJ3Pjf3p3TQ/go-crypto/blake2b",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "THPHGzFZMV+aXm+DDuEsqKZP7q4=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmaPHkZLbQQbvcyavn8q1GFHg6o6yeceyHFSJ3Pjf3p3TQ/go-crypto/blake2s",
+			"path": "gx/ipfs/QmaPHkZLbQQbvcyavn8q1GFHg6o6yeceyHFSJ3Pjf3p3TQ/go-crypto/blake2s",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "BJ7dcgbKZl4I4ZtUnw1PyIku7FM=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmaPHkZLbQQbvcyavn8q1GFHg6o6yeceyHFSJ3Pjf3p3TQ/go-crypto/blowfish",
+			"path": "gx/ipfs/QmaPHkZLbQQbvcyavn8q1GFHg6o6yeceyHFSJ3Pjf3p3TQ/go-crypto/blowfish",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "LdgCUwOUieVaNwE50DqsJHF9mQ0=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmaPHkZLbQQbvcyavn8q1GFHg6o6yeceyHFSJ3Pjf3p3TQ/go-crypto/salsa20",
+			"path": "gx/ipfs/QmaPHkZLbQQbvcyavn8q1GFHg6o6yeceyHFSJ3Pjf3p3TQ/go-crypto/salsa20",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "EAlanresgsLSyPg81b3lTEh7rPk=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmaPHkZLbQQbvcyavn8q1GFHg6o6yeceyHFSJ3Pjf3p3TQ/go-crypto/salsa20/salsa",
+			"path": "gx/ipfs/QmaPHkZLbQQbvcyavn8q1GFHg6o6yeceyHFSJ3Pjf3p3TQ/go-crypto/salsa20/salsa",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "js8qkiUHQrUOjvv2OxImrYrE7TA=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmaPHkZLbQQbvcyavn8q1GFHg6o6yeceyHFSJ3Pjf3p3TQ/go-crypto/sha3",
+			"path": "gx/ipfs/QmaPHkZLbQQbvcyavn8q1GFHg6o6yeceyHFSJ3Pjf3p3TQ/go-crypto/sha3",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "8YN1StfmlL6pGKaP/nOKYdu8nVw=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmaPbCnUMBohSGo3KnxEa2bHqyJVVeEEcwtqJAYxerieBo/go-libp2p-crypto",
+			"path": "gx/ipfs/QmaPbCnUMBohSGo3KnxEa2bHqyJVVeEEcwtqJAYxerieBo/go-libp2p-crypto",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "iUuTLydorhVK2l3zl9Po80pUNxU=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmaPbCnUMBohSGo3KnxEa2bHqyJVVeEEcwtqJAYxerieBo/go-libp2p-crypto/pb",
+			"path": "gx/ipfs/QmaPbCnUMBohSGo3KnxEa2bHqyJVVeEEcwtqJAYxerieBo/go-libp2p-crypto/pb",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "B2/3mT1NY5RofUIx5yt5Id98lCo=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/Qmaau1d1WjnQdTYfRYfFVsCS97cgD8ATyrKuNoEfexL7JZ/go-text/encoding",
+			"path": "gx/ipfs/Qmaau1d1WjnQdTYfRYfFVsCS97cgD8ATyrKuNoEfexL7JZ/go-text/encoding",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "R+d43Pob9N0T9fT8U/FC+N/Xwp0=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/Qmaau1d1WjnQdTYfRYfFVsCS97cgD8ATyrKuNoEfexL7JZ/go-text/encoding/charmap",
+			"path": "gx/ipfs/Qmaau1d1WjnQdTYfRYfFVsCS97cgD8ATyrKuNoEfexL7JZ/go-text/encoding/charmap",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "qZ09j5v/+D+puNxOTzLgETqPe5U=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/Qmaau1d1WjnQdTYfRYfFVsCS97cgD8ATyrKuNoEfexL7JZ/go-text/encoding/internal",
+			"path": "gx/ipfs/Qmaau1d1WjnQdTYfRYfFVsCS97cgD8ATyrKuNoEfexL7JZ/go-text/encoding/internal",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "/0S+6ZTEzDyM6bzlCJy/e5DDAvw=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/Qmaau1d1WjnQdTYfRYfFVsCS97cgD8ATyrKuNoEfexL7JZ/go-text/encoding/internal/identifier",
+			"path": "gx/ipfs/Qmaau1d1WjnQdTYfRYfFVsCS97cgD8ATyrKuNoEfexL7JZ/go-text/encoding/internal/identifier",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "Fm0wDdSqsh7RXEgEnJisCG8FjdM=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/Qmaau1d1WjnQdTYfRYfFVsCS97cgD8ATyrKuNoEfexL7JZ/go-text/encoding/japanese",
+			"path": "gx/ipfs/Qmaau1d1WjnQdTYfRYfFVsCS97cgD8ATyrKuNoEfexL7JZ/go-text/encoding/japanese",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "ZKEBYitYQSjhkK+Rvi20r3RwWF4=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/Qmaau1d1WjnQdTYfRYfFVsCS97cgD8ATyrKuNoEfexL7JZ/go-text/encoding/korean",
+			"path": "gx/ipfs/Qmaau1d1WjnQdTYfRYfFVsCS97cgD8ATyrKuNoEfexL7JZ/go-text/encoding/korean",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "G0gBl1lTzoSn58/MgzME0LDty7M=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/Qmaau1d1WjnQdTYfRYfFVsCS97cgD8ATyrKuNoEfexL7JZ/go-text/encoding/simplifiedchinese",
+			"path": "gx/ipfs/Qmaau1d1WjnQdTYfRYfFVsCS97cgD8ATyrKuNoEfexL7JZ/go-text/encoding/simplifiedchinese",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "xJoAv+CJwJZhTIr9hs5IqJAxKMY=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/Qmaau1d1WjnQdTYfRYfFVsCS97cgD8ATyrKuNoEfexL7JZ/go-text/encoding/traditionalchinese",
+			"path": "gx/ipfs/Qmaau1d1WjnQdTYfRYfFVsCS97cgD8ATyrKuNoEfexL7JZ/go-text/encoding/traditionalchinese",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "vp0PqZzreRlNj2svNttvaBEBkAA=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/Qmaau1d1WjnQdTYfRYfFVsCS97cgD8ATyrKuNoEfexL7JZ/go-text/encoding/unicode",
+			"path": "gx/ipfs/Qmaau1d1WjnQdTYfRYfFVsCS97cgD8ATyrKuNoEfexL7JZ/go-text/encoding/unicode",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "jU9Lu9SxEidwR6nGWLYkxtXkS9w=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/Qmaau1d1WjnQdTYfRYfFVsCS97cgD8ATyrKuNoEfexL7JZ/go-text/transform",
+			"path": "gx/ipfs/Qmaau1d1WjnQdTYfRYfFVsCS97cgD8ATyrKuNoEfexL7JZ/go-text/transform",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "ud0OjD2LDLxQJcR717BqVIgzfko=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmaeRR9SpXumU5tYLRkq6x6pfMe8qKzxn4ujBpsTJ2zQG7/go-os-rename",
+			"path": "gx/ipfs/QmaeRR9SpXumU5tYLRkq6x6pfMe8qKzxn4ujBpsTJ2zQG7/go-os-rename",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "OgiPsx5RVx0WT+W6ShlZbvBsQO4=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmahYsGWry85Y7WUe2SX5G4JkH2zifEQAUtJVLZ24aC9DF/go-libp2p-net",
+			"path": "gx/ipfs/QmahYsGWry85Y7WUe2SX5G4JkH2zifEQAUtJVLZ24aC9DF/go-libp2p-net",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "biz0iW14uAjvSgemcAjnnUw6LKc=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmbBhyDKsY4mbY6xsKt3qu9Y7FPvMJ6qbD8AMjYYvPRw1g/goleveldb/leveldb",
+			"path": "gx/ipfs/QmbBhyDKsY4mbY6xsKt3qu9Y7FPvMJ6qbD8AMjYYvPRw1g/goleveldb/leveldb",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "LiFzcsYoBjh3WaDUImErtfvszag=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmbBhyDKsY4mbY6xsKt3qu9Y7FPvMJ6qbD8AMjYYvPRw1g/goleveldb/leveldb/cache",
+			"path": "gx/ipfs/QmbBhyDKsY4mbY6xsKt3qu9Y7FPvMJ6qbD8AMjYYvPRw1g/goleveldb/leveldb/cache",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "bZFlJyGq7MrlhnGpi+brLUx+zho=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmbBhyDKsY4mbY6xsKt3qu9Y7FPvMJ6qbD8AMjYYvPRw1g/goleveldb/leveldb/comparer",
+			"path": "gx/ipfs/QmbBhyDKsY4mbY6xsKt3qu9Y7FPvMJ6qbD8AMjYYvPRw1g/goleveldb/leveldb/comparer",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "MZAWHGm74ADhuiZ7MSXbswpgT3M=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmbBhyDKsY4mbY6xsKt3qu9Y7FPvMJ6qbD8AMjYYvPRw1g/goleveldb/leveldb/errors",
+			"path": "gx/ipfs/QmbBhyDKsY4mbY6xsKt3qu9Y7FPvMJ6qbD8AMjYYvPRw1g/goleveldb/leveldb/errors",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "M7Maf9BVtCKm6Qbhtf2oz/cw/i0=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmbBhyDKsY4mbY6xsKt3qu9Y7FPvMJ6qbD8AMjYYvPRw1g/goleveldb/leveldb/filter",
+			"path": "gx/ipfs/QmbBhyDKsY4mbY6xsKt3qu9Y7FPvMJ6qbD8AMjYYvPRw1g/goleveldb/leveldb/filter",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "V3Gbkgc5pex4vdNKrCAcsjQzE3E=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmbBhyDKsY4mbY6xsKt3qu9Y7FPvMJ6qbD8AMjYYvPRw1g/goleveldb/leveldb/iterator",
+			"path": "gx/ipfs/QmbBhyDKsY4mbY6xsKt3qu9Y7FPvMJ6qbD8AMjYYvPRw1g/goleveldb/leveldb/iterator",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "TYZoDQToL1TrENppce2djqPHbYc=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmbBhyDKsY4mbY6xsKt3qu9Y7FPvMJ6qbD8AMjYYvPRw1g/goleveldb/leveldb/journal",
+			"path": "gx/ipfs/QmbBhyDKsY4mbY6xsKt3qu9Y7FPvMJ6qbD8AMjYYvPRw1g/goleveldb/leveldb/journal",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "Mg6XuNAJ+Nw3/itt3kyNb4G55ZE=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmbBhyDKsY4mbY6xsKt3qu9Y7FPvMJ6qbD8AMjYYvPRw1g/goleveldb/leveldb/memdb",
+			"path": "gx/ipfs/QmbBhyDKsY4mbY6xsKt3qu9Y7FPvMJ6qbD8AMjYYvPRw1g/goleveldb/leveldb/memdb",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "4H47K/QH3x1e6/q4ffVHrBnPydc=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmbBhyDKsY4mbY6xsKt3qu9Y7FPvMJ6qbD8AMjYYvPRw1g/goleveldb/leveldb/opt",
+			"path": "gx/ipfs/QmbBhyDKsY4mbY6xsKt3qu9Y7FPvMJ6qbD8AMjYYvPRw1g/goleveldb/leveldb/opt",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "jXyiq8QDOfrsaJv1Wb0/TxcCPjY=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmbBhyDKsY4mbY6xsKt3qu9Y7FPvMJ6qbD8AMjYYvPRw1g/goleveldb/leveldb/storage",
+			"path": "gx/ipfs/QmbBhyDKsY4mbY6xsKt3qu9Y7FPvMJ6qbD8AMjYYvPRw1g/goleveldb/leveldb/storage",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "jSeIvDmtzLa/1xv7YpQ/OvE/T74=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmbBhyDKsY4mbY6xsKt3qu9Y7FPvMJ6qbD8AMjYYvPRw1g/goleveldb/leveldb/table",
+			"path": "gx/ipfs/QmbBhyDKsY4mbY6xsKt3qu9Y7FPvMJ6qbD8AMjYYvPRw1g/goleveldb/leveldb/table",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "dX9xFKDgt9Dtvv2trIlfIq/02RM=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmbBhyDKsY4mbY6xsKt3qu9Y7FPvMJ6qbD8AMjYYvPRw1g/goleveldb/leveldb/util",
+			"path": "gx/ipfs/QmbBhyDKsY4mbY6xsKt3qu9Y7FPvMJ6qbD8AMjYYvPRw1g/goleveldb/leveldb/util",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "HSsNvw2zEWNGta/hmMF48+BpZvs=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/Qmbi2cDAzNb9ofcdmXqhejBzuQwxCKV8xZu3gnWzJDFPQn/autobatch",
+			"path": "gx/ipfs/Qmbi2cDAzNb9ofcdmXqhejBzuQwxCKV8xZu3gnWzJDFPQn/autobatch",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "/FwB5jendaSKTiwPHmenCjqjyZ4=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/Qmbn7RYyWzBVXiUp9jZ1dA4VADHy9DtS7iZLwfhEUQvm3U/go-smux-yamux",
+			"path": "gx/ipfs/Qmbn7RYyWzBVXiUp9jZ1dA4VADHy9DtS7iZLwfhEUQvm3U/go-smux-yamux",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "qsXTjtjLzKByDi53n2ShN4S+QYI=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmbxkgUceEcuSZ4ZdBA3x74VUDSSYjHYmmeEqkjxbtZ6Jg/go-libp2p-record",
+			"path": "gx/ipfs/QmbxkgUceEcuSZ4ZdBA3x74VUDSSYjHYmmeEqkjxbtZ6Jg/go-libp2p-record",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "vPOUAC+ywzZVd14VWvRRSIx2hK4=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmbxkgUceEcuSZ4ZdBA3x74VUDSSYjHYmmeEqkjxbtZ6Jg/go-libp2p-record/pb",
+			"path": "gx/ipfs/QmbxkgUceEcuSZ4ZdBA3x74VUDSSYjHYmmeEqkjxbtZ6Jg/go-libp2p-record/pb",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "YdKojaytmwX2vP2W7Md5xWI0skc=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmcLqWSFsaQ8Ujh8Ys8i9JPHVy1CcdPoqV23M9S3ufdVbn/go-sockaddr/net",
+			"path": "gx/ipfs/QmcLqWSFsaQ8Ujh8Ys8i9JPHVy1CcdPoqV23M9S3ufdVbn/go-sockaddr/net",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "wSAm1MSve0Bw8RZdcAGMLeo8c90=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmcYU4bjgs7dACwDWzfeYKgqkgbd5mKk2ZUCepYXhbtRSB/go-libp2p-conn",
+			"path": "gx/ipfs/QmcYU4bjgs7dACwDWzfeYKgqkgbd5mKk2ZUCepYXhbtRSB/go-libp2p-conn",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "ffsUn58vPnGiy3ATOAOkyaoiXc4=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmcrrEpx3VMUbrbgVroH3YiYyUS5c4YAykzyPJWKspUYLa/go-semver/semver",
+			"path": "gx/ipfs/QmcrrEpx3VMUbrbgVroH3YiYyUS5c4YAykzyPJWKspUYLa/go-semver/semver",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "OIlRRCGyyOhrCu4bU/EScUy4VH8=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/Qmcx4KoZ91XS6izLjdkujAMAunAS1YuTgfgASgYaZF5GkR/go-addr-util",
+			"path": "gx/ipfs/Qmcx4KoZ91XS6izLjdkujAMAunAS1YuTgfgASgYaZF5GkR/go-addr-util",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "xJFNk7B/LU0ZDlZCO1JgFKJrErE=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmcyaFHbyiZfoX5GTpcqqCPYmbjYNAhRDekXSJPFHdYNSV/go.uuid",
+			"path": "gx/ipfs/QmcyaFHbyiZfoX5GTpcqqCPYmbjYNAhRDekXSJPFHdYNSV/go.uuid",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "s7hjMVXtFwpS7u8xmRa27TQW2Bs=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmdQcv14hCd41WEzNA4avJohJR5sdPqVgFtXZtDz6MTCKx/go-tcp-transport",
+			"path": "gx/ipfs/QmdQcv14hCd41WEzNA4avJohJR5sdPqVgFtXZtDz6MTCKx/go-tcp-transport",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "Jt1dE4Mz5bx1Ox3V59/5XTWgxpU=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmdYwCmx8pZRkzdcd8MhmLJqYVoVTC1aGsy5Q4reMGLNLg/atomicfile",
+			"path": "gx/ipfs/QmdYwCmx8pZRkzdcd8MhmLJqYVoVTC1aGsy5Q4reMGLNLg/atomicfile",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "+OBWHVQ76LS0S8JEQaGbHbrcPwE=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmddZj8gx1Ceisj3QEWeAzPEjCPWpXzneN1ANdkZdwUdc3/floodsub",
+			"path": "gx/ipfs/QmddZj8gx1Ceisj3QEWeAzPEjCPWpXzneN1ANdkZdwUdc3/floodsub",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "mBrrdY6+ffext3uwbwr3vXWjv6g=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmddZj8gx1Ceisj3QEWeAzPEjCPWpXzneN1ANdkZdwUdc3/floodsub/pb",
+			"path": "gx/ipfs/QmddZj8gx1Ceisj3QEWeAzPEjCPWpXzneN1ANdkZdwUdc3/floodsub/pb",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "2PeFrB2X+hYLlVvLLPl+BOt4Ccc=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmdjeSxRchVsQ2ftrZyvVmFqoJ1QbJZ2PgugBsZ58TZZqQ/go-libp2p-connmgr",
+			"path": "gx/ipfs/QmdjeSxRchVsQ2ftrZyvVmFqoJ1QbJZ2PgugBsZ58TZZqQ/go-libp2p-connmgr",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "A41gCn3u7KU6NH+QYAAezus0t/w=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/Qme4T6BE4sQxg7ZouamF5M7Tx1ZFTqzcns7BkyQPXpoT99/go-multibase",
+			"path": "gx/ipfs/Qme4T6BE4sQxg7ZouamF5M7Tx1ZFTqzcns7BkyQPXpoT99/go-multibase",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "ixC4+hkQfEfIydFgRzwf3AjF33g=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmeFPvhFJGXGiXAc9zunNxZjCaWgYQpcsdwip2NWLcccyw/GoEndian",
+			"path": "gx/ipfs/QmeFPvhFJGXGiXAc9zunNxZjCaWgYQpcsdwip2NWLcccyw/GoEndian",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "kW4QuYORZ9i2JY+C4wC+LeV9cA8=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmeQW4ayVqi7Jjay1SrP2wYydsH9KwSrzQBnqyC25gPFnG/go-notifier",
+			"path": "gx/ipfs/QmeQW4ayVqi7Jjay1SrP2wYydsH9KwSrzQBnqyC25gPFnG/go-notifier",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "JNrAJbo+b2XDIIkg6AoB8rzRET4=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmeQW4ayVqi7Jjay1SrP2wYydsH9KwSrzQBnqyC25gPFnG/go-notifier/Godeps/_workspace/src/github.com/jbenet/goprocess",
+			"path": "gx/ipfs/QmeQW4ayVqi7Jjay1SrP2wYydsH9KwSrzQBnqyC25gPFnG/go-notifier/Godeps/_workspace/src/github.com/jbenet/goprocess",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "DxhRg6ggNUoeSG+RjCKab8Nsuhk=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmeQW4ayVqi7Jjay1SrP2wYydsH9KwSrzQBnqyC25gPFnG/go-notifier/Godeps/_workspace/src/github.com/jbenet/goprocess/ratelimit",
+			"path": "gx/ipfs/QmeQW4ayVqi7Jjay1SrP2wYydsH9KwSrzQBnqyC25gPFnG/go-notifier/Godeps/_workspace/src/github.com/jbenet/goprocess/ratelimit",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "ORHxw0yjTRAOGxFnMO7JQUdttqM=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmeXm9iwA4cURNmexpuBucDWcV38jNHdqpGcb7yoyP6e4G/go-libp2p-nat",
+			"path": "gx/ipfs/QmeXm9iwA4cURNmexpuBucDWcV38jNHdqpGcb7yoyP6e4G/go-libp2p-nat",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "cfiT6CScmNy/HLTcvz/JgIlmvtg=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmeYJHEk8UjVVZ4XCRTZe6dFQrb8pGWD81LYCgeLp8CvMB/go-metrics",
+			"path": "gx/ipfs/QmeYJHEk8UjVVZ4XCRTZe6dFQrb8pGWD81LYCgeLp8CvMB/go-metrics",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "TYyzutTctdN80DNbog1jS+IF/nk=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmeZBgYBHvxMukGK5ojg28BCNLB9SeXqT7XXg6o7r2GbJy/go-stream-muxer",
+			"path": "gx/ipfs/QmeZBgYBHvxMukGK5ojg28BCNLB9SeXqT7XXg6o7r2GbJy/go-stream-muxer",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "C6QUcsMIK1IuZ7KJVsiHhOsj9GU=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmeebqVZeEXBqJ2B4urQWfdhwRRPm84ajnCo8x8pfwbsPM/go-ipld-cbor",
+			"path": "gx/ipfs/QmeebqVZeEXBqJ2B4urQWfdhwRRPm84ajnCo8x8pfwbsPM/go-ipld-cbor",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "lI6XVaYMSm7no5Yez4NyOfl3Wag=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/Qmf2fBLzCvFxs3vvZaoQyKSTv2rjApek4F1kzRxAfK6P4P/gateway",
+			"path": "gx/ipfs/Qmf2fBLzCvFxs3vvZaoQyKSTv2rjApek4F1kzRxAfK6P4P/gateway",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "JpxOnVBh44yYaAas+h02u5a/g1s=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmfJHywXQu98UeZtGJBQrPAR6AtmDjjbe3qjTo9piXHPnx/murmur3",
+			"path": "gx/ipfs/QmfJHywXQu98UeZtGJBQrPAR6AtmDjjbe3qjTo9piXHPnx/murmur3",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
+		},
+		{
+			"checksumSHA1": "1qznzWweZqkce7SGoKhpKb2dzeM=",
+			"origin": "github.com/attic-labs/noms/vendor/gx/ipfs/QmfQAY7YU4fQi3sjGLs1hwkM2Aq7dxgDyoMjaKN4WBWvcB/go-libp2p-interface-conn",
+			"path": "gx/ipfs/QmfQAY7YU4fQi3sjGLs1hwkM2Aq7dxgDyoMjaKN4WBWvcB/go-libp2p-interface-conn",
+			"revision": "1163d716294979287311aa2e2f6d09a8498f3c83",
+			"revisionTime": "2017-09-27T23:13:25Z"
 		}
 	],
 	"rootPath": "github.com/attic-labs/bucketdb/presto/presto-noms-thrift"

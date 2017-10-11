@@ -173,11 +173,7 @@ func (h *ServiceHandler) PrestoGetSplits(
 	if err != nil {
 		return
 	}
-	md, err := table.getMetadata()
-	if err != nil {
-		return
-	}
-	estBytesPerRow := estimateRowSize(desiredColumns.Columns, md.Columns)
+	estBytesPerRow := table.estimateRowSize(desiredColumns.Columns)
 	minRowsPerSplit := config.minBytesPerSplit/estBytesPerRow
 	rowCount := table.getRowCount()
 	maxSplits := config.nodeCount
@@ -226,7 +222,7 @@ func (h *ServiceHandler) PrestoGetRows(ctx context.Context,
 
 	log.Printf("Batch: %+v", *batch)
 	estBytesPerRow := blocksSize(blocks)/batch.Limit
-	log.Printf("BytesRead: %d (maxBytes: %d)", estBytesPerRow * batch.Limit, maxBytes)
+	log.Printf("Estimated bytes: %d; Max bytes: %d", estBytesPerRow * batch.Limit, maxBytes)
 	return &PrestoThriftPageResult_{
 		ColumnBlocks: blocks,
 		RowCount: rowCount,

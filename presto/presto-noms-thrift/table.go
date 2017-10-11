@@ -17,6 +17,7 @@ import (
 type nomsTable interface {
 	io.Closer
 	getMetadata() (*PrestoThriftTableMetadata, error)
+	estimateRowSize(columns []string) uint64
 	getRowCount() uint64
 	getRows(batch *Batch, columns []string, maxBytes int64) (blocks []*PrestoThriftBlock, rowCount int32, err error)
 }
@@ -108,6 +109,12 @@ var kindToPrestoType = map[types.NomsKind]string {
 	types.CycleKind:	"varchar",
 	types.TypeKind:		"varchar",
 	types.UnionKind:	"varchar",
+}
+
+func (t *colMajorTable) estimateRowSize(columns []string) uint64 {
+	md, err := t.getMetadata()
+	d.PanicIfError(err)
+	return estimateRowSize(columns, md.Columns)
 }
 
 
@@ -211,7 +218,6 @@ func (t *colMajorTable) Close() error {
 	return t.sp.Close()
 }
 
-
 func (t *rowMajorTable) getMetadata() (metadata *PrestoThriftTableMetadata, err error) {
 	typ := types.TypeOf(t.v)
 	var elementType *types.Type
@@ -251,6 +257,11 @@ func (t *rowMajorTable) getMetadata() (metadata *PrestoThriftTableMetadata, err 
 	return
 }
 
+func (t *rowMajorTable) estimateRowSize(columns []string) uint64 {
+	md, err := t.getMetadata()
+	d.PanicIfError(err)
+	return estimateRowSize(columns, md.Columns)
+}
 
 func (t *rowMajorTable) getRowCount() uint64 {
 	return 0
