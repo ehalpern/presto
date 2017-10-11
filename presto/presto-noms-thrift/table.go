@@ -12,6 +12,7 @@ import (
 	"github.com/attic-labs/noms/go/d"
 	"github.com/attic-labs/noms/go/spec"
 	"github.com/attic-labs/noms/go/types"
+	"sync"
 )
 
 type nomsTable interface {
@@ -41,26 +42,46 @@ func dsSpec(prefix, schema, table string) (sp spec.Spec, err error) {
 	return sp, nil
 }
 
-var dsCache = make(map[PrestoThriftSchemaTableName]spec.Spec)
+type tableCacheT struct {
+	cache map[PrestoThriftSchemaTableName]nomsTable
+	lock sync.RWMutex
+}
+
+func (c *tableCacheT) get(name *PrestoThriftSchemaTableName) (t nomsTable, ok bool) {
+	c.lock.RLock()
+	defer c.lock.RUnlock()
+	t, ok = c.cache[*name]
+	return
+}
+
+func (c *tableCacheT) put(name *PrestoThriftSchemaTableName, t nomsTable) {
+	c.lock.Lock()
+	defer c.lock.Unlock()
+	c.cache[*name] = t
+}
+
+var tableCache = &tableCacheT{cache: make(map[PrestoThriftSchemaTableName]nomsTable)}
 
 func getTable(dbPrefix string, name *PrestoThriftSchemaTableName) (t nomsTable, err error) {
-	sp, ok := dsCache[*name]
-	if !ok {
-		sp, err = dsSpec(dbPrefix, name.SchemaName, name.TableName)
-		if err != nil {
-			return nil, err
-		}
-		dsCache[*name] = sp
+	if t, ok := tableCache.get(name); ok {
+		log.Printf("Using cached table for %s", name)
+		return t, nil
+	}
+	sp, err := dsSpec(dbPrefix, name.SchemaName, name.TableName)
+	if err != nil {
+		return nil, err
 	}
 	// TODO: validate entire type structure and return (nil, nil) if not valid
 	switch table := sp.GetDataset().HeadValue().(type) {
 	case types.List, types.Set, types.Map:
-		return &rowMajorTable{name, sp, table}, nil
+		t = &rowMajorTable{name, sp, table}
 	case types.Struct:
-		return &colMajorTable{name, sp, table}, nil
+		t = &colMajorTable{name, sp, table}
 	default:
 		return nil, nil
 	}
+	tableCache.put(name, t)
+	return t, err
 }
 
 func (t *colMajorTable) getMetadata() (metadata *PrestoThriftTableMetadata, err error) {
