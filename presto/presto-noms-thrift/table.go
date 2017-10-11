@@ -4,12 +4,14 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"unsafe"
 
 	. "prestothriftservice"
 
 	"github.com/attic-labs/noms/go/d"
 	"github.com/attic-labs/noms/go/spec"
 	"github.com/attic-labs/noms/go/types"
+	"log"
 )
 
 type nomsTable interface {
@@ -150,9 +152,9 @@ func (t *colMajorTable) getRows(batch *Batch, columns []string, maxBytes int64) 
 
 
 func readDoubles(list types.List, offset, limit uint64) *PrestoThriftBlock {
-	numbers := make([]float64, limit - offset)
+	numbers := make([]float64, limit)
 	it := list.IteratorAt(offset)
-	for i, v := 0, it.Next(); v != nil; i, v = i + 1, it.Next() {
+	for i, v := 0, it.Next(); uint64(i) < limit; i, v = i + 1, it.Next() {
 		numbers[i] = float64(v.(types.Number))
 	}
 	return &PrestoThriftBlock{
@@ -163,9 +165,9 @@ func readDoubles(list types.List, offset, limit uint64) *PrestoThriftBlock {
 }
 
 func readBools(list types.List, offset, limit uint64) *PrestoThriftBlock {
-	bools := make([]bool, limit - offset)
+	bools := make([]bool, limit)
 	it := list.IteratorAt(offset)
-	for i, v := 0, it.Next(); v != nil; i, v = i + 1, it.Next() {
+	for i, v := 0, it.Next(); uint64(i) < limit; i, v = i + 1, it.Next() {
 		bools[i] = bool(v.(types.Bool))
 	}
 	return &PrestoThriftBlock{
@@ -176,11 +178,11 @@ func readBools(list types.List, offset, limit uint64) *PrestoThriftBlock {
 }
 
 func readStrings(list types.List, offset, limit uint64) *PrestoThriftBlock {
-	nulls := make([]bool, limit - offset)
-	sizes := make([]int32, limit - offset)
+	nulls := make([]bool, limit)
+	sizes := make([]int32, limit)
 	var data bytes.Buffer
 	it := list.IteratorAt(offset)
-	for i, v := 0, it.Next(); v != nil; i, v = i + 1, it.Next() {
+	for i, v := 0, it.Next(); uint64(i) < limit; i, v = i + 1, it.Next() {
 		s := string(v.(types.String))
 		if s == "" {
 			nulls[i] = true
@@ -306,4 +308,52 @@ func appendString(block *PrestoThriftBlock, s string) *PrestoThriftBlock {
 
 func (t *rowMajorTable) Close() error {
 	return t.sp.Close()
+}
+
+var charSize = int(unsafe.Sizeof('a'))
+var boolSize = int(unsafe.Sizeof(true))
+var doubleSize = int(unsafe.Sizeof(float64(1)))
+
+func estimateRowSize(columns []string, md []*PrestoThriftColumnMetadata) (size uint64) {
+	include := make(map[string]bool)
+	for _, c := range columns {
+		include[c] = true
+	}
+	for _, cm := range md {
+		if include[cm.Name] {
+			switch cm.Type {
+			case "varchar":
+				size += uint64(charSize * 20)
+			case "boolean":
+				size += uint64(boolSize)
+			case "double":
+				size += uint64(doubleSize)
+			default:
+				log.Printf("unsupported row type %s", cm.Type)
+			}
+		}
+	}
+	return size
+}
+
+func blocksSize(blocks []*PrestoThriftBlock) (size uint64) {
+	for _, b := range blocks {
+		if b.VarcharData != nil {
+			size += uint64(len(b.VarcharData.Sizes) * 4)
+			size += uint64(len(b.VarcharData.Nulls) * boolSize)
+			size += uint64(len(b.VarcharData.Bytes))
+		}
+		if b.DoubleData != nil {
+			size += uint64(len(b.DoubleData.Nulls) * boolSize)
+			size += uint64(len(b.DoubleData.Doubles) * doubleSize)
+		}
+		if b.BooleanData != nil {
+			size += uint64(len(b.BooleanData.Nulls) * boolSize)
+			size += uint64(len(b.BooleanData.Booleans) * boolSize)
+		}
+	}
+	if len(blocks) == 0 {
+		return 0
+	}
+	return size/uint64(len(blocks))
 }

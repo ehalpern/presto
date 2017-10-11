@@ -85,12 +85,12 @@ func TestGetRows(t *testing.T) {
 		colMajor, err := getTable(dbPrefix, tableName)
 		assert.NoError(err)
 		defer colMajor.Close()
-		splitId := newSplit(tableName, 0, 100).id()
-		batch := newBatch(splitId, &PrestoThriftNullableToken{})
+		splitId := newSplit(tableName, 0, 100, 100).id()
+		batch := newBatch(splitId, nil, 16384)
 		columns := []string {"typebool", "typedouble", "typestring"}
-		blocks, rowCount, err := colMajor.getRows(batch, columns, 4096)
+		blocks, rowCount, err := colMajor.getRows(batch, columns, 16384)
 		assert.Len(blocks, 3)
-		assert.Equal(rowCount, int32(6))
+		assert.Equal(int32(6), rowCount, )
 	}
 	getRows("types")
 	getRows("types_rm")

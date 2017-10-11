@@ -24,6 +24,7 @@ import (
 	"fmt"
 	"os"
 	"git.apache.org/thrift.git/lib/go/thrift"
+	"log"
 )
 
 func Usage() {
@@ -35,13 +36,11 @@ func Usage() {
 func main() {
 	flag.Usage = Usage
 	protocol := flag.String("P", "binary", "Specify the protocol (binary, compact, json, simplejson)")
-	framed := flag.Bool("framed", false, "Use framed transport")
 	buffered := flag.Bool("buffered", false, "Use buffered transport")
 	addr := flag.String("addr", "localhost:9090", "Address to listen to")
 	flag.StringVar(&config.dbPrefix,"db-prefix", "nbs:/tmp/presto-noms", "Database path prefix")
-	flag.Uint64Var(&config.maxBatchSize,"max-batch-size", 1000000, "Max rows per batch")
+	flag.Uint64Var(&config.nodeCount,"node-count", 1, "Number of noms thrift nodes")
 	flag.Parse()
-	config.minRowsPerSplit = minUint64(config.maxBatchSize, config.minRowsPerSplit)
 	var protocolFactory thrift.TProtocolFactory
 	switch *protocol {
 	case "compact":
@@ -65,10 +64,9 @@ func main() {
 		transportFactory = thrift.NewTTransportFactory()
 	}
 
-	if *framed {
-		transportFactory = thrift.NewTFramedTransportFactory(transportFactory)
-	}
+	transportFactory = thrift.NewTFramedTransportFactory(transportFactory)
 
+	log.Printf("config: %+v", config)
 	if err := runServer(transportFactory, protocolFactory, *addr, config.dbPrefix); err != nil {
 		fmt.Println("error running server:", err)
 	}

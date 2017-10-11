@@ -10,7 +10,10 @@
 ### END INIT INFO
 
 db_prefix="aws://bucketdb-manifests:bucketdb-tables/p"
-cmd="NOMS_VERSION_NEXT=1 /var/lib/presto/go/bin/presto-noms-thrift --framed --db-prefix=${db_prefix}"
+node_count=10
+cmd="NOMS_VERSION_NEXT=1 /var/lib/presto/go/bin/presto-noms-thrift \
+--node-count=${node_count} \
+--db-prefix=${db_prefix}"
 user="presto"
 
 name=`basename $0`

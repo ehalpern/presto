@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"strings"
 
 	. "prestothriftservice"
@@ -82,7 +83,6 @@ func (h *ServiceHandler) PrestoListSchemaNames(ctx context.Context) (r []string,
 func (h *ServiceHandler) PrestoListTables(
 	ctx context.Context, schema *PrestoThriftNullableSchemaName,
 ) (tables []*PrestoThriftSchemaTableName, err error) {
-
 	// list tables in schema
 	listTables := func(s string) (tables []*PrestoThriftSchemaTableName, err error) {
 		spec, err := spec.ForDatabase(h.dbPrefix + "/" + s)
@@ -173,14 +173,23 @@ func (h *ServiceHandler) PrestoGetSplits(
 	if err != nil {
 		return
 	}
+	md, err := table.getMetadata()
+	if err != nil {
+		return
+	}
+	estBytesPerRow := estimateRowSize(desiredColumns.Columns, md.Columns)
+	minRowsPerSplit := config.minBytesPerSplit/estBytesPerRow
 	rowCount := table.getRowCount()
-	splitCount := maxUint64(1, minUint64(rowCount / config.minRowsPerSplit, uint64(maxSplitCount)))
+	maxSplits := config.nodeCount
+	splitCount := maxUint64(1, minUint64(rowCount / minRowsPerSplit, maxSplits))
 	rowsPerSplit := rowCount / splitCount
 	var splits []*PrestoThriftSplit
 	for i := uint64(0); i < splitCount; i++ {
-		split := newSplit(tableName, i * rowsPerSplit, rowsPerSplit)
+		split := newSplit(tableName, i * rowsPerSplit, rowsPerSplit, estBytesPerRow)
 		splits = append(splits, &PrestoThriftSplit{SplitId: split.id()})
 	}
+	log.Printf("Splitting query into %d splits of %d rows", splitCount, rowsPerSplit)
+	log.Printf("estBytesPerRow: %d", estBytesPerRow)
 	return &PrestoThriftSplitBatch{
 		Splits: splits,
 		NextToken: nil,
@@ -204,7 +213,7 @@ func (h *ServiceHandler) PrestoGetRows(ctx context.Context,
 	splitId *PrestoThriftId, columns []string, maxBytes int64,
 	nextToken *PrestoThriftNullableToken,
 ) (r *PrestoThriftPageResult_, err error) {
-	batch := newBatch(splitId, nextToken)
+	batch := newBatch(splitId, nextToken.Token, maxBytes)
 	table, err := getTable(h.dbPrefix, batch.tableName())
 	if err != nil {
 		return r, err
@@ -214,10 +223,14 @@ func (h *ServiceHandler) PrestoGetRows(ctx context.Context,
 	if err != nil {
 		return r, err
 	}
+
+	log.Printf("Batch: %+v", *batch)
+	estBytesPerRow := blocksSize(blocks)/batch.Limit
+	log.Printf("BytesRead: %d (maxBytes: %d)", estBytesPerRow * batch.Limit, maxBytes)
 	return &PrestoThriftPageResult_{
 		ColumnBlocks: blocks,
 		RowCount: rowCount,
-		NextToken: batch.nextBatchToken(),
+		NextToken: batch.nextBatchId(maxBytes, estBytesPerRow),
 	}, nil
 }
 
