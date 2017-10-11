@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"log"
 	"unsafe"
 
 	. "prestothriftservice"
@@ -11,7 +12,6 @@ import (
 	"github.com/attic-labs/noms/go/d"
 	"github.com/attic-labs/noms/go/spec"
 	"github.com/attic-labs/noms/go/types"
-	"log"
 )
 
 type nomsTable interface {
@@ -40,11 +40,16 @@ func dsSpec(prefix, schema, table string) (sp spec.Spec, err error) {
 	return sp, nil
 }
 
+var dsCache = make(map[PrestoThriftSchemaTableName]spec.Spec)
 
 func getTable(dbPrefix string, name *PrestoThriftSchemaTableName) (t nomsTable, err error) {
-	sp, err := dsSpec(dbPrefix, name.SchemaName, name.TableName)
-	if err != nil {
-		return nil, err
+	sp, ok := dsCache[*name]
+	if !ok {
+		sp, err = dsSpec(dbPrefix, name.SchemaName, name.TableName)
+		if err != nil {
+			return nil, err
+		}
+		dsCache[*name] = sp
 	}
 	// TODO: validate entire type structure and return (nil, nil) if not valid
 	switch table := sp.GetDataset().HeadValue().(type) {
