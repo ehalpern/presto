@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"log"
 	"math"
 
 	. "prestothriftservice"
@@ -89,19 +90,22 @@ func (s *Batch) tableName() *PrestoThriftSchemaTableName {
 	return &PrestoThriftSchemaTableName{ s.Schema, s.Table}
 }
 
-// The goal is to read up to maxBytes per batch without going over. To do this, we
-// approximate the average bytes/row based on the rows that have already been read.
-// Our confidence in this approximation increases with the number of rows read.
-// The next batch limit is computed by taking the current bytes/row estimate divided
-// by the maxBytes and reduced by the confidence factor. At the lowest confidence (less
-// than 1% read), we only read only 1/10th of the rows estimated to reach maxBytes.
-// At the highest confidence (10% read), we read 9/10ths of the rows estimated to reach
-// maxBytes.
+// Naively estimate the number of rows required to fill the buffer with up to |maxBytes|
+//
+// To do this, we estimate the number of rows required for |maxBytes| using the
+// average bytes/row read so far. We then compute a confidence measure based on
+// the number of rows already read between 0.8 and 0.1. 0.8 is the low bound of
+// confidence and means we leave room for 80% error. 0.1 is the high bound of
+// confidence and means we leave room for 10% error.
 func computeRowLimit(rowsRead uint64, totalRows uint64, estBytesPerRow uint64, maxBytes int64) uint64 {
-	confidence := float64(rowsRead)/float64(totalRows) * 10
-	confidence = math.Min(.9, math.Max(.1, confidence))
+	// rowsRead == 0 means this is the first batch and we've estimated bytes/row using table.estimateRowSize
+	confidence := math.Min(.8, math.Max(.1, 10.0 / math.Sqrt(math.Max(1, float64(rowsRead)))))
 	estimatedRows := float64(maxBytes) / float64(estBytesPerRow)
-	newLimit := math.Max(1, estimatedRows * confidence)
-	return uint64(math.Min(newLimit, float64(totalRows - rowsRead)))
+	limit := estimatedRows * (1.0 - confidence)
+	limit = math.Min(limit, float64(totalRows - rowsRead))
+	log.Printf("rowsRead: %v, totalRows: %v", rowsRead, totalRows)
+	log.Printf("New limit: %v (assuming %v bytes/row, targeting %v bytes with %v confidence)",
+		limit, estBytesPerRow, maxBytes, confidence)
+	return uint64(math.Floor(limit + .5))
 }
 

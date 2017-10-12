@@ -64,7 +64,6 @@ var tableCache = &tableCacheT{cache: make(map[PrestoThriftSchemaTableName]nomsTa
 
 func getTable(dbPrefix string, name *PrestoThriftSchemaTableName) (t nomsTable, err error) {
 	if t, ok := tableCache.get(name); ok {
-		log.Printf("Using cached table for %s", name)
 		return t, nil
 	}
 	sp, err := dsSpec(dbPrefix, name.SchemaName, name.TableName)
@@ -216,6 +215,10 @@ func readStrings(list types.List, offset, limit uint64) *PrestoThriftBlock {
 	var data bytes.Buffer
 	it := list.IteratorAt(offset)
 	for i, v := 0, it.Next(); uint64(i) < limit; i, v = i + 1, it.Next() {
+		if v == nil {
+			nulls[i] = true
+			break
+		}
 		s := string(v.(types.String))
 		if s == "" {
 			nulls[i] = true

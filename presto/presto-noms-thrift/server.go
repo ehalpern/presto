@@ -18,6 +18,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 )
 
+// Starts thrift server
 func runServer(transportFactory thrift.TTransportFactory, protocolFactory thrift.TProtocolFactory, addr string, dbPrefix string) error {
 	var transport thrift.TServerTransport
 	var err error
@@ -47,7 +48,7 @@ func serviceError(format string, args... interface{}) *PrestoThriftServiceExcept
 	}
 }
 
-// Returns available schema names.
+// Returns available schema names by list the noms databases under dbPrefix
 func (h *thriftHandler) PrestoListSchemaNames(ctx context.Context) (r []string, err error) {
 	parts := strings.Split(h.dbPrefix, ":")
 	protocol:= parts[0]
@@ -91,7 +92,9 @@ func (h *thriftHandler) PrestoListSchemaNames(ctx context.Context) (r []string, 
 	return r, nil
 }
 
-// Returns tables for the given schema name.
+// Returns tables for the given schema name
+//
+// Iterates the datasets in the database named by |schema|
 //
 // @param schemaNameOrNull a structure containing schema name or {@literal null}
 // @return a list of table names with corresponding schemas. If schema name is null then returns
@@ -144,11 +147,10 @@ func (h *thriftHandler) dsSpec(schema, table string) (sp spec.Spec, err error) {
 
 // Returns metadata for a given table.
 //
+// Maps the column or row major structure to presto column structure
+//
 // @param schemaTableName schema and table name
 // @return metadata for a given table, or a {@literal null} value inside if it does not exist
-//
-// Parameters:
-//  - SchemaTableName
 func (h *thriftHandler) PrestoGetTableMetadata(ctx context.Context, name *PrestoThriftSchemaTableName) (md *PrestoThriftNullableTableMetadata, err error) {
 	table, err := getTable(h.dbPrefix, name)
 	if err != nil {
@@ -198,9 +200,14 @@ func (h *thriftHandler) PrestoGetSplits(
 	maxSplits := config.nodeCount
 	splitCount := maxUint64(1, minUint64(rowCount / minRowsPerSplit, maxSplits))
 	rowsPerSplit := rowCount / splitCount
+	remainder := rowCount % rowsPerSplit
 	var splits []*PrestoThriftSplit
 	for i := uint64(0); i < splitCount; i++ {
-		split := newSplit(tableName, i * rowsPerSplit, rowsPerSplit, estBytesPerRow)
+		limit := rowsPerSplit
+		if i + 1 == splitCount && remainder > 0 {
+			limit = remainder
+		}
+		split := newSplit(tableName, i * rowsPerSplit, limit, estBytesPerRow)
 		splits = append(splits, &PrestoThriftSplit{SplitId: split.id()})
 	}
 	log.Printf("Splitting query into %d splits of %d rows", splitCount, rowsPerSplit)
@@ -234,18 +241,18 @@ func (h *thriftHandler) PrestoGetRows(ctx context.Context,
 		return r, err
 	}
 	defer table.Close()
+	log.Printf("Getting batch: %+v", *batch)
 	blocks, rowCount, err := table.getRows(batch, columns, maxBytes)
 	if err != nil {
 		return r, err
 	}
 
-	log.Printf("Batch: %+v", *batch)
-	estBytesPerRow := blocksSize(blocks)/batch.Limit
-	log.Printf("Estimated bytes: %d; Max bytes: %d", estBytesPerRow * batch.Limit, maxBytes)
+	bytesRetrieved := blocksSize(blocks)
+	log.Printf("Bytes retrieved: %d; Max bytes: %d", bytesRetrieved, maxBytes)
 	return &PrestoThriftPageResult_{
 		ColumnBlocks: blocks,
 		RowCount: rowCount,
-		NextToken: batch.nextBatchId(maxBytes, estBytesPerRow),
+		NextToken: batch.nextBatchId(maxBytes, bytesRetrieved/batch.Limit),
 	}, nil
 }
 
