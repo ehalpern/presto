@@ -19,6 +19,8 @@ type Split struct {
 }
 
 func newSplit(table *PrestoThriftSchemaTableName, offset uint64, limit uint64, bytesPerRow uint64) *Split {
+	d.Chk.True(limit > 0)
+	d.Chk.True(bytesPerRow > 0)
 	return &Split{
 		table.SchemaName, table.TableName, offset, limit, bytesPerRow,
 	}
@@ -57,25 +59,31 @@ func newBatch(splitId *PrestoThriftId, batchToken *PrestoThriftId, maxBytes int6
 		d.PanicIfError(json.Unmarshal(batchToken.GetID(), &b))
 	} else {
 		s := splitFromId(splitId)
-		limit := computeRowLimit(0, s.Limit - s.Offset, s.EstBytesPerRow, maxBytes)
+		limit := computeRowLimit(0, s.Limit, s.EstBytesPerRow, maxBytes)
 		b = Batch{
 			s.Schema, s.Table,
 			s.Offset, limit,
 			s.Offset,s.Limit,
 		}
+		d.Chk.True(b.Limit > 0)
+		d.Chk.True(b.Offset >= b.InitialOffset)
+		d.Chk.True(b.totalRowsRead() <= b.TotalLimit, "%d !<= %d", b.totalRowsRead(), b.TotalLimit)
 	}
 	return &b
 }
 
+func (b *Batch) totalRowsRead() uint64 {
+	return b.Offset + b.Limit - b.InitialOffset
+}
+
 func (b *Batch) nextBatchId(maxBytes int64, estBytesPerRow uint64) *PrestoThriftId {
-	newOffset := b.Offset + b.Limit
-	if newOffset == b.TotalLimit {
+	if b.totalRowsRead() == b.TotalLimit {
 		return nil
 	}
-	newLimit := computeRowLimit(newOffset - b.InitialOffset, b.TotalLimit - b.InitialOffset, estBytesPerRow, maxBytes)
+	newLimit := computeRowLimit(b.totalRowsRead(), b.TotalLimit - b.InitialOffset, estBytesPerRow, maxBytes)
 	return (&Batch{
 		b.Schema, b.Table,
-		newOffset, uint64(newLimit),
+		b.Offset + b.Limit, uint64(newLimit),
 		b.InitialOffset,b.TotalLimit,
 	}).id()
 }
@@ -97,6 +105,10 @@ func (s *Batch) tableName() *PrestoThriftSchemaTableName {
 // the number of rows already read between 0.8 and 0.1. 0.8 is the low bound of
 // confidence and means we leave room for 80% error. 0.1 is the high bound of
 // confidence and means we leave room for 10% error.
+//
+// TODO: Leaving 10% error buffer reduces the chance that a data anomoly (like a
+// cluster of long strings) causes a batch to exceed maxBytes. This of course doesn't
+// ensure that won't happen, so we still need way to deal with that case.
 func computeRowLimit(rowsRead uint64, totalRows uint64, estBytesPerRow uint64, maxBytes int64) uint64 {
 	// rowsRead == 0 means this is the first batch and we've estimated bytes/row using table.estimateRowSize
 	confidence := math.Min(.8, math.Max(.1, 10.0 / math.Sqrt(math.Max(1, float64(rowsRead)))))

@@ -210,8 +210,7 @@ func (h *thriftHandler) PrestoGetSplits(
 		split := newSplit(tableName, i * rowsPerSplit, limit, estBytesPerRow)
 		splits = append(splits, &PrestoThriftSplit{SplitId: split.id()})
 	}
-	log.Printf("Splitting query into %d splits of %d rows", splitCount, rowsPerSplit)
-	log.Printf("estBytesPerRow: %d", estBytesPerRow)
+	log.Printf("Splitting query into %d splits of %d rows of %d estimated bytes", splitCount, rowsPerSplit, estBytesPerRow)
 	return &PrestoThriftSplitBatch{
 		Splits: splits,
 		NextToken: nil,
