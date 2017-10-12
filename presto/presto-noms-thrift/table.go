@@ -185,10 +185,9 @@ func (t *colMajorTable) getRows(batch *Batch, columns []string, maxBytes int64) 
 
 func readDoubles(list types.List, offset, limit uint64) *PrestoThriftBlock {
 	numbers := make([]float64, limit)
-	it := list.IteratorAt(offset)
-	for i, v := 0, it.Next(); uint64(i) < limit; i, v = i + 1, it.Next() {
+	list.IterRange(offset, limit, func(v types.Value, i uint64) {
 		numbers[i] = float64(v.(types.Number))
-	}
+	})
 	return &PrestoThriftBlock{
 		DoubleData: &PrestoThriftDouble{
 			Doubles: numbers[:],
@@ -198,10 +197,9 @@ func readDoubles(list types.List, offset, limit uint64) *PrestoThriftBlock {
 
 func readBools(list types.List, offset, limit uint64) *PrestoThriftBlock {
 	bools := make([]bool, limit)
-	it := list.IteratorAt(offset)
-	for i, v := 0, it.Next(); uint64(i) < limit; i, v = i + 1, it.Next() {
+	list.IterRange(offset, limit, func(v types.Value, i uint64) {
 		bools[i] = bool(v.(types.Bool))
-	}
+	})
 	return &PrestoThriftBlock{
 		BooleanData: &PrestoThriftBoolean{
 			Booleans: bools[:],
@@ -213,22 +211,21 @@ func readStrings(list types.List, offset, limit uint64) *PrestoThriftBlock {
 	nulls := make([]bool, limit)
 	sizes := make([]int32, limit)
 	var data bytes.Buffer
-	it := list.IteratorAt(offset)
-	for i, v := 0, it.Next(); uint64(i) < limit; i, v = i + 1, it.Next() {
+	list.IterRange(offset, limit, func(v types.Value, i uint64) {
 		if v == nil {
 			nulls[i] = true
-			break
+			return
 		}
 		s := string(v.(types.String))
 		if s == "" {
 			nulls[i] = true
-			break
+			return
 		}
 		n, err := data.WriteString(s)
 		d.PanicIfError(err)
 		nulls[i] = false
 		sizes[i] = int32(n)
-	}
+	})
 	return &PrestoThriftBlock{
 		VarcharData: &PrestoThriftVarchar{
 			Nulls: nulls[:],

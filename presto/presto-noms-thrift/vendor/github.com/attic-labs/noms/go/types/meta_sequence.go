@@ -251,8 +251,8 @@ func (ms metaSequence) getItem(idx int) sequenceItem {
 	return ms.readTuple(&dec)
 }
 
-func (ms metaSequence) WalkRefs(cb RefCallback) {
-	walkRefs(ms.valueBytes(), cb)
+func (ms metaSequence) valuesSlice(from, to uint64) []Value {
+	panic("meta sequence")
 }
 
 func (ms metaSequence) typeOf() *Type {
@@ -453,6 +453,10 @@ func (es emptySequence) Less(other Value) bool {
 }
 
 func (es emptySequence) valueBytes() []byte {
+	panic("empty sequence")
+}
+
+func (es emptySequence) valuesSlice(from, to uint64) []Value {
 	panic("empty sequence")
 }
 

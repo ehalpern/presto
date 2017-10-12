@@ -10,8 +10,6 @@ import (
 	"sync"
 	"time"
 
-	"log"
-
 	"github.com/attic-labs/noms/go/chunks"
 	"github.com/attic-labs/noms/go/constants"
 	"github.com/attic-labs/noms/go/d"
@@ -29,8 +27,8 @@ const (
 	defaultMemTableSize uint64 = (1 << 20) * 128 // 128MB
 	defaultMaxTables           = 256
 
-	defaultIndexCacheSize    = (1 << 20) * 1024 // 8MB -> 1G
-	defaultManifestCacheSize = 1 << 23          // 8MB
+	defaultIndexCacheSize    = (1 << 20) * 8 // 8MB
+	defaultManifestCacheSize = 1 << 23       // 8MB
 	preflushChunkCount       = 8
 )
 
@@ -48,7 +46,6 @@ func makeGlobalCaches() {
 	manifestCache := newManifestCache(defaultManifestCacheSize)
 	manifestLocks := newManifestLocks()
 	makeManifestManager = func(m manifest) manifestManager { return manifestManager{m, manifestCache, manifestLocks} }
-	log.Printf("Larger index cache: %d", defaultIndexCacheSize)
 }
 
 type NomsBlockStore struct {
