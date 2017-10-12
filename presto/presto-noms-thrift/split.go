@@ -80,7 +80,7 @@ func (b *Batch) nextBatchId(maxBytes int64, estBytesPerRow uint64) *PrestoThrift
 	if b.totalRowsRead() == b.TotalLimit {
 		return nil
 	}
-	newLimit := computeRowLimit(b.totalRowsRead(), b.TotalLimit - b.InitialOffset, estBytesPerRow, maxBytes)
+	newLimit := computeRowLimit(b.totalRowsRead(), b.TotalLimit, estBytesPerRow, maxBytes)
 	return (&Batch{
 		b.Schema, b.Table,
 		b.Offset + b.Limit, uint64(newLimit),

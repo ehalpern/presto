@@ -14,13 +14,13 @@ func TestSplitAndBatch(t *testing.T) {
 		schema, table := "test", "table"
 		bytesPerRow := uint64(100)
 		maxBytes := int64(bytesPerRow * 10000)
-		rowCount := offset
+		rowCount := uint64(0)
 		name := &PrestoThriftSchemaTableName{schema, table}
 		split := newSplit(name, offset, limit, bytesPerRow)
 		batch := newBatch(split.id(), nil, maxBytes)
 		for ; rowCount < limit; {
 			assert.Equal(name, batch.tableName())
-			assert.Equal(rowCount, batch.Offset)
+			assert.Equal(rowCount + offset, batch.Offset)
 			rowCount += batch.Limit
 			next := batch.nextBatchId(maxBytes, bytesPerRow)
 			if next == nil {
@@ -32,7 +32,7 @@ func TestSplitAndBatch(t *testing.T) {
 
 	}
 	testSplit(0, 100000)
-	testSplit(12345, 100000)
+	testSplit(12345, 100000 - 12345)
 }
 
 func TestComputeRowLimit(t *testing.T) {
