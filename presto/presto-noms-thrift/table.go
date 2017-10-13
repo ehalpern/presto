@@ -185,8 +185,8 @@ func (t *colMajorTable) getRows(batch *Batch, columns []string, maxBytes int64) 
 
 func readDoubles(list types.List, offset, limit uint64) *PrestoThriftBlock {
 	numbers := make([]float64, limit)
-	list.IterRange(offset, limit, func(v types.Value, i uint64) {
-		numbers[i] = float64(v.(types.Number))
+	list.IterRange(offset, offset + limit -1, func(v types.Value, i uint64) {
+		numbers[i - offset] = float64(v.(types.Number))
 	})
 	return &PrestoThriftBlock{
 		DoubleData: &PrestoThriftDouble{
@@ -197,8 +197,8 @@ func readDoubles(list types.List, offset, limit uint64) *PrestoThriftBlock {
 
 func readBools(list types.List, offset, limit uint64) *PrestoThriftBlock {
 	bools := make([]bool, limit)
-	list.IterRange(offset, limit, func(v types.Value, i uint64) {
-		bools[i] = bool(v.(types.Bool))
+	list.IterRange(offset, offset + limit -1, func(v types.Value, i uint64) {
+		bools[i - offset] = bool(v.(types.Bool))
 	})
 	return &PrestoThriftBlock{
 		BooleanData: &PrestoThriftBoolean{
@@ -211,7 +211,8 @@ func readStrings(list types.List, offset, limit uint64) *PrestoThriftBlock {
 	nulls := make([]bool, limit)
 	sizes := make([]int32, limit)
 	var data bytes.Buffer
-	list.IterRange(offset, limit, func(v types.Value, i uint64) {
+	list.IterRange(offset, offset + limit -1, func(v types.Value, i uint64) {
+		i = i - offset
 		if v == nil {
 			nulls[i] = true
 			return
@@ -349,6 +350,7 @@ func (t *rowMajorTable) Close() error {
 
 var charSize = int(unsafe.Sizeof('a'))
 var boolSize = int(unsafe.Sizeof(true))
+var int32Size = int(unsafe.Sizeof(int32(1)))
 var doubleSize = int(unsafe.Sizeof(float64(1)))
 
 func estimateRowSize(columns []string, md []*PrestoThriftColumnMetadata) (size uint64) {
@@ -360,10 +362,14 @@ func estimateRowSize(columns []string, md []*PrestoThriftColumnMetadata) (size u
 		if include[cm.Name] {
 			switch cm.Type {
 			case "varchar":
+				size += uint64(int32Size)
+				size += uint64(boolSize)
 				size += uint64(charSize * 20)
 			case "boolean":
 				size += uint64(boolSize)
+				size += uint64(boolSize)
 			case "double":
+				size += uint64(boolSize)
 				size += uint64(doubleSize)
 			default:
 				log.Printf("unsupported row type %s", cm.Type)
@@ -376,7 +382,7 @@ func estimateRowSize(columns []string, md []*PrestoThriftColumnMetadata) (size u
 func blocksSize(blocks []*PrestoThriftBlock) (size uint64) {
 	for _, b := range blocks {
 		if b.VarcharData != nil {
-			size += uint64(len(b.VarcharData.Sizes) * 4)
+			size += uint64(len(b.VarcharData.Sizes) * int32Size)
 			size += uint64(len(b.VarcharData.Nulls) * boolSize)
 			size += uint64(len(b.VarcharData.Bytes))
 		}

@@ -180,8 +180,6 @@ func (h *thriftHandler) PrestoGetTableMetadata(ctx context.Context, name *Presto
 //  - OutputConstraint
 //  - MaxSplitCount
 //  - NextToken
-//
-// TODO: Use estimated size rather than rows to determine split
 func (h *thriftHandler) PrestoGetSplits(
 	ctx context.Context,
 	tableName *PrestoThriftSchemaTableName,
@@ -208,6 +206,10 @@ func (h *thriftHandler) PrestoGetSplits(
 			limit = remainder
 		}
 		split := newSplit(tableName, i * rowsPerSplit, limit, estBytesPerRow)
+		// TODO: Specify Host to control which node each split is run on. The
+		// thrift connector doesn't have knowledge of presto nodes, so we
+		// need an independent mechanism for discovering them. In AWS
+		// this can be accomplished by querying the autoscaler.
 		splits = append(splits, &PrestoThriftSplit{SplitId: split.id()})
 	}
 	log.Printf("Splitting query into %d splits of %d rows of %d estimated bytes", splitCount, rowsPerSplit, estBytesPerRow)
@@ -240,14 +242,14 @@ func (h *thriftHandler) PrestoGetRows(ctx context.Context,
 		return r, err
 	}
 	defer table.Close()
-	log.Printf("Getting batch: %+v", *batch)
+	log.Printf("Reading: %d rows starting from %d", batch.Limit, batch.Offset)
 	blocks, rowCount, err := table.getRows(batch, columns, maxBytes)
 	if err != nil {
 		return r, err
 	}
 
 	bytesRetrieved := blocksSize(blocks)
-	log.Printf("Bytes retrieved: %d; Max bytes: %d", bytesRetrieved, maxBytes)
+	log.Printf("Bytes read: %d (%.f%% of %d max bytes)", bytesRetrieved, float64(bytesRetrieved)/float64(maxBytes) * 100, maxBytes)
 	return &PrestoThriftPageResult_{
 		ColumnBlocks: blocks,
 		RowCount: rowCount,

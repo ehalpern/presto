@@ -48,6 +48,7 @@ type Batch struct {
 	Limit      uint64 `json:`
 	InitialOffset uint64 `json:`
 	TotalLimit uint64 `json:`
+	EstBytesPerRow uint64 `json`
 }
 
 // Create batch from |split| or |batchToken|
@@ -64,6 +65,7 @@ func newBatch(splitId *PrestoThriftId, batchToken *PrestoThriftId, maxBytes int6
 			s.Schema, s.Table,
 			s.Offset, limit,
 			s.Offset,s.Limit,
+			s.EstBytesPerRow,
 		}
 		d.Chk.True(b.Limit > 0)
 		d.Chk.True(b.Offset >= b.InitialOffset)
@@ -76,15 +78,16 @@ func (b *Batch) totalRowsRead() uint64 {
 	return b.Offset + b.Limit - b.InitialOffset
 }
 
-func (b *Batch) nextBatchId(maxBytes int64, estBytesPerRow uint64) *PrestoThriftId {
+func (b *Batch) nextBatchId(maxBytes int64, actualBytesPerRow uint64) *PrestoThriftId {
 	if b.totalRowsRead() == b.TotalLimit {
 		return nil
 	}
-	newLimit := computeRowLimit(b.totalRowsRead(), b.TotalLimit, estBytesPerRow, maxBytes)
+	newLimit := computeRowLimit(b.totalRowsRead(), b.TotalLimit, actualBytesPerRow, maxBytes)
 	return (&Batch{
 		b.Schema, b.Table,
 		b.Offset + b.Limit, uint64(newLimit),
 		b.InitialOffset,b.TotalLimit,
+		actualBytesPerRow,
 	}).id()
 }
 
@@ -101,24 +104,24 @@ func (s *Batch) tableName() *PrestoThriftSchemaTableName {
 // Naively estimate the number of rows required to fill the buffer with up to |maxBytes|
 //
 // To do this, we estimate the number of rows required for |maxBytes| using the
-// average bytes/row read so far. We then compute a confidence measure based on
-// the number of rows already read between 0.5 and 0.1. 0.5 is the low bound of
-// confidence and means we leave room for 50% error. 0.1 is the high bound of
+// average bytes/row read so far. We then compute a 'confidence' measure based on
+// the number of rows already read between 0.5 and 0.9. 0.5 is the low bound of
+// confidence and means we leave room for 50% error. 0.9 is the high bound of
 // confidence and means we leave room for 10% error.
 //
 // TODO: Leaving 10% error buffer reduces the chance that a data anomoly (like a
 // cluster of long strings) causes a batch to exceed maxBytes. This of course doesn't
 // ensure that won't happen, so we still need way to deal with that case.
-func computeRowLimit(rowsRead uint64, totalRows uint64, estBytesPerRow uint64, maxBytes int64) uint64 {
+func computeRowLimit(rowsRead uint64, totalRows uint64, avgBytesPerRow uint64, maxBytes int64) uint64 {
 	// rowsRead == 0 means this is the first batch and we've estimated bytes/row using table.estimateRowSize
-	confidence := math.Min(.5, math.Max(.1, 10.0 / math.Sqrt(math.Max(1, float64(rowsRead)))))
-	estimatedRows := float64(maxBytes) / float64(estBytesPerRow)
-	flimit := estimatedRows * (1.0 - confidence)
-	flimit = math.Min(flimit, float64(totalRows - rowsRead))
-	limit := uint64(math.Floor(flimit + .5))
-	log.Printf("%d/%d rows read", rowsRead, totalRows)
-	log.Printf("New limit: %d (estimating %d bytes/row, targeting %d bytes with %d confidence)",
-		limit, estBytesPerRow, maxBytes, confidence)
+	confidence := 1.0 - math.Min(.5, math.Max(.1, 10.0 / math.Sqrt(math.Max(1, float64(rowsRead)))))
+	estimatedBytes := float64(maxBytes) * confidence
+	rowsToRead := estimatedBytes / float64(avgBytesPerRow)
+	rowsToRead = math.Min(rowsToRead, float64(totalRows - rowsRead))
+	limit := uint64(math.Floor(rowsToRead + .5))
+	log.Printf("Rows read:  %d/%d", rowsRead, totalRows)
+	log.Printf("Next limit: %d (est %d bytes/row, %d/%d of max bytes)",
+		limit, avgBytesPerRow, limit * avgBytesPerRow, maxBytes)
 	return limit
 }
 
