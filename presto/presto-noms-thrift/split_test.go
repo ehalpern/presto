@@ -38,8 +38,8 @@ func TestSplitAndBatch(t *testing.T) {
 func TestComputeRowLimit(t *testing.T) {
 	assert := assert.New(t)
 
-	assert.Equal(uint64(20000), computeRowLimit(0, 10000000, 1, 100000))
-	assert.Equal(uint64(20000), computeRowLimit(10, 10000000, 1, 100000))
+	assert.Equal(uint64(50000), computeRowLimit(0, 10000000, 1, 100000))
+	assert.Equal(uint64(50000), computeRowLimit(10, 10000000, 1, 100000))
 	assert.Equal(uint64(90000), computeRowLimit(10000, 10000000, 1, 100000))
 	assert.Equal(uint64(90000), computeRowLimit(20000, 10000000, 1, 100000))
 }

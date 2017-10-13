@@ -102,8 +102,8 @@ func (s *Batch) tableName() *PrestoThriftSchemaTableName {
 //
 // To do this, we estimate the number of rows required for |maxBytes| using the
 // average bytes/row read so far. We then compute a confidence measure based on
-// the number of rows already read between 0.8 and 0.1. 0.8 is the low bound of
-// confidence and means we leave room for 80% error. 0.1 is the high bound of
+// the number of rows already read between 0.5 and 0.1. 0.5 is the low bound of
+// confidence and means we leave room for 50% error. 0.1 is the high bound of
 // confidence and means we leave room for 10% error.
 //
 // TODO: Leaving 10% error buffer reduces the chance that a data anomoly (like a
@@ -111,13 +111,14 @@ func (s *Batch) tableName() *PrestoThriftSchemaTableName {
 // ensure that won't happen, so we still need way to deal with that case.
 func computeRowLimit(rowsRead uint64, totalRows uint64, estBytesPerRow uint64, maxBytes int64) uint64 {
 	// rowsRead == 0 means this is the first batch and we've estimated bytes/row using table.estimateRowSize
-	confidence := math.Min(.8, math.Max(.1, 10.0 / math.Sqrt(math.Max(1, float64(rowsRead)))))
+	confidence := math.Min(.5, math.Max(.1, 10.0 / math.Sqrt(math.Max(1, float64(rowsRead)))))
 	estimatedRows := float64(maxBytes) / float64(estBytesPerRow)
-	limit := estimatedRows * (1.0 - confidence)
-	limit = math.Min(limit, float64(totalRows - rowsRead))
-	log.Printf("rowsRead: %v, totalRows: %v", rowsRead, totalRows)
-	log.Printf("New limit: %v (assuming %v bytes/row, targeting %v bytes with %v confidence)",
+	flimit := estimatedRows * (1.0 - confidence)
+	flimit = math.Min(flimit, float64(totalRows - rowsRead))
+	limit := uint64(math.Floor(flimit + .5))
+	log.Printf("%d/%d rows read", rowsRead, totalRows)
+	log.Printf("New limit: %d (estimating %d bytes/row, targeting %d bytes with %d confidence)",
 		limit, estBytesPerRow, maxBytes, confidence)
-	return uint64(math.Floor(limit + .5))
+	return limit
 }
 
