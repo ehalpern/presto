@@ -68,7 +68,6 @@ func TestGetMetaData(t *testing.T) {
 	getMetadata := func(dsName string) {
 		colMajor, err := getTable(dbPrefix, &PrestoThriftSchemaTableName{dbName, dsName})
 		assert.NoError(err)
-		defer colMajor.Close()
 		metadata, err := colMajor.getMetadata()
 		assert.Len(metadata.GetColumns(), 3)
 		assert.NoError(err)
@@ -84,7 +83,6 @@ func TestGetRows(t *testing.T) {
 		tableName := &PrestoThriftSchemaTableName{dbName, dsName}
 		colMajor, err := getTable(dbPrefix, tableName)
 		assert.NoError(err)
-		defer colMajor.Close()
 		splitId := newSplit(tableName, 0, 100, 100).id()
 		batch := newBatch(splitId, nil, 16384)
 		columns := []string {"typebool", "typedouble", "typestring"}

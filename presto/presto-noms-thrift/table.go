@@ -3,8 +3,8 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"io"
 	"log"
+	"sync"
 	"unsafe"
 
 	. "prestothriftservice"
@@ -12,11 +12,9 @@ import (
 	"github.com/attic-labs/noms/go/d"
 	"github.com/attic-labs/noms/go/spec"
 	"github.com/attic-labs/noms/go/types"
-	"sync"
 )
 
 type nomsTable interface {
-	io.Closer
 	getMetadata() (*PrestoThriftTableMetadata, error)
 	estimateRowSize(columns []string) uint64
 	getRowCount() uint64
@@ -59,6 +57,8 @@ func (c *tableCacheT) put(name *PrestoThriftSchemaTableName, t nomsTable) {
 	defer c.lock.Unlock()
 	c.cache[*name] = t
 }
+
+// TODO: need a method to close all cached table to exit tests cleanly
 
 var tableCache = &tableCacheT{cache: make(map[PrestoThriftSchemaTableName]nomsTable)}
 
@@ -236,9 +236,6 @@ func readStrings(list types.List, offset, limit uint64) *PrestoThriftBlock {
 	}
 }
 
-func (t *colMajorTable) Close() error {
-	return t.sp.Close()
-}
 
 func (t *rowMajorTable) getMetadata() (metadata *PrestoThriftTableMetadata, err error) {
 	typ := types.TypeOf(t.v)
@@ -344,10 +341,6 @@ func appendString(block *PrestoThriftBlock, s string) *PrestoThriftBlock {
 	return block
 }
 
-func (t *rowMajorTable) Close() error {
-	return t.sp.Close()
-}
-
 var charSize = int(unsafe.Sizeof('a'))
 var boolSize = int(unsafe.Sizeof(true))
 var int32Size = int(unsafe.Sizeof(int32(1)))
@@ -398,5 +391,5 @@ func blocksSize(blocks []*PrestoThriftBlock) (size uint64) {
 	if len(blocks) == 0 {
 		return 0
 	}
-	return size/uint64(len(blocks))
+	return size
 }

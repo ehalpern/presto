@@ -156,7 +156,6 @@ func (h *thriftHandler) PrestoGetTableMetadata(ctx context.Context, name *Presto
 	if err != nil {
 		return md, err
 	}
-	defer table.Close()
 	metadata, err := table.getMetadata()
 	if err != nil {
 		return md, err
@@ -241,7 +240,6 @@ func (h *thriftHandler) PrestoGetRows(ctx context.Context,
 	if err != nil {
 		return r, err
 	}
-	defer table.Close()
 	log.Printf("Reading: %d rows starting from %d", batch.Limit, batch.Offset)
 	blocks, rowCount, err := table.getRows(batch, columns, maxBytes)
 	if err != nil {
