@@ -155,17 +155,16 @@ func (t *colMajorTable) getRowCount() uint64 {
 	return firstColumn.(types.List).Len()
 }
 
-// TODO: 1) parallelize across columns
-//       2) use exact loading a la https://github.com/attic-labs/noms/issues/3619
 func (t *colMajorTable) getRows(batch *Batch, columns []string, maxBytes int64) (blocks []*PrestoThriftBlock, rowCount int32, err error) {
 	var limit uint64
+	var futureBlocks []<-chan *PrestoThriftBlock
 	for _, c := range columns {
 		v := t.s.Get(c)
 		ref := v.(types.Ref)
 		list := ref.TargetValue(t.sp.GetDatabase()).(types.List)
 		offset := batch.Offset
 		limit = minUint64(batch.Limit, list.Len())
-		var block *PrestoThriftBlock
+		var block <-chan *PrestoThriftBlock
 		elt := list.Get(0)
 		switch elt.Kind() {
 		case types.NumberKind:
@@ -177,63 +176,83 @@ func (t *colMajorTable) getRows(batch *Batch, columns []string, maxBytes int64) 
 		default:
 			return blocks, rowCount, serviceError("unsupported column type %v", list.Kind())
 		}
-		blocks = append(blocks, block)
+		futureBlocks = append(futureBlocks, block)
+	}
+	blocks = make([]*PrestoThriftBlock, len(futureBlocks))
+	for i, f := range futureBlocks {
+		blocks[i] = <- f
 	}
 	return blocks, int32(limit), nil
 }
 
 
-func readDoubles(list types.List, offset, limit uint64) *PrestoThriftBlock {
-	numbers := make([]float64, limit)
-	list.IterRange(offset, offset + limit -1, func(v types.Value, i uint64) {
-		numbers[i - offset] = float64(v.(types.Number))
-	})
-	return &PrestoThriftBlock{
-		DoubleData: &PrestoThriftDouble{
-			Doubles: numbers[:],
-		},
-	}
+func readDoubles(list types.List, offset, limit uint64) <-chan *PrestoThriftBlock {
+	future := make(chan *PrestoThriftBlock, 1)
+	go func() {
+		defer close(future)
+		numbers := make([]float64, limit)
+		list.IterRange(offset, offset + limit -1, func(v types.Value, i uint64) {
+			numbers[i - offset] = float64(v.(types.Number))
+		})
+		future <- &PrestoThriftBlock{
+			DoubleData: &PrestoThriftDouble{
+				Doubles: numbers[:],
+			},
+		}
+	}()
+	return future
 }
 
-func readBools(list types.List, offset, limit uint64) *PrestoThriftBlock {
-	bools := make([]bool, limit)
-	list.IterRange(offset, offset + limit -1, func(v types.Value, i uint64) {
-		bools[i - offset] = bool(v.(types.Bool))
-	})
-	return &PrestoThriftBlock{
-		BooleanData: &PrestoThriftBoolean{
-			Booleans: bools[:],
-		},
-	}
+func readBools(list types.List, offset, limit uint64) <-chan *PrestoThriftBlock {
+	future := make(chan *PrestoThriftBlock, 1)
+	go func() {
+		defer close(future)
+		bools := make([]bool, limit)
+		list.IterRange(offset, offset+limit-1, func(v types.Value, i uint64) {
+			bools[i-offset] = bool(v.(types.Bool))
+		})
+		future <- &PrestoThriftBlock{
+			BooleanData: &PrestoThriftBoolean{
+				Booleans: bools[:],
+			},
+		}
+	}()
+
+	return future
 }
 
-func readStrings(list types.List, offset, limit uint64) *PrestoThriftBlock {
-	nulls := make([]bool, limit)
-	sizes := make([]int32, limit)
-	var data bytes.Buffer
-	list.IterRange(offset, offset + limit -1, func(v types.Value, i uint64) {
-		i = i - offset
-		if v == nil {
-			nulls[i] = true
-			return
+func readStrings(list types.List, offset, limit uint64) <-chan *PrestoThriftBlock {
+	future := make(chan *PrestoThriftBlock, 1)
+	go func() {
+		defer close(future)
+		nulls := make([]bool, limit)
+		sizes := make([]int32, limit)
+		var data bytes.Buffer
+		list.IterRange(offset, offset+limit-1, func(v types.Value, i uint64) {
+			i = i - offset
+			if v == nil {
+				nulls[i] = true
+				return
+			}
+			s := string(v.(types.String))
+			if s == "" {
+				nulls[i] = true
+				return
+			}
+			n, err := data.WriteString(s)
+			d.PanicIfError(err)
+			nulls[i] = false
+			sizes[i] = int32(n)
+		})
+		future <- &PrestoThriftBlock{
+			VarcharData: &PrestoThriftVarchar{
+				Nulls: nulls[:],
+				Sizes: sizes[:],
+				Bytes: data.Bytes(),
+			},
 		}
-		s := string(v.(types.String))
-		if s == "" {
-			nulls[i] = true
-			return
-		}
-		n, err := data.WriteString(s)
-		d.PanicIfError(err)
-		nulls[i] = false
-		sizes[i] = int32(n)
-	})
-	return &PrestoThriftBlock{
-		VarcharData: &PrestoThriftVarchar{
-			Nulls: nulls[:],
-			Sizes: sizes[:],
-			Bytes: data.Bytes(),
-		},
-	}
+	}()
+	return future
 }
 
 

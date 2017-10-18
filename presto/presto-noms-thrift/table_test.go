@@ -89,6 +89,7 @@ func TestGetRows(t *testing.T) {
 		blocks, rowCount, err := colMajor.getRows(batch, columns, 16384)
 		assert.Len(blocks, 3)
 		assert.Equal(int32(6), rowCount, )
+		// TODO: verify content
 	}
 	getRows("types")
 	getRows("types_rm")
