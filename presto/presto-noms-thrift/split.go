@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"log"
 	"math"
 
 	. "prestothriftservice"
@@ -119,9 +118,8 @@ func computeRowLimit(rowsRead uint64, totalRows uint64, avgBytesPerRow uint64, m
 	rowsToRead := estimatedBytes / float64(avgBytesPerRow)
 	rowsToRead = math.Min(rowsToRead, float64(totalRows - rowsRead))
 	limit := uint64(math.Floor(rowsToRead + .5))
-	log.Printf("Rows read:  %d/%d", rowsRead, totalRows)
-	log.Printf("Next limit: %d (est %d bytes/row, %d/%d of max bytes)",
-		limit, avgBytesPerRow, limit * avgBytesPerRow, maxBytes)
+	//log.Printf("Rows read:  %d/%d", rowsRead, totalRows)
+	//log.Printf("Next limit: %d (est %d bytes/row, %d/%d of max bytes)", limit, avgBytesPerRow, limit * avgBytesPerRow, maxBytes)
 	return limit
 }
 

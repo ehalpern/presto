@@ -16,6 +16,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"time"
 )
 
 // Starts thrift server
@@ -235,19 +236,21 @@ func (h *thriftHandler) PrestoGetRows(ctx context.Context,
 	splitId *PrestoThriftId, columns []string, maxBytes int64,
 	nextToken *PrestoThriftNullableToken,
 ) (r *PrestoThriftPageResult_, err error) {
+	start := time.Now()
 	batch := newBatch(splitId, nextToken.Token, maxBytes)
 	table, err := getTable(h.dbPrefix, batch.tableName())
 	if err != nil {
 		return r, err
 	}
-	log.Printf("Reading: %d rows starting from %d", batch.Limit, batch.Offset)
+	log.Printf("Reading\t%d rows starting from %d", batch.Limit, batch.Offset)
 	blocks, rowCount, err := table.getRows(batch, columns, maxBytes)
 	if err != nil {
 		return r, err
 	}
 
 	bytesRetrieved := blocksSize(blocks)
-	log.Printf("Bytes read: %d (%.f%% of %d max bytes)", bytesRetrieved, float64(bytesRetrieved)/float64(maxBytes) * 100, maxBytes)
+	elapsed := time.Now().Sub(start)
+	log.Printf("Read\t%d rows (%d bytes) in %d ms (%.f%% of %d max bytes)", rowCount, bytesRetrieved, elapsed.Nanoseconds() / 1e6, float64(bytesRetrieved)/float64(maxBytes) * 100, maxBytes)
 	return &PrestoThriftPageResult_{
 		ColumnBlocks: blocks,
 		RowCount: rowCount,
