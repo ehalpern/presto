@@ -42,7 +42,7 @@ presto --server localhost:8080 --catalog noms-thrift
 
 To show databases (at presto prompt)
 ```
-show databases
+show schemas;
 ```
 
 Use either taxisamples (for trips100m) or nyctaxidata (for trips397m)
