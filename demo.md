@@ -3,10 +3,10 @@
 Add these aliases to .nomsconfig  
 ```
 [db.taxisamples]
-	url = "http://presto.attic.io:8080"
+	url = "http://presto.attic.io:8000"
 
 [db.nyctaxidata]
-	url = "http://presto.attic.io:8081"
+	url = "http://presto.attic.io:8001"
 ```
 
 Install the presto client
@@ -25,7 +25,7 @@ noms show taxisamples::trips100m
 
 ```
 # show trips397m
-noms show nyctaxisamples::trips397m
+noms show nyctaxidata::trips397m
 ```
 
 Start the presto client
@@ -42,7 +42,7 @@ presto --server localhost:8080 --catalog noms-thrift
 
 To show databases (at presto prompt)
 ```
-show databases
+show schemas;
 ```
 
 Use either taxisamples (for trips100m) or nyctaxidata (for trips397m)
