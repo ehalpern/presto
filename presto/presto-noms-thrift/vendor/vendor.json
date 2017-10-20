@@ -86,130 +86,130 @@
 			"revisionTime": "2017-09-27T23:13:25Z"
 		},
 		{
-			"checksumSHA1": "UY4V9a48kpgOl3J3P1qLKW7lquE=",
+			"checksumSHA1": "RJQnZEBcRDPVGO8HQ3DrMXmbIwc=",
 			"path": "github.com/attic-labs/noms/go/chunks",
-			"revision": "69759ba02346c24e52ae9fd04895e162148c98dd",
-			"revisionTime": "2017-10-19T04:14:23Z"
+			"revision": "4d072e29729577cb5210c9662ef4a871fe3952bb",
+			"revisionTime": "2017-10-20T19:31:00Z"
 		},
 		{
-			"checksumSHA1": "/PzPam9F5mCqPnKT5xP/8ulKU7I=",
+			"checksumSHA1": "WPgEXIcB8jkWQVAJDAm+TPFyEvU=",
 			"path": "github.com/attic-labs/noms/go/constants",
-			"revision": "69759ba02346c24e52ae9fd04895e162148c98dd",
-			"revisionTime": "2017-10-19T04:14:23Z"
+			"revision": "4d072e29729577cb5210c9662ef4a871fe3952bb",
+			"revisionTime": "2017-10-20T19:31:00Z"
 		},
 		{
 			"checksumSHA1": "864MlumC7P3xBPzMyaDIkf3O/sI=",
 			"path": "github.com/attic-labs/noms/go/d",
-			"revision": "69759ba02346c24e52ae9fd04895e162148c98dd",
-			"revisionTime": "2017-10-19T04:14:23Z"
+			"revision": "4d072e29729577cb5210c9662ef4a871fe3952bb",
+			"revisionTime": "2017-10-20T19:31:00Z"
 		},
 		{
-			"checksumSHA1": "hEaeNhrWCtZICwmhbf6MIn794cI=",
+			"checksumSHA1": "+ROQDWLKFO529vD15jaB/D39h/0=",
 			"path": "github.com/attic-labs/noms/go/datas",
-			"revision": "69759ba02346c24e52ae9fd04895e162148c98dd",
-			"revisionTime": "2017-10-19T04:14:23Z"
+			"revision": "4d072e29729577cb5210c9662ef4a871fe3952bb",
+			"revisionTime": "2017-10-20T19:31:00Z"
 		},
 		{
 			"checksumSHA1": "wXXPDY11ry1hZ7j+z5VUVUJez7Q=",
 			"path": "github.com/attic-labs/noms/go/hash",
-			"revision": "69759ba02346c24e52ae9fd04895e162148c98dd",
-			"revisionTime": "2017-10-19T04:14:23Z"
+			"revision": "4d072e29729577cb5210c9662ef4a871fe3952bb",
+			"revisionTime": "2017-10-20T19:31:00Z"
 		},
 		{
-			"checksumSHA1": "l8/sQhZKhRCPXcrriWaSjAD8ajI=",
+			"checksumSHA1": "4DqcB+s1/YpSN8zEJzE9JvOmeEY=",
 			"path": "github.com/attic-labs/noms/go/ipfs",
-			"revision": "69759ba02346c24e52ae9fd04895e162148c98dd",
-			"revisionTime": "2017-10-19T04:14:23Z"
+			"revision": "4d072e29729577cb5210c9662ef4a871fe3952bb",
+			"revisionTime": "2017-10-20T19:31:00Z"
 		},
 		{
 			"checksumSHA1": "M3PErNFV6If1D9cU9LYDt1wjqoI=",
 			"path": "github.com/attic-labs/noms/go/marshal",
-			"revision": "69759ba02346c24e52ae9fd04895e162148c98dd",
-			"revisionTime": "2017-10-19T04:14:23Z"
+			"revision": "4d072e29729577cb5210c9662ef4a871fe3952bb",
+			"revisionTime": "2017-10-20T19:31:00Z"
 		},
 		{
 			"checksumSHA1": "SusuCPod2mUB17jvg15Dz9RPmZg=",
 			"path": "github.com/attic-labs/noms/go/merge",
-			"revision": "69759ba02346c24e52ae9fd04895e162148c98dd",
-			"revisionTime": "2017-10-19T04:14:23Z"
+			"revision": "4d072e29729577cb5210c9662ef4a871fe3952bb",
+			"revisionTime": "2017-10-20T19:31:00Z"
 		},
 		{
 			"checksumSHA1": "eLpvm5tkpJNyz1ipGfGhyz5ojZI=",
 			"path": "github.com/attic-labs/noms/go/metrics",
-			"revision": "69759ba02346c24e52ae9fd04895e162148c98dd",
-			"revisionTime": "2017-10-19T04:14:23Z"
+			"revision": "4d072e29729577cb5210c9662ef4a871fe3952bb",
+			"revisionTime": "2017-10-20T19:31:00Z"
 		},
 		{
-			"checksumSHA1": "1gMDIE1aG9zgfFuFzC10yPphuhY=",
+			"checksumSHA1": "WmXA44xZdDJ5lMTNe/0nhv4lZiI=",
 			"path": "github.com/attic-labs/noms/go/nbs",
-			"revision": "69759ba02346c24e52ae9fd04895e162148c98dd",
-			"revisionTime": "2017-10-19T04:14:23Z"
+			"revision": "4d072e29729577cb5210c9662ef4a871fe3952bb",
+			"revisionTime": "2017-10-20T19:31:00Z"
 		},
 		{
 			"checksumSHA1": "tQzPbzu53Iya3+dtpBe8ILfQKLc=",
 			"path": "github.com/attic-labs/noms/go/ngql",
-			"revision": "69759ba02346c24e52ae9fd04895e162148c98dd",
-			"revisionTime": "2017-10-19T04:14:23Z"
+			"revision": "4d072e29729577cb5210c9662ef4a871fe3952bb",
+			"revisionTime": "2017-10-20T19:31:00Z"
 		},
 		{
 			"checksumSHA1": "93Wnwx/1M63VCymTnKmGEeueo28=",
 			"path": "github.com/attic-labs/noms/go/nomdl",
-			"revision": "69759ba02346c24e52ae9fd04895e162148c98dd",
-			"revisionTime": "2017-10-19T04:14:23Z"
+			"revision": "4d072e29729577cb5210c9662ef4a871fe3952bb",
+			"revisionTime": "2017-10-20T19:31:00Z"
 		},
 		{
 			"checksumSHA1": "ufrVwJIAN3eegpXge7sEEL5Yzjc=",
 			"path": "github.com/attic-labs/noms/go/sloppy",
-			"revision": "69759ba02346c24e52ae9fd04895e162148c98dd",
-			"revisionTime": "2017-10-19T04:14:23Z"
+			"revision": "4d072e29729577cb5210c9662ef4a871fe3952bb",
+			"revisionTime": "2017-10-20T19:31:00Z"
 		},
 		{
 			"checksumSHA1": "Efhe0JI/p4WptCtAWoYcGvwcYdQ=",
 			"path": "github.com/attic-labs/noms/go/spec",
-			"revision": "69759ba02346c24e52ae9fd04895e162148c98dd",
-			"revisionTime": "2017-10-19T04:14:23Z"
+			"revision": "4d072e29729577cb5210c9662ef4a871fe3952bb",
+			"revisionTime": "2017-10-20T19:31:00Z"
 		},
 		{
 			"checksumSHA1": "aUE19O/SLfdzNlqLCxuZMiDTTOc=",
 			"path": "github.com/attic-labs/noms/go/types",
-			"revision": "69759ba02346c24e52ae9fd04895e162148c98dd",
-			"revisionTime": "2017-10-19T04:14:23Z"
+			"revision": "4d072e29729577cb5210c9662ef4a871fe3952bb",
+			"revisionTime": "2017-10-20T19:31:00Z"
 		},
 		{
 			"checksumSHA1": "HBZM55R2+3uRbKrRTWpWwLyLnbs=",
 			"path": "github.com/attic-labs/noms/go/util/exit",
-			"revision": "69759ba02346c24e52ae9fd04895e162148c98dd",
-			"revisionTime": "2017-10-19T04:14:23Z"
+			"revision": "4d072e29729577cb5210c9662ef4a871fe3952bb",
+			"revisionTime": "2017-10-20T19:31:00Z"
 		},
 		{
 			"checksumSHA1": "TT9lBhu8H3nzGklK0BGs4KoQR3I=",
 			"path": "github.com/attic-labs/noms/go/util/functions",
-			"revision": "69759ba02346c24e52ae9fd04895e162148c98dd",
-			"revisionTime": "2017-10-19T04:14:23Z"
+			"revision": "4d072e29729577cb5210c9662ef4a871fe3952bb",
+			"revisionTime": "2017-10-20T19:31:00Z"
 		},
 		{
 			"checksumSHA1": "FMFB4R0OhdlMTDOBQ0gptMutVR8=",
 			"path": "github.com/attic-labs/noms/go/util/sizecache",
-			"revision": "69759ba02346c24e52ae9fd04895e162148c98dd",
-			"revisionTime": "2017-10-19T04:14:23Z"
+			"revision": "4d072e29729577cb5210c9662ef4a871fe3952bb",
+			"revisionTime": "2017-10-20T19:31:00Z"
 		},
 		{
 			"checksumSHA1": "WDEaGFCEP3QhW4QkZH/2pnLYNew=",
 			"path": "github.com/attic-labs/noms/go/util/verbose",
-			"revision": "69759ba02346c24e52ae9fd04895e162148c98dd",
-			"revisionTime": "2017-10-19T04:14:23Z"
+			"revision": "4d072e29729577cb5210c9662ef4a871fe3952bb",
+			"revisionTime": "2017-10-20T19:31:00Z"
 		},
 		{
 			"checksumSHA1": "e2cjvTqWFLmdhbputO4vXFCBwts=",
 			"path": "github.com/attic-labs/noms/go/util/writers",
-			"revision": "69759ba02346c24e52ae9fd04895e162148c98dd",
-			"revisionTime": "2017-10-19T04:14:23Z"
+			"revision": "4d072e29729577cb5210c9662ef4a871fe3952bb",
+			"revisionTime": "2017-10-20T19:31:00Z"
 		},
 		{
 			"checksumSHA1": "9jfWjT9EpJwgh7fTjdNsoVHvACw=",
 			"path": "github.com/attic-labs/noms/samples/go/decent/dbg",
-			"revision": "69759ba02346c24e52ae9fd04895e162148c98dd",
-			"revisionTime": "2017-10-19T04:14:23Z"
+			"revision": "4d072e29729577cb5210c9662ef4a871fe3952bb",
+			"revisionTime": "2017-10-20T19:31:00Z"
 		},
 		{
 			"checksumSHA1": "S8Kr1ZC1hLHjRLJSUUEZ93COnqs=",
