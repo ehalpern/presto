@@ -19,7 +19,6 @@ type Split struct {
 
 func newSplit(table *PrestoThriftSchemaTableName, offset uint64, limit uint64, bytesPerRow uint64) *Split {
 	d.Chk.True(limit > 0)
-	d.Chk.True(bytesPerRow > 0)
 	return &Split{
 		table.SchemaName, table.TableName, offset, limit, bytesPerRow,
 	}

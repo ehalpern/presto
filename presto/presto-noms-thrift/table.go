@@ -12,13 +12,15 @@ import (
 	"github.com/attic-labs/noms/go/d"
 	"github.com/attic-labs/noms/go/spec"
 	"github.com/attic-labs/noms/go/types"
+	"github.com/attic-labs/noms/go/nbs"
 )
 
 type nomsTable interface {
 	getMetadata() (*PrestoThriftTableMetadata, error)
 	estimateRowSize(columns []string) uint64
 	getRowCount() uint64
-	getRows(batch *Batch, columns []string, maxBytes int64) (blocks []*PrestoThriftBlock, rowCount int32, err error)
+	getRows(batch *Batch, columns []string, maxBytes int64) (blocks []*PrestoThriftBlock, rowCount uint64, err error)
+	stats() nbs.Stats
 }
 
 type colMajorTable struct {
@@ -155,7 +157,11 @@ func (t *colMajorTable) getRowCount() uint64 {
 	return firstColumn.(types.List).Len()
 }
 
-func (t *colMajorTable) getRows(batch *Batch, columns []string, maxBytes int64) (blocks []*PrestoThriftBlock, rowCount int32, err error) {
+func (t *colMajorTable) getRows(batch *Batch, columns []string, maxBytes int64) (blocks []*PrestoThriftBlock, rowCount uint64, err error) {
+	if len(columns) == 0 {
+		// this is a row count query
+		return blocks, t.getRowCount(), nil
+	}
 	var limit uint64
 	var futureBlocks []<-chan *PrestoThriftBlock
 	for _, c := range columns {
@@ -182,9 +188,8 @@ func (t *colMajorTable) getRows(batch *Batch, columns []string, maxBytes int64) 
 	for i, f := range futureBlocks {
 		blocks[i] = <- f
 	}
-	return blocks, int32(limit), nil
+	return blocks, limit, nil
 }
-
 
 func readDoubles(list types.List, offset, limit uint64) <-chan *PrestoThriftBlock {
 	future := make(chan *PrestoThriftBlock, 1)
@@ -255,6 +260,9 @@ func readStrings(list types.List, offset, limit uint64) <-chan *PrestoThriftBloc
 	return future
 }
 
+func (t *colMajorTable) stats() nbs.Stats {
+	return t.sp.GetDatabase().Stats().(nbs.Stats)
+}
 
 func (t *rowMajorTable) getMetadata() (metadata *PrestoThriftTableMetadata, err error) {
 	typ := types.TypeOf(t.v)
@@ -302,11 +310,15 @@ func (t *rowMajorTable) estimateRowSize(columns []string) uint64 {
 }
 
 func (t *rowMajorTable) getRowCount() uint64 {
-	return 0
+	return t.v.(types.List).Len()
 }
 
 func (t *rowMajorTable) getRows(batch *Batch, columns []string, maxBytes int64,
-) (blocks []*PrestoThriftBlock, rowCount int32, err error) {
+) (blocks []*PrestoThriftBlock, rowCount uint64, err error) {
+	if len(columns) == 0 {
+		// this is a row count query
+		return blocks, t.getRowCount(), nil
+	}
 	blocks = make([]*PrestoThriftBlock, len(columns))
 	// assume list for now
 	list := t.v.(types.List)
@@ -327,7 +339,7 @@ func (t *rowMajorTable) getRows(batch *Batch, columns []string, maxBytes int64,
 			}
 		}
 	}
-	return blocks, int32(limit), nil
+	return blocks, limit, nil
 }
 
 func appendDouble(block *PrestoThriftBlock, d float64) *PrestoThriftBlock {
@@ -411,4 +423,8 @@ func blocksSize(blocks []*PrestoThriftBlock) (size uint64) {
 		return 0
 	}
 	return size
+}
+
+func (t *rowMajorTable) stats() nbs.Stats {
+	return t.sp.GetDatabase().Stats().(nbs.Stats)
 }

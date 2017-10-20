@@ -14,21 +14,21 @@ GROUP BY passenger_count;
 
 ```
 SELECT passenger_count,
-       year(pickup_datetime),
+       regexp_extract(pickup_datetime, '\d+-\d+-\d+') trip_year,
        count(*)
 FROM trips
 GROUP BY passenger_count,
-         year(pickup_datetime);
+         regexp_extract(pickup_datetime, '\d+-\d+-\d+');
 ```
 
 ```
 SELECT passenger_count,
-       year(pickup_datetime) trip_year,
+       regexp_extract(pickup_datetime, '\d+-\d+-\d+') trip_year,
        round(trip_distance),
        count(*) trips
 FROM trips
 GROUP BY passenger_count,
-         year(pickup_datetime),
+         regexp_extract(pickup_datetime, '\d+-\d+-\d+'),
          round(trip_distance)
 ORDER BY trip_year,
          trips desc;
