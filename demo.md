@@ -3,10 +3,10 @@
 Add these aliases to .nomsconfig  
 ```
 [db.taxisamples]
-	url = "http://presto.attic.io:8080"
+	url = "http://presto.attic.io:8000"
 
 [db.nyctaxidata]
-	url = "http://presto.attic.io:8081"
+	url = "http://presto.attic.io:8001"
 ```
 
 Install the presto client
