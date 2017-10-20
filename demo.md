@@ -16,7 +16,7 @@ brew install presto
 
 ## Demo
 
-Show either trips100m or trips1g
+Show either trips100m or trips397m
 
 ```
 # show trips100m
@@ -24,8 +24,8 @@ noms show taxisamples::trips100m
 ```
 
 ```
-# show trips1g
-noms show nyctaxisamples::trips1g
+# show trips397m
+noms show nyctaxisamples::trips397m
 ```
 
 Start the presto client
@@ -45,23 +45,22 @@ To show databases (at presto prompt)
 show databases
 ```
 
-Use either taxisamples (for trips100m) or nyctaxidata (for trips1g)
-```
--- For trips100m
-use taxisamples; 
-
--- For trips1g
-use nyctaxidata;
-```
+Use either taxisamples (for trips100m) or nyctaxidata (for trips397m)
 
 ```
-SELECT count(*) FROM trips100m;
+SELECT count(*) FROM taxisamples.trips100m;
+-- Or 
+SELECT count(*) FROM nyctaxidata.trips397m;
 ```
 
 ```
-SELECT cab_type, count(*) FROM trip100m GROUP BY cab_type;
+SELECT cab_type, count(*) FROM taxisamples.trips100m GROUP BY cab_type;
+-- Or 
+SELECT cab_type, count(*) FROM nyctaxidata.trips397m GROUP BY cab_type;
 ```
 
 ```
-SELECT passenger_count, avg(total_amount) FROM trips100m GROUP BY passenger_count;
+SELECT passenger_count, avg(total_amount) FROM taxisamples.trips100m GROUP BY passenger_count;
+-- Or 
+SELECT passenger_count, avg(total_amount) FROM nyctaxidata.trips397m GROUP BY passenger_count;
 ```
