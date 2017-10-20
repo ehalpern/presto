@@ -25,7 +25,7 @@ noms show taxisamples::trips100m
 
 ```
 # show trips397m
-noms show nyctaxisamples::trips397m
+noms show nyctaxidata::trips397m
 ```
 
 Start the presto client
