@@ -388,7 +388,7 @@ func estimateRowSize(columns []string, md []*PrestoThriftColumnMetadata) (size u
 			case "varchar":
 				size += uint64(int32Size)
 				size += uint64(boolSize)
-				size += uint64(charSize * 20)
+				size += uint64(charSize * 10)
 			case "boolean":
 				size += uint64(boolSize)
 				size += uint64(boolSize)

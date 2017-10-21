@@ -64,7 +64,7 @@ func main() {
 		transportFactory = thrift.NewTTransportFactory()
 	}
 
-	transportFactory = thrift.NewTFramedTransportFactory(transportFactory)
+	transportFactory = thrift.NewTFramedTransportFactoryMaxLength(transportFactory, 67108864)
 
 	log.Printf("config: %+v", config)
 	if err := runServer(transportFactory, protocolFactory, *addr, config.dbPrefix); err != nil {

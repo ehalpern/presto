@@ -248,7 +248,7 @@ func (h *thriftHandler) PrestoGetRows(ctx context.Context,
 	nextToken *PrestoThriftNullableToken,
 ) (r *PrestoThriftPageResult_, err error) {
 	start := time.Now()
-	batch := newBatch(splitId, nextToken.Token, maxBytes)
+	batch := toBatch(splitId, nextToken.Token, maxBytes)
 	table, err := getTable(h.dbPrefix, batch.tableName())
 	stats := table.stats()
 	if err != nil {
@@ -261,6 +261,8 @@ func (h *thriftHandler) PrestoGetRows(ctx context.Context,
 	}
 
 	bytesRetrieved := blocksSize(blocks)
+	// TODO: handle the case where estimate was off and maxBytes is exceeded
+
 	elapsed := time.Now().Sub(start)
 	delta := table.stats().Delta(stats)
 	log.Printf("Read\t%d rows (%d bytes) in %d ms (%.f%% of %d max bytes)", rowCount, bytesRetrieved, elapsed.Nanoseconds() / 1e6, float64(bytesRetrieved)/float64(maxBytes) * 100, maxBytes)
@@ -278,20 +280,7 @@ S3BytesPerRead:                   %s
 	return &PrestoThriftPageResult_{
 		ColumnBlocks: blocks,
 		RowCount: int32(rowCount),
-		NextToken: batch.nextBatchId(maxBytes, bytesRetrieved/batch.Limit),
+		NextToken: batch.nextBatchId(maxBytes, divUint64(bytesRetrieved, rowCount)),
 	}, nil
 }
 
-func minUint64(x, y uint64) uint64 {
-	if x < y {
-		return x
-	}
-	return y
-}
-
-func maxUint64(x, y uint64) uint64 {
-	if x > y {
-		return x
-	}
-	return y
-}

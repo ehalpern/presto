@@ -23,6 +23,7 @@ func newSplit(table *PrestoThriftSchemaTableName, offset uint64, limit uint64, b
 		table.SchemaName, table.TableName, offset, limit, bytesPerRow,
 	}
 }
+
 func splitFromId(id *PrestoThriftId) *Split {
 	var s Split
 	d.PanicIfError(json.Unmarshal(id.GetID(), &s))
@@ -49,10 +50,10 @@ type Batch struct {
 	EstBytesPerRow uint64 `json`
 }
 
-// Create batch from |split| or |batchToken|
+// Return batch given |split| and |batchToken|
 // If |batchToken| is nil, create the first batch of the split
 // If |batchToken| is non-nil, simply unmarshal the batchId
-func newBatch(splitId *PrestoThriftId, batchToken *PrestoThriftId, maxBytes int64) *Batch {
+func toBatch(splitId *PrestoThriftId, batchToken *PrestoThriftId, maxBytes int64) *Batch {
 	var b Batch
 	if batchToken != nil {
 		d.PanicIfError(json.Unmarshal(batchToken.GetID(), &b))
@@ -99,26 +100,20 @@ func (s *Batch) tableName() *PrestoThriftSchemaTableName {
 	return &PrestoThriftSchemaTableName{ s.Schema, s.Table}
 }
 
-// Naively estimate the number of rows required to fill the buffer with up to |maxBytes|
-//
-// To do this, we estimate the number of rows required for |maxBytes| using the
-// average bytes/row read so far. We then compute a 'confidence' measure based on
-// the number of rows already read between 0.5 and 0.9. 0.5 is the low bound of
-// confidence and means we leave room for 50% error. 0.9 is the high bound of
-// confidence and means we leave room for 10% error.
-//
-// TODO: Leaving 10% error buffer reduces the chance that a data anomoly (like a
-// cluster of long strings) causes a batch to exceed maxBytes. This of course doesn't
-// ensure that won't happen, so we still need way to deal with that case.
+// Estimate the number of rows required to fill the buffer with |maxBytes|
+// Then adjust down based on the the number of rows that inform the estimate.
 func computeRowLimit(rowsRead uint64, totalRows uint64, avgBytesPerRow uint64, maxBytes int64) uint64 {
 	// rowsRead == 0 means this is the first batch and we've estimated bytes/row using table.estimateRowSize
-	confidence := 1.0 - math.Min(.5, math.Max(.1, 10.0 / math.Sqrt(math.Max(1, float64(rowsRead)))))
-	estimatedBytes := float64(maxBytes) * confidence
-	rowsToRead := estimatedBytes / float64(avgBytesPerRow)
-	rowsToRead = math.Min(rowsToRead, float64(totalRows - rowsRead))
-	limit := uint64(math.Floor(rowsToRead + .5))
-	//log.Printf("Rows read:  %d/%d", rowsRead, totalRows)
-	//log.Printf("Next limit: %d (est %d bytes/row, %d/%d of max bytes)", limit, avgBytesPerRow, limit * avgBytesPerRow, maxBytes)
-	return limit
+
+	// Compute confidence between .5 and .05 based on number of rows read
+	// Reach .05 at 10000
+	confidence := 1.0 - math.Min(.5, math.Max(.05, 5.0 / math.Sqrt(math.Max(1, float64(rowsRead)))))
+
+	// Approach maxBytes as confidence increase
+	targetBytes := float64(maxBytes) * confidence
+
+	rowCount := targetBytes / float64(avgBytesPerRow)
+	rowCount = math.Min(rowCount, float64(totalRows - rowsRead))
+	return uint64(round(rowCount))
 }
 
