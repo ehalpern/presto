@@ -3,23 +3,27 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"log"
 	"sync"
-	"unsafe"
 
 	. "prestothriftservice"
 
+	"github.com/attic-labs/bucketdb/presto/presto-noms-thrift/blocks"
+	"github.com/attic-labs/bucketdb/presto/presto-noms-thrift/math"
 	"github.com/attic-labs/noms/go/d"
+	"github.com/attic-labs/noms/go/nbs"
 	"github.com/attic-labs/noms/go/spec"
 	"github.com/attic-labs/noms/go/types"
-	"github.com/attic-labs/noms/go/nbs"
+)
+
+var (
+	ResultByteCountAccuracy = .9
 )
 
 type nomsTable interface {
 	getMetadata() (*PrestoThriftTableMetadata, error)
 	estimateRowSize(columns []string) uint64
 	getRowCount() uint64
-	getRows(batch *Batch, columns []string, maxBytes int64) (blocks []*PrestoThriftBlock, rowCount uint64, err error)
+	getRows(columns []string, offset, limit, maxBytes uint64) (blocks []*PrestoThriftBlock, rowCount uint64, err error)
 	stats() nbs.Stats
 }
 
@@ -136,7 +140,7 @@ var kindToPrestoType = map[types.NomsKind]string {
 func (t *colMajorTable) estimateRowSize(columns []string) uint64 {
 	md, err := t.getMetadata()
 	d.PanicIfError(err)
-	return estimateRowSize(columns, md.Columns)
+	return blocks.EstimateRowByteCount(columns, md.Columns)
 }
 
 
@@ -157,38 +161,69 @@ func (t *colMajorTable) getRowCount() uint64 {
 	return firstColumn.(types.List).Len()
 }
 
-func (t *colMajorTable) getRows(batch *Batch, columns []string, maxBytes int64) (blocks []*PrestoThriftBlock, rowCount uint64, err error) {
+func (t *colMajorTable) getRows(columns []string, offset, limit, maxBytes uint64) (blks []*PrestoThriftBlock, rowCount uint64, err error) {
 	if len(columns) == 0 {
 		// this is a row count query
-		return blocks, t.getRowCount(), nil
+		return blks, t.getRowCount(), nil
 	}
-	var limit uint64
-	var futureBlocks []<-chan *PrestoThriftBlock
-	for _, c := range columns {
-		v := t.s.Get(c)
-		ref := v.(types.Ref)
-		list := ref.TargetValue(t.sp.GetDatabase()).(types.List)
-		offset := batch.Offset
-		limit = minUint64(batch.Limit, list.Len())
-		var block <-chan *PrestoThriftBlock
-		elt := list.Get(0)
-		switch elt.Kind() {
-		case types.NumberKind:
-			block = readDoubles(list, offset, limit)
-		case types.BoolKind:
-			block = readBools(list, offset, limit)
-		case types.StringKind:
-			block = readStrings(list, offset, limit)
-		default:
-			return blocks, rowCount, serviceError("unsupported column type %v", list.Kind())
+
+	readColumns := func(cols []string, offset, limit uint64) (blks []*PrestoThriftBlock)  {
+		var futureBlocks []<-chan *PrestoThriftBlock
+		for _, c := range columns {
+			v := t.s.Get(c)
+			ref := v.(types.Ref)
+			list := ref.TargetValue(t.sp.GetDatabase()).(types.List)
+			limit = math.MinUint64(limit, list.Len() - offset)
+			var block <-chan *PrestoThriftBlock
+			elt := list.Get(0)
+			switch elt.Kind() {
+			case types.NumberKind:
+				block = readDoubles(list, offset, limit)
+			case types.BoolKind:
+				block = readBools(list, offset, limit)
+			case types.StringKind:
+				block = readStrings(list, offset, limit)
+			default:
+				panic(fmt.Errorf("unexpected column type %v", list.Kind()))
+			}
+			futureBlocks = append(futureBlocks, block)
 		}
-		futureBlocks = append(futureBlocks, block)
+		blks = make([]*PrestoThriftBlock, len(futureBlocks))
+		for i, f := range futureBlocks {
+			blks[i] = <- f
+		}
+		return blks
 	}
-	blocks = make([]*PrestoThriftBlock, len(futureBlocks))
-	for i, f := range futureBlocks {
-		blocks[i] = <- f
+
+	blks = readColumns(columns, offset, limit)
+	rowCount = blocks.RowCount(blks)
+
+	// If below target maxBytes, make one attempt to get closer
+	if rowCount < t.getRowCount() - offset && float64(blocks.ByteCount(blks)) / float64(maxBytes) < ResultByteCountAccuracy {
+		bytesToAdd := maxBytes - blocks.ByteCount(blks)
+		rowsToAdd := math.DivUint64(bytesToAdd, blocks.BytesPerRow(blks))
+		moreBlks := readColumns(columns, offset + blocks.RowCount(blks), rowsToAdd)
+		blks = blocks.AppendRows(blks, moreBlks)
 	}
-	return blocks, limit, nil
+
+	// If above target maxBytes, trim back
+	if blocks.ByteCount(blks) > maxBytes {
+		reduceBytes(blks, uint64(maxBytes))
+	}
+
+	return blks, blocks.RowCount(blks), nil
+}
+
+func  reduceBytes(blks []*PrestoThriftBlock, maxBytes uint64) {
+	d.PanicIfFalse(blocks.ByteCount(blks) < uint64(maxBytes))
+	bytesToRemove := blocks.ByteCount(blks) - maxBytes
+	bytesPerRow := blocks.BytesPerRow(blks)
+	rowsToRemove := math.DivUint64(bytesToRemove, bytesPerRow)
+	blocks.RemoveRows(blks, rowsToRemove)
+	for ; blocks.ByteCount(blks) > maxBytes; rowsToRemove <<= 1 {
+		// Double rows removed on each iteration.
+		blocks.RemoveRows(blks, rowsToRemove)
+	}
 }
 
 func readDoubles(list types.List, offset, limit uint64) <-chan *PrestoThriftBlock {
@@ -199,11 +234,7 @@ func readDoubles(list types.List, offset, limit uint64) <-chan *PrestoThriftBloc
 		list.IterRange(offset, offset + limit -1, func(v types.Value, i uint64) {
 			numbers[i - offset] = float64(v.(types.Number))
 		})
-		future <- &PrestoThriftBlock{
-			DoubleData: &PrestoThriftDouble{
-				Doubles: numbers[:],
-			},
-		}
+		future <- blocks.AddToDoubleBlock(nil, numbers)
 	}()
 	return future
 }
@@ -216,11 +247,7 @@ func readBools(list types.List, offset, limit uint64) <-chan *PrestoThriftBlock 
 		list.IterRange(offset, offset+limit-1, func(v types.Value, i uint64) {
 			bools[i-offset] = bool(v.(types.Bool))
 		})
-		future <- &PrestoThriftBlock{
-			BooleanData: &PrestoThriftBoolean{
-				Booleans: bools[:],
-			},
-		}
+		future <- blocks.AddToBooleanBlock(nil, bools)
 	}()
 
 	return future
@@ -249,13 +276,7 @@ func readStrings(list types.List, offset, limit uint64) <-chan *PrestoThriftBloc
 			nulls[i] = false
 			sizes[i] = int32(n)
 		})
-		future <- &PrestoThriftBlock{
-			VarcharData: &PrestoThriftVarchar{
-				Nulls: nulls[:],
-				Sizes: sizes[:],
-				Bytes: data.Bytes(),
-			},
-		}
+		future <- blocks.AddToVarcharBlock(nil, data.Bytes(), sizes, nulls)
 	}()
 	return future
 }
@@ -306,123 +327,41 @@ func (t *rowMajorTable) getMetadata() (metadata *PrestoThriftTableMetadata, err 
 func (t *rowMajorTable) estimateRowSize(columns []string) uint64 {
 	md, err := t.getMetadata()
 	d.PanicIfError(err)
-	return estimateRowSize(columns, md.Columns)
+	return blocks.EstimateRowByteCount(columns, md.Columns)
 }
 
 func (t *rowMajorTable) getRowCount() uint64 {
 	return t.v.(types.List).Len()
 }
 
-func (t *rowMajorTable) getRows(batch *Batch, columns []string, maxBytes int64,
-) (blocks []*PrestoThriftBlock, rowCount uint64, err error) {
+func (t *rowMajorTable) getRows(columns []string, offset, limit, maxBytes uint64,
+) (rows []*PrestoThriftBlock, rowCount uint64, err error) {
 	if len(columns) == 0 {
 		// this is a row count query
-		return blocks, t.getRowCount(), nil
+		return rows, t.getRowCount(), nil
 	}
-	blocks = make([]*PrestoThriftBlock, len(columns))
+	rows = make([]*PrestoThriftBlock, len(columns))
 	// assume list for now
 	list := t.v.(types.List)
-	limit := minUint64(batch.Limit, list.Len()-batch.Offset)
-	it := list.IteratorAt(batch.Offset)
+	limit = math.MinUint64(limit, list.Len()-offset)
+	it := list.IteratorAt(offset)
 	for i, row := uint64(0), it.Next(); i < limit; i, row = i+1, it.Next() {
 		st := row.(types.Struct)
 		for j, col := range columns {
 			switch v := st.Get(col).(type) {
 			case types.Number:
-				blocks[j] = appendDouble(blocks[j], float64(v))
+				blocks.AddToDoubleBlock(rows[j], []float64{float64(v)})
 			case types.Bool:
-				blocks[j] = appendBool(blocks[j], bool(v))
+				blocks.AddToBooleanBlock(rows[j], []bool{bool(v)})
 			case types.String:
-				blocks[j] = appendString(blocks[j], string(v))
+				s := string(v)
+				blocks.AddToVarcharBlock(rows[j], []byte(s), []int32{int32(len(s))}, []bool{false})
 			default:
-				return blocks, rowCount, serviceError("unsupported column type %v", list.Kind())
+				return rows, rowCount, serviceError("unsupported column type %v", list.Kind())
 			}
 		}
 	}
-	return blocks, limit, nil
-}
-
-func appendDouble(block *PrestoThriftBlock, d float64) *PrestoThriftBlock {
-	if block == nil {
-		block = &PrestoThriftBlock{DoubleData: NewPrestoThriftDouble()}
-	}
-	doubles := block.DoubleData.Doubles
-	block.DoubleData.Doubles = append(doubles, d)
-	return block
-}
-
-func appendBool(block *PrestoThriftBlock, b bool) *PrestoThriftBlock {
-	if block == nil {
-		block = &PrestoThriftBlock{BooleanData: NewPrestoThriftBoolean()}
-	}
-	bools := block.BooleanData.Booleans
-	block.BooleanData.Booleans = append(bools, b)
-	return block
-}
-
-func appendString(block *PrestoThriftBlock, s string) *PrestoThriftBlock {
-	if block == nil {
-		block = &PrestoThriftBlock{VarcharData: NewPrestoThriftVarchar()}
-	}
-	sizes := block.VarcharData.Sizes
-	bytes := block.VarcharData.Bytes
-	sBytes := []byte(s)
-	block.VarcharData.Sizes = append(sizes, int32(len(sBytes)))
-	block.VarcharData.Bytes = append(bytes, sBytes...)
-	return block
-}
-
-var charSize = int(unsafe.Sizeof('a'))
-var boolSize = int(unsafe.Sizeof(true))
-var int32Size = int(unsafe.Sizeof(int32(1)))
-var doubleSize = int(unsafe.Sizeof(float64(1)))
-
-func estimateRowSize(columns []string, md []*PrestoThriftColumnMetadata) (size uint64) {
-	include := make(map[string]bool)
-	for _, c := range columns {
-		include[c] = true
-	}
-	for _, cm := range md {
-		if include[cm.Name] {
-			switch cm.Type {
-			case "varchar":
-				size += uint64(int32Size)
-				size += uint64(boolSize)
-				size += uint64(charSize * 10)
-			case "boolean":
-				size += uint64(boolSize)
-				size += uint64(boolSize)
-			case "double":
-				size += uint64(boolSize)
-				size += uint64(doubleSize)
-			default:
-				log.Printf("unsupported row type %s", cm.Type)
-			}
-		}
-	}
-	return size
-}
-
-func blocksSize(blocks []*PrestoThriftBlock) (size uint64) {
-	for _, b := range blocks {
-		if b.VarcharData != nil {
-			size += uint64(len(b.VarcharData.Sizes) * int32Size)
-			size += uint64(len(b.VarcharData.Nulls) * boolSize)
-			size += uint64(len(b.VarcharData.Bytes))
-		}
-		if b.DoubleData != nil {
-			size += uint64(len(b.DoubleData.Nulls) * boolSize)
-			size += uint64(len(b.DoubleData.Doubles) * doubleSize)
-		}
-		if b.BooleanData != nil {
-			size += uint64(len(b.BooleanData.Nulls) * boolSize)
-			size += uint64(len(b.BooleanData.Booleans) * boolSize)
-		}
-	}
-	if len(blocks) == 0 {
-		return 0
-	}
-	return size
+	return rows, limit, nil
 }
 
 func (t *rowMajorTable) stats() nbs.Stats {

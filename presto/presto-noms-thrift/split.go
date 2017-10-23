@@ -2,11 +2,12 @@ package main
 
 import (
 	"encoding/json"
-	"math"
 
 	. "prestothriftservice"
 
 	"github.com/attic-labs/noms/go/d"
+	"github.com/attic-labs/bucketdb/presto/presto-noms-thrift/math"
+
 )
 
 type Split struct {
@@ -41,53 +42,55 @@ func (s *Split) tableName() *PrestoThriftSchemaTableName {
 }
 
 type Batch struct {
-	Schema     string `json:`
-	Table      string `json:`
+	Split 		Split
 	Offset     uint64 `json:`
 	Limit      uint64 `json:`
-	InitialOffset uint64 `json:`
-	TotalLimit uint64 `json:`
-	EstBytesPerRow uint64 `json`
+	EstBytesPerRow uint64 `json:`
 }
 
 // Return batch given |split| and |batchToken|
 // If |batchToken| is nil, create the first batch of the split
 // If |batchToken| is non-nil, simply unmarshal the batchId
-func toBatch(splitId *PrestoThriftId, batchToken *PrestoThriftId, maxBytes int64) *Batch {
+func toBatch(splitId *PrestoThriftId, batchToken *PrestoThriftId, maxBytes uint64) *Batch {
 	var b Batch
 	if batchToken != nil {
 		d.PanicIfError(json.Unmarshal(batchToken.GetID(), &b))
 	} else {
 		s := splitFromId(splitId)
-		limit := computeRowLimit(0, s.Limit, s.EstBytesPerRow, maxBytes)
-		b = Batch{
-			s.Schema, s.Table,
-			s.Offset, limit,
-			s.Offset,s.Limit,
-			s.EstBytesPerRow,
-		}
+		limit := estimateRowLimit(0, s.Limit, s.EstBytesPerRow, maxBytes)
+		b = Batch{*s, s.Offset, limit, s.EstBytesPerRow}
 		d.Chk.True(b.Limit > 0)
-		d.Chk.True(b.Offset >= b.InitialOffset)
-		d.Chk.True(b.totalRowsRead() <= b.TotalLimit, "%d !<= %d", b.totalRowsRead(), b.TotalLimit)
+		d.Chk.True(b.Offset >= b.Split.Offset)
+		d.Chk.True(b.totalRowsRead() <= b.Split.Limit, "%d !<= %d", b.totalRowsRead(), b.Split.Limit)
 	}
 	return &b
 }
 
 func (b *Batch) totalRowsRead() uint64 {
-	return b.Offset + b.Limit - b.InitialOffset
+	return b.Offset + b.Limit - b.Split.Offset
 }
 
-func (b *Batch) nextBatchId(maxBytes int64, actualBytesPerRow uint64) *PrestoThriftId {
-	if b.totalRowsRead() == b.TotalLimit {
+func (b *Batch) nextBatch(rowsRead, bytesRead, maxBytes uint64) *Batch {
+	newOffset := b.Offset + rowsRead
+	if newOffset >= b.Split.Limit {
 		return nil
 	}
-	newLimit := computeRowLimit(b.totalRowsRead(), b.TotalLimit, actualBytesPerRow, maxBytes)
-	return (&Batch{
-		b.Schema, b.Table,
-		b.Offset + b.Limit, uint64(newLimit),
-		b.InitialOffset,b.TotalLimit,
-		actualBytesPerRow,
-	}).id()
+	totalRowsRead := newOffset - b.Split.Offset
+	avgBytesPerRow := math.DivUint64(bytesRead, rowsRead)
+	newLimit := estimateRowLimit(totalRowsRead, b.Split.Limit, avgBytesPerRow, maxBytes)
+	return &Batch{
+		b.Split,
+		newOffset, newLimit,
+		avgBytesPerRow,
+	}
+}
+
+func (b *Batch) nextBatchId(rowsRead, bytesRead, maxBytes uint64) *PrestoThriftId {
+	next := b.nextBatch(rowsRead, bytesRead, maxBytes)
+	if next == nil {
+		return nil
+	}
+	return next.id()
 }
 
 func (b *Batch) id() *PrestoThriftId {
@@ -96,24 +99,12 @@ func (b *Batch) id() *PrestoThriftId {
 	return &PrestoThriftId{ bytes }
 }
 
-func (s *Batch) tableName() *PrestoThriftSchemaTableName {
-	return &PrestoThriftSchemaTableName{ s.Schema, s.Table}
+func (b *Batch) tableName() *PrestoThriftSchemaTableName {
+	return &PrestoThriftSchemaTableName{ b.Split.Schema, b.Split.Table}
 }
 
-// Estimate the number of rows required to fill the buffer with |maxBytes|
-// Then adjust down based on the the number of rows that inform the estimate.
-func computeRowLimit(rowsRead uint64, totalRows uint64, avgBytesPerRow uint64, maxBytes int64) uint64 {
-	// rowsRead == 0 means this is the first batch and we've estimated bytes/row using table.estimateRowSize
-
-	// Compute confidence between .5 and .05 based on number of rows read
-	// Reach .05 at 10000
-	confidence := 1.0 - math.Min(.5, math.Max(.05, 5.0 / math.Sqrt(math.Max(1, float64(rowsRead)))))
-
-	// Approach maxBytes as confidence increase
-	targetBytes := float64(maxBytes) * confidence
-
-	rowCount := targetBytes / float64(avgBytesPerRow)
-	rowCount = math.Min(rowCount, float64(totalRows - rowsRead))
-	return uint64(round(rowCount))
+func estimateRowLimit(rowsRead uint64, totalRows uint64, avgBytesPerRow uint64, maxBytes uint64) uint64 {
+	rowCount := math.DivUint64(maxBytes, avgBytesPerRow)
+	return math.MinUint64(rowCount, totalRows - rowsRead)
 }
 

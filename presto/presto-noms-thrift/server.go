@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"strings"
+	"time"
 
 	. "prestothriftservice"
 
@@ -18,7 +19,8 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
-	"time"
+	"github.com/attic-labs/bucketdb/presto/presto-noms-thrift/blocks"
+	"github.com/attic-labs/bucketdb/presto/presto-noms-thrift/math"
 )
 
 // Starts thrift server
@@ -253,6 +255,7 @@ func (h *thriftHandler) PrestoGetRows(ctx context.Context,
 	nextToken *PrestoThriftNullableToken,
 ) (r *PrestoThriftPageResult_, err error) {
 	start := time.Now()
+	batch := toBatch(splitId, nextToken.Token, uint64(maxBytes))
 	lock.Lock()
 	active++
 	log.Printf("Pending requests++ %d: %s\n", active, start)
@@ -272,18 +275,15 @@ func (h *thriftHandler) PrestoGetRows(ctx context.Context,
 		return r, err
 	}
 	//log.Printf("Reading\t%d rows starting from %d", batch.Limit, batch.Offset)
-	blocks, rowCount, err := table.getRows(batch, columns, maxBytes)
+	rows, rowCount, err := table.getRows(columns, batch.Offset, batch.Limit, uint64(maxBytes))
 	if err != nil {
 		return r, err
 	}
 
-	bytesRetrieved := blocksSize(blocks)
-	// TODO: handle the case where estimate was off and maxBytes is exceeded
-
-	//elapsed := time.Now().Sub(start)
-	//delta := table.stats().Delta(stats)
-	//log.Printf("Read\t%d rows (%d bytes) in %d ms (%.f%% of %d max bytes)", rowCount, bytesRetrieved, elapsed.Nanoseconds() / 1e6, float64(bytesRetrieved)/float64(maxBytes) * 100, maxBytes)
-	/*
+	bytesRetrieved := blocks.ByteCount(rows)
+	elapsed := time.Now().Sub(start)
+	delta := table.stats().Delta(stats)
+	log.Printf("Read\t%d rows (%d bytes) in %d ms (%.f%% of %d max bytes)", rowCount, bytesRetrieved, elapsed.Nanoseconds() / 1e6, float64(bytesRetrieved)/float64(maxBytes) * 100, maxBytes)
 	log.Printf(`---NBS Stats---
 GetLatency:                       %s
 ChunksPerGet:                     %s
@@ -294,11 +294,11 @@ S3BytesPerRead:                   %s
 		delta.ChunksPerGet,
 		delta.S3ReadLatency,
 		delta.S3BytesPerRead)
-*/
+
 	return &PrestoThriftPageResult_{
-		ColumnBlocks: blocks,
+		ColumnBlocks: rows,
 		RowCount: int32(rowCount),
-		NextToken: batch.nextBatchId(maxBytes, divUint64(bytesRetrieved, rowCount)),
+		NextToken: batch.nextBatchId(rowCount, bytesRetrieved, uint64(maxBytes)),
 	}, nil
 }
 
