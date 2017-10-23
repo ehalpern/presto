@@ -6,9 +6,10 @@ import (
 	"io/ioutil"
 	"log"
 	"strings"
-	"time"
 
 	. "prestothriftservice"
+
+	"sync"
 
 	"git.apache.org/thrift.git/lib/go/thrift"
 	"github.com/attic-labs/noms/go/d"
@@ -17,6 +18,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"time"
 )
 
 // Starts thrift server
@@ -230,6 +232,9 @@ func (h *thriftHandler) PrestoGetSplits(
 	}, nil
 }
 
+var active uint64
+var lock sync.Mutex
+
 // Returns a batch of rows for the given split.
 //
 // @param splitId split id as returned in split batch
@@ -248,13 +253,25 @@ func (h *thriftHandler) PrestoGetRows(ctx context.Context,
 	nextToken *PrestoThriftNullableToken,
 ) (r *PrestoThriftPageResult_, err error) {
 	start := time.Now()
+	lock.Lock()
+	active++
+	log.Printf("Pending requests++ %d: %s\n", active, start)
+	lock.Unlock()
+	defer func() {
+		lock.Lock()
+		active--
+		end := time.Now()
+		log.Printf("Pending requests-- %d, start: %s, end: %s (%s)\n", active, start, end, end.Sub(start))
+		lock.Unlock()
+	}()
+
 	batch := toBatch(splitId, nextToken.Token, maxBytes)
 	table, err := getTable(h.dbPrefix, batch.tableName())
-	stats := table.stats()
+	//stats := table.stats()
 	if err != nil {
 		return r, err
 	}
-	log.Printf("Reading\t%d rows starting from %d", batch.Limit, batch.Offset)
+	//log.Printf("Reading\t%d rows starting from %d", batch.Limit, batch.Offset)
 	blocks, rowCount, err := table.getRows(batch, columns, maxBytes)
 	if err != nil {
 		return r, err
@@ -263,9 +280,10 @@ func (h *thriftHandler) PrestoGetRows(ctx context.Context,
 	bytesRetrieved := blocksSize(blocks)
 	// TODO: handle the case where estimate was off and maxBytes is exceeded
 
-	elapsed := time.Now().Sub(start)
-	delta := table.stats().Delta(stats)
-	log.Printf("Read\t%d rows (%d bytes) in %d ms (%.f%% of %d max bytes)", rowCount, bytesRetrieved, elapsed.Nanoseconds() / 1e6, float64(bytesRetrieved)/float64(maxBytes) * 100, maxBytes)
+	//elapsed := time.Now().Sub(start)
+	//delta := table.stats().Delta(stats)
+	//log.Printf("Read\t%d rows (%d bytes) in %d ms (%.f%% of %d max bytes)", rowCount, bytesRetrieved, elapsed.Nanoseconds() / 1e6, float64(bytesRetrieved)/float64(maxBytes) * 100, maxBytes)
+	/*
 	log.Printf(`---NBS Stats---
 GetLatency:                       %s
 ChunksPerGet:                     %s
@@ -276,7 +294,7 @@ S3BytesPerRead:                   %s
 		delta.ChunksPerGet,
 		delta.S3ReadLatency,
 		delta.S3BytesPerRead)
-
+*/
 	return &PrestoThriftPageResult_{
 		ColumnBlocks: blocks,
 		RowCount: int32(rowCount),
