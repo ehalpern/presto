@@ -39,7 +39,8 @@ func main() {
 	buffered := flag.Bool("buffered", false, "Use buffered transport")
 	addr := flag.String("addr", "localhost:9090", "Address to listen to")
 	flag.StringVar(&config.dbPrefix,"db-prefix", "nbs:/tmp/presto-noms", "Database path prefix")
-	flag.Uint64Var(&config.nodeCount,"node-count", 1, "Number of noms thrift nodes")
+	flag.Uint64Var(&config.workerCount,"worker-count", 1, "Number of worker nodes")
+	flag.Uint64Var(&config.splitsPerWorker,"splits-per-worker", 4, "Number of splits/worker")
 	flag.Parse()
 	var protocolFactory thrift.TProtocolFactory
 	switch *protocol {

@@ -10,9 +10,19 @@
 ### END INIT INFO
 
 db_prefix="aws://bucketdb-manifests:bucketdb-tables/p"
-node_count=64
+
+# TODO: determine worker count automatically by asking autoscaler
+worker_count=1
+splits_per_worker=6
+
+# splits_per_worker=2 # 2:03 [398M rows, 6.66GB] [3.24M rows/s, 55.6MB/s]
+# splits_per_worker=4 # 1:32 [398M rows, 6.66GB] [4.31M rows/s, 73.9MB/s]
+# splits_per_worker=6 # 1:29 [398M rows, 6.66GB] [4.47M rows/s, 76.7MB/s]
+# splits_per_worker=8 # 1:29 [398M rows, 6.66GB] [4.44M rows/s, 76.2MB/s]
+
 cmd="NOMS_VERSION_NEXT=1 /var/lib/presto/go/bin/presto-noms-thrift \
---node-count=${node_count} \
+--worker-count=${worker_count} \
+--splits-per-worker=${splits_per_worker} \
 --db-prefix=${db_prefix}"
 user="presto"
 

@@ -208,7 +208,7 @@ func (h *thriftHandler) PrestoGetSplits(
 	} else {
 		estBytesPerRow := table.estimateRowSize(desiredColumns.Columns)
 		minRowsPerSplit := config.minBytesPerSplit / estBytesPerRow
-		maxSplits := config.nodeCount
+		maxSplits := config.workerCount * config.splitsPerWorker
 		splitCount := maxUint64(1, minUint64(rowCount/minRowsPerSplit, maxSplits))
 		rowsPerSplit := rowCount / splitCount
 		remainder := rowCount % rowsPerSplit
