@@ -115,9 +115,9 @@ func (key orderedKey) Less(mk2 orderedKey) bool {
 
 func (key orderedKey) writeTo(w nomsWriter) {
 	if !key.isOrderedByValue {
-		// See https://github.com/attic-labs/noms/issues/1688#issuecomment-227528987
 		d.PanicIfTrue(key != emptyKey && key.h.IsEmpty())
-		writeRefPartsTo(w, key.h, BoolType, 0)
+		hashKind.writeTo(w)
+		w.writeHash(key.h)
 	} else {
 		key.v.writeTo(w)
 	}
@@ -127,19 +127,19 @@ type metaSequence struct {
 	sequenceImpl
 }
 
-func newMetaSequence(vrw ValueReadWriter, buff []byte, offsets []uint32) metaSequence {
-	return metaSequence{newSequenceImpl(vrw, buff, offsets)}
+func newMetaSequence(vrw ValueReadWriter, buff []byte, offsets []uint32, len uint64) metaSequence {
+	return metaSequence{newSequenceImpl(vrw, buff, offsets, len)}
 }
 
 // readLeafSequence reads the data provided by a decoder and moves the decoder forward.
 func readMetaSequence(dec *valueDecoder) metaSequence {
 	start := dec.pos()
-	offsets := skipMetaSequence(dec)
+	offsets, len := skipMetaSequence(dec)
 	end := dec.pos()
-	return newMetaSequence(dec.vrw, dec.byteSlice(start, end), offsets)
+	return newMetaSequence(dec.vrw, dec.byteSlice(start, end), offsets, len)
 }
 
-func skipMetaSequence(dec *valueDecoder) []uint32 {
+func skipMetaSequence(dec *valueDecoder) ([]uint32, uint64) {
 	kindPos := dec.pos()
 	dec.skipKind()
 	levelPos := dec.pos()
@@ -152,13 +152,14 @@ func skipMetaSequence(dec *valueDecoder) []uint32 {
 	offsets[sequencePartLevel] = levelPos
 	offsets[sequencePartCount] = countPos
 	offsets[sequencePartValues] = valuesPos
+	length := uint64(0)
 	for i := uint64(0); i < count; i++ {
-		dec.skipValue() // ref
-		dec.skipValue() // v
-		dec.skipCount() // numLeaves
+		dec.skipValue()           // ref
+		dec.skipValue()           // v
+		length += dec.readCount() // numLeaves
 		offsets[i+sequencePartValues+1] = dec.pos()
 	}
-	return offsets
+	return offsets, length
 }
 
 func newMetaSequenceFromTuples(kind NomsKind, level uint64, tuples []metaTuple, vrw ValueReadWriter) metaSequence {
@@ -172,11 +173,13 @@ func newMetaSequenceFromTuples(kind NomsKind, level uint64, tuples []metaTuple, 
 	offsets[sequencePartCount] = w.offset
 	w.writeCount(uint64(len(tuples)))
 	offsets[sequencePartValues] = w.offset
+	length := uint64(0)
 	for i, mt := range tuples {
+		length += mt.numLeaves()
 		mt.writeTo(&w)
 		offsets[i+sequencePartValues+1] = w.offset
 	}
-	return newMetaSequence(vrw, w.data(), offsets)
+	return newMetaSequence(vrw, w.data(), offsets, length)
 }
 
 func (ms metaSequence) tuples() []metaTuple {
@@ -226,7 +229,7 @@ func (ms metaSequence) readTuple(dec *valueDecoder) metaTuple {
 	offsets[metaTuplePartRef] = start
 	dec.skipRef()
 	offsets[metaTuplePartKey] = dec.offset
-	dec.skipValue()
+	dec.skipOrderedKey()
 	offsets[metaTuplePartNumLeaves] = dec.offset
 	dec.skipCount()
 	end := dec.offset
@@ -241,7 +244,7 @@ func (ms metaSequence) getRefAt(dec *valueDecoder, idx int) Ref {
 func (ms metaSequence) getNumLeavesAt(idx int) uint64 {
 	dec := ms.decoderSkipToIndex(idx)
 	dec.skipValue()
-	dec.skipValue()
+	dec.skipOrderedKey()
 	return dec.readCount()
 }
 
@@ -257,19 +260,25 @@ func (ms metaSequence) valuesSlice(from, to uint64) []Value {
 
 func (ms metaSequence) typeOf() *Type {
 	dec, count := ms.decoderSkipToValues()
-	ts := make(typeSlice, count)
+	ts := make(typeSlice, 0, count)
+	var lastRef Ref
 	for i := uint64(0); i < count; i++ {
 		ref := dec.readRef()
-		ts[i] = ref.TargetType()
-		dec.skipValue() // v
-		dec.skipCount() // numLeaves
+		if lastRef.IsZeroValue() || !lastRef.isSameTargetType(ref) {
+			lastRef = ref
+			t := ref.TargetType()
+			ts = append(ts, t)
+		}
+
+		dec.skipOrderedKey() // key
+		dec.skipCount()      // numLeaves
 	}
-	return makeCompoundType(UnionKind, ts...)
+
+	return makeUnionType(ts...)
 }
 
 func (ms metaSequence) numLeaves() uint64 {
-	_, count := ms.decoderSkipToValues()
-	return ms.cumulativeNumberOfLeaves(int(count - 1))
+	return ms.len
 }
 
 func (ms metaSequence) treeLevel() uint64 {
@@ -280,10 +289,6 @@ func (ms metaSequence) treeLevel() uint64 {
 func (ms metaSequence) isLeaf() bool {
 	d.PanicIfTrue(ms.treeLevel() == 0)
 	return false
-}
-
-func (ms metaSequence) Len() uint64 {
-	return ms.numLeaves()
 }
 
 // metaSequence interface

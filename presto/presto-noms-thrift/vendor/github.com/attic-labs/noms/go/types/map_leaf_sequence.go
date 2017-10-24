@@ -60,13 +60,14 @@ func newMapLeafSequence(vrw ValueReadWriter, data ...mapEntry) orderedSequence {
 	offsets[sequencePartLevel] = w.offset
 	w.writeCount(0) // level
 	offsets[sequencePartCount] = w.offset
-	w.writeCount(uint64(len(data)))
+	count := uint64(len(data))
+	w.writeCount(count)
 	offsets[sequencePartValues] = w.offset
 	for i, me := range data {
 		me.writeTo(&w)
 		offsets[i+sequencePartValues+1] = w.offset
 	}
-	return mapLeafSequence{newLeafSequence(vrw, w.data(), offsets)}
+	return mapLeafSequence{newLeafSequence(vrw, w.data(), offsets, count)}
 }
 
 func (ml mapLeafSequence) writeTo(w nomsWriter) {
@@ -113,13 +114,26 @@ func (ml mapLeafSequence) getCompareFn(other sequence) compareFn {
 
 func (ml mapLeafSequence) typeOf() *Type {
 	dec, count := ml.decoderSkipToValues()
-	kts := make([]*Type, count)
-	vts := make([]*Type, count)
+	kts := make(typeSlice, 0, count)
+	vts := make(typeSlice, 0, count)
+	var lastKeyType, lastValueType *Type
 	for i := uint64(0); i < count; i++ {
-		kts[i] = dec.readValue().typeOf()
-		vts[i] = dec.readValue().typeOf()
+		if lastKeyType != nil && lastValueType != nil {
+			offset := dec.offset
+			if dec.isValueSameTypeForSure(lastKeyType) && dec.isValueSameTypeForSure(lastValueType) {
+				continue
+			}
+			dec.offset = offset
+
+		}
+
+		lastKeyType = dec.readTypeOfValue()
+		kts = append(kts, lastKeyType)
+		lastValueType = dec.readTypeOfValue()
+		vts = append(vts, lastValueType)
 	}
-	return makeCompoundType(MapKind, makeCompoundType(UnionKind, kts...), makeCompoundType(UnionKind, vts...))
+
+	return makeCompoundType(MapKind, makeUnionType(kts...), makeUnionType(vts...))
 }
 
 // orderedSequence interface

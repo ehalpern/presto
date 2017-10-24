@@ -6,19 +6,17 @@ import (
 	"io/ioutil"
 	"log"
 	"strings"
+	"sync"
+	"time"
 
 	. "prestothriftservice"
 
-	"sync"
-
 	"git.apache.org/thrift.git/lib/go/thrift"
-	"github.com/attic-labs/noms/go/d"
-	"github.com/attic-labs/noms/go/spec"
+	"github.com/attic-labs/bucketdb/presto/presto-noms-thrift/database"
 	"github.com/attic-labs/noms/go/types"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
-	"time"
 )
 
 // Starts thrift server
@@ -46,13 +44,23 @@ type thriftHandler struct {
 }
 
 func serviceError(format string, args... interface{}) *PrestoThriftServiceException {
+	var msg string
+	if (len(args) == 0) {
+		msg = format
+	} else {
+		msg = fmt.Sprintf(format, args)
+	}
 	return &PrestoThriftServiceException{
-		Message: fmt.Sprintf(format, args),
+		Message: msg,
 	}
 }
 
 // Returns available schema names by list the noms databases under dbPrefix
 func (h *thriftHandler) PrestoListSchemaNames(ctx context.Context) (r []string, err error) {
+	start := time.Now()
+	defer func() {
+		log.Printf("ListSchemaNames: %v", time.Since(start))
+	}()
 	parts := strings.Split(h.dbPrefix, ":")
 	protocol:= parts[0]
 	switch protocol {
@@ -111,15 +119,17 @@ func (h *thriftHandler) PrestoListSchemaNames(ctx context.Context) (r []string, 
 func (h *thriftHandler) PrestoListTables(
 	ctx context.Context, schema *PrestoThriftNullableSchemaName,
 ) (tables []*PrestoThriftSchemaTableName, err error) {
+	start := time.Now()
+	defer func() {
+		log.Printf("ListTables: %v", time.Since(start))
+	}()
 	// list tables in schema
 	listTables := func(s string) (tables []*PrestoThriftSchemaTableName, err error) {
-		spec, err := spec.ForDatabase(h.dbPrefix + "/" + s)
+		dbSpec := h.dbPrefix + "/" + s
+		db, err := database.GetDatabase(dbSpec)
 		if err != nil {
 			return tables, serviceError(err.Error())
 		}
-		defer spec.Close()
-		d.PanicIfError(err)
-		db := spec.GetDatabase()
 		db.Datasets().IterAll(func(name, _ types.Value) {
 			tables = append(tables, &PrestoThriftSchemaTableName{
 				s, string(name.(types.String)),
@@ -135,20 +145,13 @@ func (h *thriftHandler) PrestoListTables(
 		return tables, err
 	}
 	for _, schema := range schemas {
-		t, err := listTables(schema)
+		t, err := listTables(h.dbPrefix + "/" + schema)
 		if err != nil {
 			return tables, err
 		}
 		tables = append(tables, t...)
 	}
 	return tables, nil
-}
-
-func (h *thriftHandler) dsSpec(schema, table string) (sp spec.Spec, err error) {
-	if sp, err = spec.ForPath(h.dbPrefix + "/" + schema + "::" + table); err != nil {
-		return sp, serviceError(err.Error())
-	}
-	return sp, nil
 }
 
 // Returns metadata for a given table.
@@ -158,13 +161,18 @@ func (h *thriftHandler) dsSpec(schema, table string) (sp spec.Spec, err error) {
 // @param schemaTableName schema and table name
 // @return metadata for a given table, or a {@literal null} value inside if it does not exist
 func (h *thriftHandler) PrestoGetTableMetadata(ctx context.Context, name *PrestoThriftSchemaTableName) (md *PrestoThriftNullableTableMetadata, err error) {
+	start := time.Now()
+	defer func() {
+		log.Printf("GetTableMetadata: %v", time.Since(start))
+	}()
+
 	table, err := getTable(h.dbPrefix, name)
 	if err != nil {
-		return md, err
+		return md, serviceError(err.Error())
 	}
 	metadata, err := table.getMetadata()
 	if err != nil {
-		return md, err
+		return md, serviceError(err.Error())
 	}
 	return &PrestoThriftNullableTableMetadata{metadata}, nil
 }
@@ -193,9 +201,13 @@ func (h *thriftHandler) PrestoGetSplits(
 	maxSplitCount int32,
 	nextToken *PrestoThriftNullableToken,
 ) (splitBatch *PrestoThriftSplitBatch, err error) {
+	start := time.Now()
+	defer func() {
+		log.Printf("GetSplits: %v", time.Since(start))
+	}()
 	table, err := getTable(h.dbPrefix, tableName)
 	if err != nil {
-		return
+		return nil, serviceError(err.Error())
 	}
 	var splits []*PrestoThriftSplit
 	rowCount := table.getRowCount()
@@ -267,22 +279,23 @@ func (h *thriftHandler) PrestoGetRows(ctx context.Context,
 
 	batch := toBatch(splitId, nextToken.Token, maxBytes)
 	table, err := getTable(h.dbPrefix, batch.tableName())
-	//stats := table.stats()
 	if err != nil {
-		return r, err
+		return r, serviceError(err.Error())
 	}
-	//log.Printf("Reading\t%d rows starting from %d", batch.Limit, batch.Offset)
+
+	//stats := table.stats()
+	log.Printf("Reading\t%d rows starting from %d", batch.Limit, batch.Offset)
 	blocks, rowCount, err := table.getRows(batch, columns, maxBytes)
 	if err != nil {
-		return r, err
+		return r, serviceError(err.Error())
 	}
 
 	bytesRetrieved := blocksSize(blocks)
 	// TODO: handle the case where estimate was off and maxBytes is exceeded
 
-	//elapsed := time.Now().Sub(start)
+	elapsed := time.Now().Sub(start)
 	//delta := table.stats().Delta(stats)
-	//log.Printf("Read\t%d rows (%d bytes) in %d ms (%.f%% of %d max bytes)", rowCount, bytesRetrieved, elapsed.Nanoseconds() / 1e6, float64(bytesRetrieved)/float64(maxBytes) * 100, maxBytes)
+	log.Printf("Read\t%d rows (%d bytes) in %d ms (%.f%% of %d max bytes)", rowCount, bytesRetrieved, elapsed.Nanoseconds() / 1e6, float64(bytesRetrieved)/float64(maxBytes) * 100, maxBytes)
 	/*
 	log.Printf(`---NBS Stats---
 GetLatency:                       %s

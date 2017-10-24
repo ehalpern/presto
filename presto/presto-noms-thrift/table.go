@@ -4,15 +4,16 @@ import (
 	"bytes"
 	"fmt"
 	"log"
-	"sync"
+	"time"
 	"unsafe"
 
 	. "prestothriftservice"
 
+	"github.com/attic-labs/bucketdb/presto/presto-noms-thrift/database"
 	"github.com/attic-labs/noms/go/d"
-	"github.com/attic-labs/noms/go/spec"
-	"github.com/attic-labs/noms/go/types"
+	"github.com/attic-labs/noms/go/datas"
 	"github.com/attic-labs/noms/go/nbs"
+	"github.com/attic-labs/noms/go/types"
 )
 
 type nomsTable interface {
@@ -25,63 +26,39 @@ type nomsTable interface {
 
 type colMajorTable struct {
 	name *PrestoThriftSchemaTableName
-	sp spec.Spec
+	db datas.Database
 	s types.Struct
 }
 
 type rowMajorTable struct {
 	name *PrestoThriftSchemaTableName
-	sp spec.Spec
+	db datas.Database
 	v types.Value
 }
 
-func dsSpec(prefix, schema, table string) (sp spec.Spec, err error) {
-	if sp, err = spec.ForPath(prefix + "/" + schema + "::" + table); err != nil {
-		return sp, serviceError(err.Error())
-	}
-	return sp, nil
-}
-
-type tableCacheT struct {
-	cache map[PrestoThriftSchemaTableName]nomsTable
-	lock sync.RWMutex
-}
-
-func (c *tableCacheT) get(name *PrestoThriftSchemaTableName) (t nomsTable, ok bool) {
-	c.lock.RLock()
-	defer c.lock.RUnlock()
-	t, ok = c.cache[*name]
-	return
-}
-
-func (c *tableCacheT) put(name *PrestoThriftSchemaTableName, t nomsTable) {
-	c.lock.Lock()
-	defer c.lock.Unlock()
-	c.cache[*name] = t
-}
-
-// TODO: need a method to close all cached table to exit tests cleanly
-
-var tableCache = &tableCacheT{cache: make(map[PrestoThriftSchemaTableName]nomsTable)}
-
 func getTable(dbPrefix string, name *PrestoThriftSchemaTableName) (t nomsTable, err error) {
-	if t, ok := tableCache.get(name); ok {
-		return t, nil
-	}
-	sp, err := dsSpec(dbPrefix, name.SchemaName, name.TableName)
+	start := time.Now()
+	defer func() {
+		log.Printf("getTable(%s): %v", name.TableName, time.Since(start))
+	}()
+
+	db, err := database.GetDatabase(dbPrefix + "/" + name.SchemaName)
 	if err != nil {
-		return nil, err
+		return t, err
+	}
+	v, ok := db.GetDataset(name.TableName).MaybeHeadValue()
+	if !ok {
+		return t, fmt.Errorf("table '%s' does not exist", name.TableName)
 	}
 	// TODO: validate entire type structure and return (nil, nil) if not valid
-	switch table := sp.GetDataset().HeadValue().(type) {
+	switch table := v.(type) {
 	case types.List, types.Set, types.Map:
-		t = &rowMajorTable{name, sp, table}
+		t = &rowMajorTable{name, db, table}
 	case types.Struct:
-		t = &colMajorTable{name, sp, table}
+		t = &colMajorTable{name, db, table}
 	default:
 		return nil, nil
 	}
-	tableCache.put(name, t)
 	return t, err
 }
 
@@ -145,7 +122,7 @@ func (t *colMajorTable) getRowCount() uint64 {
 	t.s.IterFields(func(_ string, v types.Value) {
 		if firstColumn == nil {
 			if r, ok := v.(types.Ref); ok {
-				t := r.TargetValue(t.sp.GetDatabase())
+				t := r.TargetValue(t.db)
 				firstColumn, ok = t.(types.List)
 				d.PanicIfFalse(ok)
 			}
@@ -167,7 +144,7 @@ func (t *colMajorTable) getRows(batch *Batch, columns []string, maxBytes int64) 
 	for _, c := range columns {
 		v := t.s.Get(c)
 		ref := v.(types.Ref)
-		list := ref.TargetValue(t.sp.GetDatabase()).(types.List)
+		list := ref.TargetValue(t.db).(types.List)
 		offset := batch.Offset
 		limit = minUint64(batch.Limit, list.Len())
 		var block <-chan *PrestoThriftBlock
@@ -261,7 +238,7 @@ func readStrings(list types.List, offset, limit uint64) <-chan *PrestoThriftBloc
 }
 
 func (t *colMajorTable) stats() nbs.Stats {
-	return t.sp.GetDatabase().Stats().(nbs.Stats)
+	return t.db.Stats().(nbs.Stats)
 }
 
 func (t *rowMajorTable) getMetadata() (metadata *PrestoThriftTableMetadata, err error) {
@@ -426,5 +403,5 @@ func blocksSize(blocks []*PrestoThriftBlock) (size uint64) {
 }
 
 func (t *rowMajorTable) stats() nbs.Stats {
-	return t.sp.GetDatabase().Stats().(nbs.Stats)
+	return t.db.Stats().(nbs.Stats)
 }

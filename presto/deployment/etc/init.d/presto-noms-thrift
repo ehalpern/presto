@@ -10,10 +10,12 @@
 ### END INIT INFO
 
 db_prefix="aws://bucketdb-manifests:bucketdb-tables/p"
+db_preload_list="taxidata"
 
 # TODO: determine worker count automatically by asking autoscaler
 worker_count=1
 splits_per_worker=6
+
 
 # splits_per_worker=2 # 2:03 [398M rows, 6.66GB] [3.24M rows/s, 55.6MB/s]
 # splits_per_worker=4 # 1:32 [398M rows, 6.66GB] [4.31M rows/s, 73.9MB/s]
@@ -23,7 +25,9 @@ splits_per_worker=6
 cmd="NOMS_VERSION_NEXT=1 /var/lib/presto/go/bin/presto-noms-thrift \
 --worker-count=${worker_count} \
 --splits-per-worker=${splits_per_worker} \
---db-prefix=${db_prefix}"
+--db-prefix=${db_prefix}
+--db-preload-list=${db_preload_list}"
+
 user="presto"
 
 name=`basename $0`
@@ -46,11 +50,8 @@ case "$1" in
     else
         echo "Starting $name"
         cd "$dir"
-        if [ -z "$user" ]; then
-            sudo $cmd >> "$stdout_log" 2>> "$stderr_log" &
-        else
-            sudo -u "$user" $cmd >> "$stdout_log" 2>> "$stderr_log" &
-        fi
+        sudo -u "$user" mkdir -p /tmp/presto-noms-cache # temp hack around NewAWSStoreFactory bug requiring table cache
+        sudo -u "$user" $cmd >> "$stdout_log" 2>> "$stderr_log" &
         echo $! > "$pid_file"
         if ! is_running; then
             echo "Unable to start, see $stdout_log and $stderr_log"

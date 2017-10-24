@@ -12,9 +12,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var dbPrefixDir = "/tmp/presto-noms-thrift"
-var dbPrefix = "nbs:" + dbPrefixDir
-var dbName = "test"
+const (
+	dbPrefixDir = "/tmp/presto-noms-thrift"
+	dbPrefix = "nbs:" + dbPrefixDir
+	dbName = "test"
+)
 
 type row struct {
 	Typebool bool
@@ -66,9 +68,9 @@ func TestGetMetaData(t *testing.T) {
 	assert := assert.New(t)
 	createTables(t)
 	getMetadata := func(dsName string) {
-		colMajor, err := getTable(dbPrefix, &PrestoThriftSchemaTableName{dbName, dsName})
+		tbl, err := getTable(dbPrefix, &PrestoThriftSchemaTableName{dbName, dsName})
 		assert.NoError(err)
-		metadata, err := colMajor.getMetadata()
+		metadata, err := tbl.getMetadata()
 		assert.Len(metadata.GetColumns(), 3)
 		assert.NoError(err)
 	}
@@ -81,14 +83,14 @@ func TestGetRows(t *testing.T) {
 	createTables(t)
 	getRows := func(dsName string) {
 		tableName := &PrestoThriftSchemaTableName{dbName, dsName}
-		colMajor, err := getTable(dbPrefix, tableName)
+		tbl, err := getTable(dbPrefix, tableName)
 		assert.NoError(err)
 		splitId := newSplit(tableName, 0, 100, 100).id()
 		batch := toBatch(splitId, nil, 16384)
 		columns := []string {"typebool", "typedouble", "typestring"}
-		blocks, rowCount, err := colMajor.getRows(batch, columns, 16384)
+		blocks, rowCount, err := tbl.getRows(batch, columns, 16384)
 		assert.Len(blocks, 3)
-		assert.Equal(uint64(6), rowCount, )
+		assert.Equal(uint64(6), rowCount)
 		// TODO: verify content
 	}
 	getRows("types")

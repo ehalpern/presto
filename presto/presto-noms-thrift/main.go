@@ -22,9 +22,12 @@ package main
 import (
 	"flag"
 	"fmt"
-	"os"
-	"git.apache.org/thrift.git/lib/go/thrift"
 	"log"
+	"os"
+	"strings"
+
+	"git.apache.org/thrift.git/lib/go/thrift"
+	"github.com/attic-labs/bucketdb/presto/presto-noms-thrift/database"
 )
 
 func Usage() {
@@ -38,9 +41,12 @@ func main() {
 	protocol := flag.String("P", "binary", "Specify the protocol (binary, compact, json, simplejson)")
 	buffered := flag.Bool("buffered", false, "Use buffered transport")
 	addr := flag.String("addr", "localhost:9090", "Address to listen to")
-	flag.StringVar(&config.dbPrefix,"db-prefix", "nbs:/tmp/presto-noms", "Database path prefix")
-	flag.Uint64Var(&config.workerCount,"worker-count", 1, "Number of worker nodes")
-	flag.Uint64Var(&config.splitsPerWorker,"splits-per-worker", 4, "Number of splits/worker")
+	flag.StringVar(&config.dbPrefix,"db-prefix", config.dbPrefix, "Database path prefix")
+	flag.StringVar(&config.dbPreloadList,"db-preload-list", config.dbPreloadList, "Databases to preload (comma separated)")
+	flag.Uint64Var(&config.workerCount,"worker-count", config.workerCount, "Number of worker nodes")
+	flag.Uint64Var(&config.splitsPerWorker,"splits-per-worker", config.splitsPerWorker, "Number of splits/worker")
+
+	database.RegisterDatabaseFlags(flag.CommandLine)
 	flag.Parse()
 	var protocolFactory thrift.TProtocolFactory
 	switch *protocol {
@@ -67,6 +73,16 @@ func main() {
 
 	transportFactory = thrift.NewTFramedTransportFactoryMaxLength(transportFactory, 67108864)
 
+	if config.dbPreloadList != "" {
+		for _, name := range strings.Split(config.dbPreloadList, ",") {
+			fullName := config.dbPrefix + "/" + name
+			err := database.Preload(fullName)
+			if err != nil {
+				log.Printf("Warning: bad db name %s in db-preload-list: %s", fullName, err)
+				continue
+			}
+		}
+	}
 	log.Printf("config: %+v", config)
 	if err := runServer(transportFactory, protocolFactory, *addr, config.dbPrefix); err != nil {
 		fmt.Println("error running server:", err)
