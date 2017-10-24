@@ -6,21 +6,19 @@ import (
 	"io/ioutil"
 	"log"
 	"strings"
+	"sync"
 	"time"
 
 	. "prestothriftservice"
 
-	"sync"
-
 	"git.apache.org/thrift.git/lib/go/thrift"
+	"github.com/attic-labs/bucketdb/presto/presto-noms-thrift/blocks"
 	"github.com/attic-labs/noms/go/d"
 	"github.com/attic-labs/noms/go/spec"
 	"github.com/attic-labs/noms/go/types"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
-	"github.com/attic-labs/bucketdb/presto/presto-noms-thrift/blocks"
-	"github.com/attic-labs/bucketdb/presto/presto-noms-thrift/math"
 )
 
 // Starts thrift server
@@ -107,9 +105,6 @@ func (h *thriftHandler) PrestoListSchemaNames(ctx context.Context) (r []string, 
 // @param schemaNameOrNull a structure containing schema name or {@literal null}
 // @return a list of table names with corresponding schemas. If schema name is null then returns
 // a list of tables for all schemas. Returns an empty list if a schema does not exist
-//
-// Parameters:
-//  - SchemaNameOrNull
 func (h *thriftHandler) PrestoListTables(
 	ctx context.Context, schema *PrestoThriftNullableSchemaName,
 ) (tables []*PrestoThriftSchemaTableName, err error) {
@@ -180,13 +175,6 @@ func (h *thriftHandler) PrestoGetTableMetadata(ctx context.Context, name *Presto
 // @param maxSplitCount maximum number of splits to return
 // @param nextToken token from a previous split batch or {@literal null} if it is the first call
 // @return a batch of splits
-//
-// Parameters:
-//  - SchemaTableName
-//  - DesiredColumns
-//  - OutputConstraint
-//  - MaxSplitCount
-//  - NextToken
 func (h *thriftHandler) PrestoGetSplits(
 	ctx context.Context,
 	tableName *PrestoThriftSchemaTableName,
@@ -199,37 +187,15 @@ func (h *thriftHandler) PrestoGetSplits(
 	if err != nil {
 		return
 	}
-	var splits []*PrestoThriftSplit
 	rowCount := table.getRowCount()
-	if len(desiredColumns.Columns) == 0 {
-		countSplit := &PrestoThriftSplit{
-			SplitId: newSplit(tableName, uint64(0), uint64(rowCount), uint64(0)).id(),
-		}
-		splits = append(splits, countSplit)
-		log.Printf("Using single split to count rows")
-	} else {
-		estBytesPerRow := table.estimateRowSize(desiredColumns.Columns)
-		minRowsPerSplit := config.minBytesPerSplit / estBytesPerRow
-		maxSplits := config.workerCount * config.splitsPerWorker
-		splitCount := maxUint64(1, minUint64(rowCount/minRowsPerSplit, maxSplits))
-		rowsPerSplit := rowCount / splitCount
-		remainder := rowCount % rowsPerSplit
-		for i := uint64(0); i < splitCount; i++ {
-			limit := rowsPerSplit
-			if i+1 == splitCount && remainder > 0 {
-				limit = remainder
-			}
-			split := newSplit(tableName, i*rowsPerSplit, limit, estBytesPerRow)
-			// TODO: Specify Host to control which node each split is run on. The
-			// thrift connector doesn't have knowledge of presto nodes, so we
-			// need an independent mechanism for discovering them. In AWS
-			// this can be accomplished by querying the autoscaler.
-			splits = append(splits, &PrestoThriftSplit{SplitId: split.id()})
-		}
-		log.Printf("Splitting query into %d splits of %d rows of %d estimated bytes", splitCount, rowsPerSplit, estBytesPerRow)
+	estBytesPerRow := table.estimateRowSize(desiredColumns.Columns)
+	splits := determineSplits(tableName, rowCount, estBytesPerRow, config.minBytesPerSplit, uint64(maxSplitCount))
+	prestoSplits := make([]*PrestoThriftSplit, len(splits))
+	for i, s := range splits {
+		prestoSplits[i] = &PrestoThriftSplit{SplitId: s.id()}
 	}
 	return &PrestoThriftSplitBatch{
-		Splits: splits,
+		Splits: prestoSplits,
 		NextToken: nil,
 	}, nil
 }
@@ -244,18 +210,11 @@ var lock sync.Mutex
 // @param maxBytes maximum size of returned data in bytes
 // @param nextToken token from a previous batch or {@literal null} if it is the first call
 // @return a batch of table data
-//
-// Parameters:
-//  - SplitId
-//  - Columns
-//  - MaxBytes
-//  - NextToken
 func (h *thriftHandler) PrestoGetRows(ctx context.Context,
 	splitId *PrestoThriftId, columns []string, maxBytes int64,
-	nextToken *PrestoThriftNullableToken,
+	batchId *PrestoThriftNullableToken,
 ) (r *PrestoThriftPageResult_, err error) {
 	start := time.Now()
-	batch := toBatch(splitId, nextToken.Token, uint64(maxBytes))
 	lock.Lock()
 	active++
 	log.Printf("Pending requests++ %d: %s\n", active, start)
@@ -268,22 +227,23 @@ func (h *thriftHandler) PrestoGetRows(ctx context.Context,
 		lock.Unlock()
 	}()
 
-	batch := toBatch(splitId, nextToken.Token, maxBytes)
+	batch := toBatch(splitId, batchId.Token)
 	table, err := getTable(h.dbPrefix, batch.tableName())
-	//stats := table.stats()
 	if err != nil {
 		return r, err
 	}
+	//stats := table.stats()
 	//log.Printf("Reading\t%d rows starting from %d", batch.Limit, batch.Offset)
-	rows, rowCount, err := table.getRows(columns, batch.Offset, batch.Limit, uint64(maxBytes))
+	rows, rowCount, err := table.getRows(columns, batch.Offset, batch.Split.Limit - batch.Offset, batch.EstBytesPerRow, uint64(maxBytes))
 	if err != nil {
 		return r, err
 	}
 
 	bytesRetrieved := blocks.ByteCount(rows)
 	elapsed := time.Now().Sub(start)
-	delta := table.stats().Delta(stats)
+	//delta := table.stats().Delta(stats)
 	log.Printf("Read\t%d rows (%d bytes) in %d ms (%.f%% of %d max bytes)", rowCount, bytesRetrieved, elapsed.Nanoseconds() / 1e6, float64(bytesRetrieved)/float64(maxBytes) * 100, maxBytes)
+	/*
 	log.Printf(`---NBS Stats---
 GetLatency:                       %s
 ChunksPerGet:                     %s
@@ -294,7 +254,7 @@ S3BytesPerRead:                   %s
 		delta.ChunksPerGet,
 		delta.S3ReadLatency,
 		delta.S3BytesPerRead)
-
+*/
 	return &PrestoThriftPageResult_{
 		ColumnBlocks: rows,
 		RowCount: int32(rowCount),

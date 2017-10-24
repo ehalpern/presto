@@ -23,7 +23,7 @@ type nomsTable interface {
 	getMetadata() (*PrestoThriftTableMetadata, error)
 	estimateRowSize(columns []string) uint64
 	getRowCount() uint64
-	getRows(columns []string, offset, limit, maxBytes uint64) (blocks []*PrestoThriftBlock, rowCount uint64, err error)
+	getRows(columns []string, offset, maxRows, estBytesPerRow, maxBytes uint64) (blocks []*PrestoThriftBlock, rowCount uint64, err error)
 	stats() nbs.Stats
 }
 
@@ -161,7 +161,7 @@ func (t *colMajorTable) getRowCount() uint64 {
 	return firstColumn.(types.List).Len()
 }
 
-func (t *colMajorTable) getRows(columns []string, offset, limit, maxBytes uint64) (blks []*PrestoThriftBlock, rowCount uint64, err error) {
+func (t *colMajorTable) getRows(columns []string, offset, maxRows, estBytesPerRow, maxBytes uint64) (blks []*PrestoThriftBlock, rowCount uint64, err error) {
 	if len(columns) == 0 {
 		// this is a row count query
 		return blks, t.getRowCount(), nil
@@ -194,36 +194,7 @@ func (t *colMajorTable) getRows(columns []string, offset, limit, maxBytes uint64
 		}
 		return blks
 	}
-
-	blks = readColumns(columns, offset, limit)
-	rowCount = blocks.RowCount(blks)
-
-	// If below target maxBytes, make one attempt to get closer
-	if rowCount < t.getRowCount() - offset && float64(blocks.ByteCount(blks)) / float64(maxBytes) < ResultByteCountAccuracy {
-		bytesToAdd := maxBytes - blocks.ByteCount(blks)
-		rowsToAdd := math.DivUint64(bytesToAdd, blocks.BytesPerRow(blks))
-		moreBlks := readColumns(columns, offset + blocks.RowCount(blks), rowsToAdd)
-		blks = blocks.AppendRows(blks, moreBlks)
-	}
-
-	// If above target maxBytes, trim back
-	if blocks.ByteCount(blks) > maxBytes {
-		reduceBytes(blks, uint64(maxBytes))
-	}
-
-	return blks, blocks.RowCount(blks), nil
-}
-
-func  reduceBytes(blks []*PrestoThriftBlock, maxBytes uint64) {
-	d.PanicIfFalse(blocks.ByteCount(blks) < uint64(maxBytes))
-	bytesToRemove := blocks.ByteCount(blks) - maxBytes
-	bytesPerRow := blocks.BytesPerRow(blks)
-	rowsToRemove := math.DivUint64(bytesToRemove, bytesPerRow)
-	blocks.RemoveRows(blks, rowsToRemove)
-	for ; blocks.ByteCount(blks) > maxBytes; rowsToRemove <<= 1 {
-		// Double rows removed on each iteration.
-		blocks.RemoveRows(blks, rowsToRemove)
-	}
+	return getRowsUpToByteLimit(columns, offset, maxRows, estBytesPerRow, maxBytes, readColumns)
 }
 
 func readDoubles(list types.List, offset, limit uint64) <-chan *PrestoThriftBlock {
@@ -334,36 +305,81 @@ func (t *rowMajorTable) getRowCount() uint64 {
 	return t.v.(types.List).Len()
 }
 
-func (t *rowMajorTable) getRows(columns []string, offset, limit, maxBytes uint64,
+func (t *rowMajorTable) getRows(columns []string, offset, maxRows, estBytesPerRow, maxBytes uint64,
 ) (rows []*PrestoThriftBlock, rowCount uint64, err error) {
 	if len(columns) == 0 {
 		// this is a row count query
 		return rows, t.getRowCount(), nil
 	}
-	rows = make([]*PrestoThriftBlock, len(columns))
-	// assume list for now
-	list := t.v.(types.List)
-	limit = math.MinUint64(limit, list.Len()-offset)
-	it := list.IteratorAt(offset)
-	for i, row := uint64(0), it.Next(); i < limit; i, row = i+1, it.Next() {
-		st := row.(types.Struct)
-		for j, col := range columns {
-			switch v := st.Get(col).(type) {
-			case types.Number:
-				blocks.AddToDoubleBlock(rows[j], []float64{float64(v)})
-			case types.Bool:
-				blocks.AddToBooleanBlock(rows[j], []bool{bool(v)})
-			case types.String:
-				s := string(v)
-				blocks.AddToVarcharBlock(rows[j], []byte(s), []int32{int32(len(s))}, []bool{false})
-			default:
-				return rows, rowCount, serviceError("unsupported column type %v", list.Kind())
+	readRows := func(cols []string, offset, limit uint64) (blks []*PrestoThriftBlock) {
+		blks = make([]*PrestoThriftBlock, len(columns))
+		// assume list for now
+		list := t.v.(types.List)
+		limit = math.MinUint64(limit, list.Len()-offset)
+		it := list.IteratorAt(offset)
+		for i, row := uint64(0), it.Next(); i < limit; i, row = i+1, it.Next() {
+			st := row.(types.Struct)
+			for j, col := range columns {
+				switch v := st.Get(col).(type) {
+				case types.Number:
+					blocks.AddToDoubleBlock(blks[j], []float64{float64(v)})
+				case types.Bool:
+					blocks.AddToBooleanBlock(blks[j], []bool{bool(v)})
+				case types.String:
+					s := string(v)
+					blocks.AddToVarcharBlock(blks[j], []byte(s), []int32{int32(len(s))}, []bool{false})
+				default:
+					panic(fmt.Errorf("unsupported column type %v", list.Kind()))
+				}
 			}
 		}
+		return blks
 	}
-	return rows, limit, nil
+	return getRowsUpToByteLimit(columns, offset, maxRows, estBytesPerRow, maxBytes, readRows)
 }
 
 func (t *rowMajorTable) stats() nbs.Stats {
 	return t.sp.GetDatabase().Stats().(nbs.Stats)
 }
+
+func getRowsUpToByteLimit(columns []string, offset, maxRows, estBytesPerRow, maxBytes uint64,
+	getRows func(cols []string, offset, limit uint64) []*PrestoThriftBlock) (blks []*PrestoThriftBlock, rowCount uint64, err error) {
+	limit := estimateRowLimit(maxRows, estBytesPerRow, maxBytes)
+	blks = getRows(columns, offset, limit)
+	rowCount = blocks.RowCount(blks)
+
+	// If below target maxBytes, make one attempt to get closer
+	if rowCount < maxRows && float64(blocks.ByteCount(blks)) / float64(maxBytes) < ResultByteCountAccuracy {
+		bytesToAdd := maxBytes - blocks.ByteCount(blks)
+		rowsToAdd := math.DivUint64(bytesToAdd, blocks.BytesPerRow(blks))
+		moreBlks := getRows(columns, offset + blocks.RowCount(blks), rowsToAdd)
+		blks = blocks.AppendRows(blks, moreBlks)
+	}
+
+	// If above target maxBytes, trim back
+	if blocks.ByteCount(blks) > maxBytes {
+		reduceBytes(blks, uint64(maxBytes))
+	}
+	return blks, blocks.RowCount(blks), nil
+}
+
+func reduceBytes(blks []*PrestoThriftBlock, maxBytes uint64) {
+	d.PanicIfFalse(blocks.ByteCount(blks) < uint64(maxBytes))
+	bytesToRemove := blocks.ByteCount(blks) - maxBytes
+	bytesPerRow := blocks.BytesPerRow(blks)
+	rowsToRemove := math.DivUint64(bytesToRemove, bytesPerRow)
+	blocks.RemoveRows(blks, rowsToRemove)
+	for ; blocks.ByteCount(blks) > maxBytes; rowsToRemove <<= 1 {
+		// Double rows removed on each iteration.
+		blocks.RemoveRows(blks, rowsToRemove)
+	}
+}
+
+func estimateRowLimit(maxRows uint64, avgBytesPerRow uint64, maxBytes uint64) uint64 {
+	rowCount := math.DivUint64(maxBytes, avgBytesPerRow)
+	return math.MinUint64(rowCount, maxRows)
+}
+
+
+
+

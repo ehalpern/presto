@@ -8,6 +8,7 @@ import (
 	"github.com/attic-labs/noms/go/d"
 	"github.com/attic-labs/bucketdb/presto/presto-noms-thrift/math"
 
+	"log"
 )
 
 type Split struct {
@@ -16,6 +17,30 @@ type Split struct {
 	Offset         uint64 `json:`
 	Limit          uint64 `json:`
 	EstBytesPerRow uint64 `json:`
+}
+
+func determineSplits(
+	tableName *PrestoThriftSchemaTableName,
+	rowCount, estBytesPerRow, minBytesPerSplit, maxSplits uint64) (splits []*Split) {
+	if estBytesPerRow == 0 {
+		log.Printf("Using single split to count rows")
+		return append(splits, newSplit(tableName, uint64(0), uint64(rowCount), uint64(0)))
+	}
+	minRowsPerSplit := minBytesPerSplit / estBytesPerRow
+	maxSplits = math.MinUint64(config.workerCount * config.splitsPerWorker, uint64(maxSplits))
+	splitCount := math.MaxUint64(1, math.MinUint64(rowCount/minRowsPerSplit, maxSplits))
+	rowsPerSplit := rowCount / splitCount
+	remainder := rowCount % rowsPerSplit
+	for i := uint64(0); i < splitCount; i++ {
+		limit := rowsPerSplit
+		if i+1 == splitCount && remainder > 0 {
+			limit = remainder
+		}
+		split := newSplit(tableName, i*rowsPerSplit, limit, estBytesPerRow)
+		splits = append(splits, split)
+	}
+	log.Printf("Splitting query into %d splits of %d rows of %d estimated bytes", splitCount, rowsPerSplit, estBytesPerRow)
+	return splits
 }
 
 func newSplit(table *PrestoThriftSchemaTableName, offset uint64, limit uint64, bytesPerRow uint64) *Split {
@@ -44,43 +69,37 @@ func (s *Split) tableName() *PrestoThriftSchemaTableName {
 type Batch struct {
 	Split 		Split
 	Offset     uint64 `json:`
-	Limit      uint64 `json:`
 	EstBytesPerRow uint64 `json:`
 }
 
 // Return batch given |split| and |batchToken|
 // If |batchToken| is nil, create the first batch of the split
 // If |batchToken| is non-nil, simply unmarshal the batchId
-func toBatch(splitId *PrestoThriftId, batchToken *PrestoThriftId, maxBytes uint64) *Batch {
+func toBatch(splitId *PrestoThriftId, batchToken *PrestoThriftId) *Batch {
 	var b Batch
 	if batchToken != nil {
 		d.PanicIfError(json.Unmarshal(batchToken.GetID(), &b))
 	} else {
 		s := splitFromId(splitId)
-		limit := estimateRowLimit(0, s.Limit, s.EstBytesPerRow, maxBytes)
-		b = Batch{*s, s.Offset, limit, s.EstBytesPerRow}
-		d.Chk.True(b.Limit > 0)
+		b = Batch{*s, s.Offset, s.EstBytesPerRow}
 		d.Chk.True(b.Offset >= b.Split.Offset)
-		d.Chk.True(b.totalRowsRead() <= b.Split.Limit, "%d !<= %d", b.totalRowsRead(), b.Split.Limit)
 	}
 	return &b
 }
 
-func (b *Batch) totalRowsRead() uint64 {
-	return b.Offset + b.Limit - b.Split.Offset
+func (b *Batch) rowsLeft() uint64 {
+	return b.Split.Limit - (b.Offset - b.Split.Offset)
 }
 
 func (b *Batch) nextBatch(rowsRead, bytesRead, maxBytes uint64) *Batch {
 	newOffset := b.Offset + rowsRead
-	if newOffset >= b.Split.Limit {
+	if newOffset - b.Split.Offset >= b.Split.Limit {
 		return nil
 	}
-	totalRowsRead := newOffset - b.Split.Offset
 	avgBytesPerRow := math.DivUint64(bytesRead, rowsRead)
-	newLimit := estimateRowLimit(totalRowsRead, b.Split.Limit, avgBytesPerRow, maxBytes)
 	return &Batch{
 		b.Split,
-		newOffset, newLimit,
+		newOffset,
 		avgBytesPerRow,
 	}
 }
@@ -101,10 +120,5 @@ func (b *Batch) id() *PrestoThriftId {
 
 func (b *Batch) tableName() *PrestoThriftSchemaTableName {
 	return &PrestoThriftSchemaTableName{ b.Split.Schema, b.Split.Table}
-}
-
-func estimateRowLimit(rowsRead uint64, totalRows uint64, avgBytesPerRow uint64, maxBytes uint64) uint64 {
-	rowCount := math.DivUint64(maxBytes, avgBytesPerRow)
-	return math.MinUint64(rowCount, totalRows - rowsRead)
 }
 

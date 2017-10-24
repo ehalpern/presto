@@ -6,29 +6,32 @@ import (
 	. "prestothriftservice"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/attic-labs/bucketdb/presto/presto-noms-thrift/math"
 )
 
 func TestSplitAndBatch(t *testing.T) {
 	assert := assert.New(t)
 	testSplit := func(offset, limit uint64) {
-		schema, table := "test", "table"
+		tableName := &PrestoThriftSchemaTableName{"test", "table"}
 		bytesPerRow := uint64(100)
 		maxBytes := uint64(bytesPerRow * 10000)
-		rowCount := uint64(0)
-		name := &PrestoThriftSchemaTableName{schema, table}
-		split := newSplit(name, offset, limit, bytesPerRow)
-		batch := toBatch(split.id(), nil, maxBytes)
-		for ; rowCount < limit; {
-			assert.Equal(name, batch.tableName())
-			assert.Equal(rowCount + offset, batch.Offset)
-			rowCount += batch.Limit
-			next := batch.nextBatchId(batch.Limit, batch.Limit * bytesPerRow, maxBytes)
-			if next == nil {
+		rowIdx := uint64(0)
+		splitId := newSplit(tableName, offset, limit, bytesPerRow).id()
+		var nextBatchId *PrestoThriftId
+		for {
+			batch := toBatch(splitId, nextBatchId)
+			assert.Equal(tableName, batch.tableName())
+			assert.Equal(rowIdx + offset, batch.Offset)
+			assert.True(rowIdx < batch.Split.Limit)
+			// simulate reading either maxBytes or rowsLeft
+			rowsRead := math.MinUint64(batch.rowsLeft(), math.DivUint64(maxBytes, bytesPerRow))
+			rowIdx += rowsRead
+			nextBatchId = batch.nextBatchId(rowsRead, rowsRead * bytesPerRow, maxBytes)
+			if nextBatchId == nil {
 				break;
 			}
-			batch = toBatch(split.id(), next, maxBytes)
 		}
-		assert.Equal(limit, rowCount, "%d != %d", limit, rowCount)
+		assert.Equal(limit, rowIdx, "%d != %d", limit, rowIdx)
 
 	}
 	testSplit(0, 100000)
